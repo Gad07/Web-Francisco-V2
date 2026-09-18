@@ -22,15 +22,6 @@ html { scroll-behavior: smooth; }
 .font-serif { font-family: var(--font-serif) !important; }
 .font-sans  { font-family: var(--font-sans)  !important; }
 
-/* Cinematic Vignette */
-.cinematic-vignette {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 20;
-  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.70) 100%);
-}
-
 /* Nav scrolled state */
 #main-nav.scrolled {
   background: rgba(0, 0, 0, 0.80);
@@ -46,3 +37,13 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,0.5); }
 
 .text-balance { text-wrap: balance; }
+
+/* Hide global navbar when inmersive biome modal is active */
+body:has(#biome-modal) #main-nav {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -30px) !important;
+  transition: all 0.35s ease !important;
+}
+
+

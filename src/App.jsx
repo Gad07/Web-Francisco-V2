@@ -19,8 +19,6 @@ import Knowledge from './pages/Knowledge.jsx';
 import AnnualAssembly from './pages/AnnualAssembly.jsx';
 import Contact from './pages/Contact.jsx';
 
-import { SoundEngine } from './audio.js';
-
 export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loaderVisible, setLoaderVisible] = useState(true);
@@ -28,65 +26,96 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [isAudioActive, setIsAudioActive] = useState(false);
-
-  const soundEngineRef = useRef(null);
   const loadStarted = useRef(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
+  // ─── ROBUST REAL ASSET PRELOADER (Resilient to StrictMode, Smooth 0 → 100%) ───
   useEffect(() => {
-    soundEngineRef.current = new SoundEngine();
+    let isCancelled = false;
+    let loadedCount = 0;
+    let displayProgress = 0;
+    let animFrame;
+
+    const criticalAssets = [
+      '/imagenes/Rama 1.svg',
+      '/imagenes/Rama 2.svg',
+      '/imagenes/Piedra.png',
+      // Texturas de la Tierra 3D (NASA)
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
+      // Primeros 15 fotogramas clave
+      ...Array.from({ length: 15 }, (_, i) => `/VideoFrames/frame_${String(i + 1).padStart(3, '0')}.jpg`),
+    ];
+
+    const totalAssets = criticalAssets.length;
+    let realProgress = 0;
+
+    const onAssetDone = () => {
+      if (isCancelled) return;
+      loadedCount++;
+      realProgress = Math.min(100, (loadedCount / totalAssets) * 100);
+    };
+
+    // Precarga real de activos en paralelo
+    criticalAssets.forEach((src) => {
+      const img = new Image();
+      img.onload = onAssetDone;
+      img.onerror = onAssetDone;
+      img.src = src;
+    });
+
+    const startTime = performance.now();
+    const maxDuration = 1800; // Máximo 1.8 segundos
+
+    const update = (now) => {
+      if (isCancelled) return;
+
+      const elapsed = now - startTime;
+      const timeRatio = Math.min(1, elapsed / maxDuration);
+      
+      // El objetivo es el máximo entre los recursos reales descargados y la curva base de tiempo
+      const baseline = Math.pow(timeRatio, 0.7) * 100;
+      const target = Math.max(baseline, realProgress);
+
+      const step = Math.max(1.4, (target - displayProgress) * 0.18);
+      displayProgress = Math.min(target, displayProgress + step);
+
+      if (displayProgress >= 99.5 || elapsed >= maxDuration) {
+        setLoadingProgress(100);
+        triggerFastZoom();
+        return;
+      }
+
+      setLoadingProgress(Math.floor(displayProgress));
+      animFrame = requestAnimationFrame(update);
+    };
+
+    animFrame = requestAnimationFrame(update);
+
+    return () => {
+      isCancelled = true;
+      if (animFrame) cancelAnimationFrame(animFrame);
+    };
   }, []);
 
-  // Loader sequence 0 → 100%
-  useEffect(() => {
-    if (loadStarted.current) return;
-    loadStarted.current = true;
-    const start = performance.now();
-    const duration = 2800;
-
-    const frame = (t) => {
-      const elapsed = t - start;
-      const raw = Math.min(1, elapsed / duration);
-      const eased = Math.pow(raw, 0.8);
-      setLoadingProgress(eased * 100);
-      if (raw < 1) {
-        requestAnimationFrame(frame);
+  const triggerFastZoom = () => {
+    setLoaderVisible(false);
+    const zStart = performance.now();
+    const zDur = 800;
+    const zFrame = (t) => {
+      const p = Math.min(1, (t - zStart) / zDur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setZoomProgress(eased);
+      if (p < 1) {
+        requestAnimationFrame(zFrame);
       } else {
-        setLoadingProgress(100);
-        startCinematicZoom();
+        setIsLoaded(true);
       }
     };
-    requestAnimationFrame(frame);
-  }, []);
-
-  const startCinematicZoom = () => {
-    setTimeout(() => {
-      setLoaderVisible(false);
-      setTimeout(() => {
-        const zStart = performance.now();
-        const zDur = 2000;
-        const zFrame = (t) => {
-          const p = Math.min(1, (t - zStart) / zDur);
-          const eased = 1 - Math.pow(1 - p, 3);
-          setZoomProgress(eased);
-          if (p < 1) {
-            requestAnimationFrame(zFrame);
-          } else {
-            setIsLoaded(true);
-          }
-        };
-        requestAnimationFrame(zFrame);
-      }, 300);
-    }, 200);
-  };
-
-  const handleToggleAudio = () => {
-    if (soundEngineRef.current) {
-      const active = soundEngineRef.current.toggle();
-      setIsAudioActive(active);
-    }
+    requestAnimationFrame(zFrame);
   };
 
   useEffect(() => {
@@ -112,14 +141,11 @@ export default function App() {
         const maxS = document.documentElement.scrollHeight - window.innerHeight;
         const p = Math.max(0, Math.min(1, window.scrollY / (maxS || 1)));
         setScrollProgress(p);
-        if (soundEngineRef.current && isAudioActive) {
-          soundEngineRef.current.setAudioAtmosphereByScroll(p);
-        }
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [isAudioActive]);
+  }, []);
 
   const isLightMode = scrollProgress < 0.35;
 
@@ -128,8 +154,6 @@ export default function App() {
       {/* ─── FIXED CAPSULE HEADER / NAVBAR ─── */}
       <HeaderNav
         isLoaded={isLoaded || !isHomePage}
-        isAudioActive={isAudioActive}
-        onToggleAudio={handleToggleAudio}
       />
 
       {/* ─── 3D CANVAS (Visible on Home Page) ─── */}
@@ -156,11 +180,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Cinematic vignette (on dark scroll mode) */}
-      {isHomePage && isLoaded && !isLightMode && (
-        <div className="cinematic-vignette" aria-hidden="true" />
-      )}
-
       {/* ─── LOADER OVERLAY (Home Page) ─── */}
       <AnimatePresence>
         {isHomePage && loaderVisible && (
@@ -168,18 +187,18 @@ export default function App() {
             key="loader"
             initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
             animate={{ opacity: 1, backdropFilter: 'blur(4px)' }}
-            exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)', transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }}
-            transition={{ duration: 0.8 }}
+            exit={{ opacity: 0, scale: 1.02, filter: 'blur(6px)', transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+            transition={{ duration: 0.5 }}
             className="fixed inset-0 z-50 flex flex-col items-center justify-end pb-12 sm:pb-20 pointer-events-auto select-none"
             style={{ background: 'transparent' }}
           >
             <div className="flex flex-col items-center text-center">
               <motion.div
-                initial={{ y: 30, opacity: 0, filter: 'blur(5px)' }}
-                animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="font-serif font-light text-[#2d2618] tracking-tight"
-                style={{ fontSize: 'clamp(4rem, 8vw, 6.5rem)', lineHeight: 1 }}
+                style={{ fontSize: 'clamp(3.5rem, 7vw, 6rem)', lineHeight: 1 }}
               >
                 {Math.floor(loadingProgress)}%
               </motion.div>
@@ -187,22 +206,22 @@ export default function App() {
               <motion.div 
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: '100%', opacity: 1 }}
-                transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="w-48 sm:w-64 h-[2px] bg-[#d8ceb6] rounded-full mt-6 overflow-hidden relative shadow-sm"
+                transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="w-48 sm:w-60 h-[2px] bg-[#d8ceb6]/60 rounded-full mt-5 overflow-hidden relative shadow-sm"
               >
                 <div
                   className="absolute top-0 left-0 h-full bg-[#4a5a22] rounded-full"
-                  style={{ width: `${loadingProgress}%`, transition: 'width 80ms linear' }}
+                  style={{ width: `${loadingProgress}%`, transition: 'width 60ms linear' }}
                 />
               </motion.div>
 
               <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: loadingProgress > 15 ? 1 : 0, y: loadingProgress > 15 ? 0 : 10 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="mt-6 text-xs sm:text-sm tracking-[0.25em] text-[#7a6e58] uppercase font-sans font-medium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="mt-5 text-[11px] sm:text-xs tracking-[0.25em] text-[#7a6e58] uppercase font-sans font-medium"
               >
-                {loadingProgress < 100 ? 'Sincronizando Biosfera' : 'Entrando al ecosistema'}
+                {loadingProgress < 100 ? 'Cargando recursos visuales' : 'Ecosistema listo'}
               </motion.p>
             </div>
           </motion.div>
@@ -217,8 +236,6 @@ export default function App() {
             element={
               <EditorialOverlay
                 isLoaded={isLoaded}
-                isAudioActive={isAudioActive}
-                onToggleAudio={handleToggleAudio}
                 scrollProgress={scrollProgress}
               />
             }

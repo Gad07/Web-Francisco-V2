@@ -6,8 +6,6 @@ import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
 
 export default function EditorialOverlay({
   isLoaded,
-  isAudioActive,
-  onToggleAudio,
   scrollProgress
 }) {
   const [pledgeSubmitted, setPledgeSubmitted] = useState(false);
@@ -107,9 +105,9 @@ export default function EditorialOverlay({
   // 2. Texto del Arrecife: aparece en Fase 3 cuando inicia el video loop (0.64 -> 0.70)
   const reefTextOpacity = useTransform(interScroll, [0, 0.64, 0.70, 0.95, 1], [0, 0, 1, 1, 0]);
 
-  const [stoneZoom, setStoneZoom]       = useState(1);
+  const [stoneZoom, setStoneZoom] = useState(1);
   const [currentFrame, setCurrentFrame] = useState(1);
-  const [showFrames, setShowFrames]     = useState(false);
+  const [showFrames, setShowFrames] = useState(false);
   const [showLoopVideo, setShowLoopVideo] = useState(false);
   const TOTAL_VIDEO_FRAMES = 153;
 
@@ -153,7 +151,7 @@ export default function EditorialOverlay({
       setCurrentFrame(TOTAL_VIDEO_FRAMES);
       setShowLoopVideo(true);
       if (videoLoopRef.current && videoLoopRef.current.paused) {
-        videoLoopRef.current.play().catch(() => {});
+        videoLoopRef.current.play().catch(() => { });
       }
     }
   });
@@ -199,7 +197,7 @@ export default function EditorialOverlay({
   };
 
   return (
-    <main className={`relative z-10 transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    <main className={`relative z-10 transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'} overflow-x-clip`}>
 
       {/* =================================================================
           CAPÍTULO 1: LA TIERRA VIVA (Hero Original V2 con Rama y Máscara)
@@ -208,7 +206,7 @@ export default function EditorialOverlay({
         id="hero"
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
-        className="h-screen w-full min-h-screen relative flex items-center px-8 md:px-20 lg:px-28 pt-24 pb-12 overflow-hidden bg-[#f5efe3]"
+        className="h-screen w-full min-h-screen relative flex items-center px-8 md:px-20 lg:px-28 pt-24 pb-12 overflow-visible bg-[#f5efe3]"
       >
         {/* Rama SVG Capa Fondo */}
         <motion.div
@@ -285,9 +283,6 @@ export default function EditorialOverlay({
         </motion.div>
 
         <div className="max-w-6xl relative select-none">
-          <div className="inline-block px-3.5 py-1.5 rounded-full bg-[#eae4d2]/90 border border-[#d8ceb6] text-[#4a5a22] mb-6 text-[11px] font-sans uppercase tracking-[0.25em] font-bold">
-            Consejo Global Ambiental · Gobernanza y Territorio
-          </div>
 
           <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.2rem] xl:text-[7.2rem] tracking-tight text-[#2d2618] leading-[1.02] mb-12 font-light">
             <div className="block whitespace-nowrap">
@@ -313,30 +308,22 @@ export default function EditorialOverlay({
             </div>
           </h1>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-10 mt-8">
             <a
               href="#interdependencia"
-              className="inline-flex items-center gap-3 text-[#8a7e68] hover:text-[#4a5a22] transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-4 group cursor-pointer"
             >
-              <div className="text-xs uppercase tracking-[0.3em] font-sans font-medium">Comenzar Exploración</div>
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="text-base text-[#6b7c3a]"
-              >
-                &darr;
-              </motion.div>
+              <div className="text-xs uppercase tracking-[0.3em] font-sans font-medium text-[#8a7e68] group-hover:text-[#4a5a22] transition-colors leading-none pt-0.5">
+                Comenzar Exploración
+              </div>
+              <div className="relative w-[1.5px] h-10 bg-[#d8ceb6]/60 rounded-full overflow-hidden">
+                <motion.div
+                  animate={{ y: ['-100%', '100%'] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent via-[#4a5a22] to-[#4a5a22] shadow-[0_0_6px_#4a5a22]"
+                />
+              </div>
             </a>
-
-            {onToggleAudio && (
-              <button
-                type="button"
-                onClick={onToggleAudio}
-                className="hidden sm:inline-flex items-center gap-2 text-xs text-[#7a6e58] hover:text-[#4a5a22] transition-colors font-sans"
-              >
-                <div>{isAudioActive ? 'Atmósfera sonora activa' : 'Activar atmósfera sonora'}</div>
-              </button>
-            )}
           </div>
         </div>
       </section>
@@ -349,8 +336,8 @@ export default function EditorialOverlay({
         ref={interdependenciaRef}
         className="h-[420vh] relative bg-[#f5efe3]"
       >
-        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-          
+        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-visible">
+
           {/* Capa Visual Fotorealista: Piedra PNG + 153 Fotogramas 4K + Video Arrecife */}
           <div
             aria-hidden
@@ -521,120 +508,166 @@ export default function EditorialOverlay({
       </section>
 
       {/* =================================================================
-          CAPÍTULO 3: PROYECTO EMBLEMÁTICO WESS 2026 (Exposición Editorial)
+          CAPÍTULO 3: PROYECTO EMBLEMÁTICO WESS 2026 (Exposición Editorial Inmersiva)
           ================================================================= */}
-      <section id="proyectos" className="py-28 px-8 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba]">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-3xl mb-14">
-            <div className="inline-block px-3.5 py-1.5 rounded-full bg-white border border-[#6b7c3a]/30 text-[#4a5a22] font-sans font-bold text-xs tracking-wide uppercase mb-4 shadow-xs">
-              Ganador Reconocimiento Internacional WESS 2026
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-serif text-[#2d2618] mb-4 font-light leading-tight">
+      <section id="proyectos" className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba] scroll-mt-28 overflow-hidden min-h-[620px] lg:min-h-[720px] flex items-center">
+        
+        {/* ─── Imagen Inmersiva de Fondo Derecho (Cubre toda la sección sin bordes) ─── */}
+        <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[54%] xl:w-[58%] h-full pointer-events-none z-0 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeTabWess}
+              src={
+                activeTabWess === 0
+                  ? "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1800&h=1400&fit=crop&auto=format"
+                  : activeTabWess === 1
+                  ? "https://images.unsplash.com/photo-1511497584788-87676104235f?w=1800&h=1400&fit=crop&auto=format"
+                  : activeTabWess === 2
+                  ? "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1800&h=1400&fit=crop&auto=format"
+                  : "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1800&h=1400&fit=crop&auto=format"
+              }
+              alt="Proyecto Insignia Gobernanza Ambiental"
+              initial={{ opacity: 0, scale: 1.03 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
+
+          {/* Degradado progresivo de izquierda a derecha y bordes para fundirse completamente */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to right, #f5efe3 0%, rgba(245,239,227,0.92) 12%, rgba(245,239,227,0.45) 45%, transparent 85%)'
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to bottom, #f5efe3 0%, transparent 15%, transparent 85%, #f5efe3 100%)'
+            }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto w-full relative z-10">
+          <div className="max-w-2xl lg:max-w-xl xl:max-w-2xl flex flex-col justify-center">
+            
+            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[#2d2618] font-light leading-[1.08] mb-6 tracking-tight">
               Gobernanza Ambiental para el Hambre Cero
             </h2>
-            <p className="text-[#6b6048] font-sans text-base md:text-lg leading-relaxed font-light">
-              Proyecto insignia del Consejo Global Ambiental galardonado en la Cumbre Mundial de Sostenibilidad 2026 por articular conservación de ecosistemas, bancos comunitarios de semillas nativas y soberanía alimentaria.
+
+            <p className="text-[#6b6048] font-sans text-base sm:text-lg leading-relaxed mb-8 font-light max-w-2xl">
+              Iniciativa galardonada en la Cumbre Mundial de Sostenibilidad 2026 por fusionar la restauración biocultural, la soberanía alimentaria y la protección satelital comunitaria en un solo modelo territorial.
             </p>
-          </div>
 
-          <div className="relative rounded-3xl overflow-hidden bg-[#eae4d2]/80 border border-[#d8ceb6] grid lg:grid-cols-12 min-h-[520px] shadow-sm group">
-            <div className="lg:col-span-7 p-8 md:p-14 flex flex-col justify-between relative z-10">
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-b border-[#d8ceb6] pb-4">
-                  {[
-                    { id: 0, label: 'Semillas Nativas' },
-                    { id: 1, label: 'Satélite y Alertas' },
-                    { id: 2, label: 'Gobernanza Ejidal' },
-                    { id: 3, label: 'Galardón WESS' },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setActiveTabWess(tab.id)}
-                      className={`py-2 px-3 rounded-xl text-xs font-sans font-semibold transition-all text-center ${
-                        activeTabWess === tab.id
-                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm'
-                          : 'bg-white/60 text-[#6b6048] hover:bg-white'
-                      }`}
-                    >
-                      <div className="truncate">{tab.label}</div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="min-h-[160px] flex flex-col justify-center">
-                  {activeTabWess === 0 && (
-                    <div>
-                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Bancos Comunitarios de Germoplasma</h4>
-                      <p className="text-[#6b6048] text-sm leading-relaxed font-light">
-                        Preservamos más de 1,500 variedades de semillas nativas de maíz, frijol y hortalizas criollas adaptadas al cambio climático, asegurando el sustento de 14 comunidades indígenas.
-                      </p>
-                    </div>
-                  )}
-                  {activeTabWess === 1 && (
-                    <div>
-                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Monitoreo Satelital y Alertas Tempranas</h4>
-                      <p className="text-[#6b6048] text-sm leading-relaxed font-light">
-                        Algoritmos de detección en tiempo real vinculados a brigadas ejidales detienen la tala ilegal y quemas agropecuarias descontroladas antes de invadir las zonas núcleo de reserva.
-                      </p>
-                    </div>
-                  )}
-                  {activeTabWess === 2 && (
-                    <div>
-                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Cohesión Territorial y Asambleas</h4>
-                      <p className="text-[#6b6048] text-sm leading-relaxed font-light">
-                        Protocolos de consentimiento libre, previo e informado que convierten a las comunidades locales en socias paritarias y custodias reconocidas de los corredores biológicos.
-                      </p>
-                    </div>
-                  )}
-                  {activeTabWess === 3 && (
-                    <div>
-                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Acreditación Internacional WESS 2026</h4>
-                      <p className="text-[#6b6048] text-sm leading-relaxed font-light">
-                        Reconocimiento como una de las 10 mejores iniciativas mundiales para el cumplimiento simultáneo de los ODS 2 (Hambre Cero), ODS 13 (Acción por el Clima) y ODS 17 (Alianzas).
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-[#d8ceb6] flex items-center gap-4">
-                <Link
-                  to="/proyectos"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#4a5a22] hover:bg-[#3a4a18] text-[#f5efe3] rounded-full font-bold transition-all shadow-md text-xs uppercase tracking-widest group/btn"
+            {/* Selector de Pilares */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8">
+              {[
+                { id: 0, label: 'Semillas Nativas' },
+                { id: 1, label: 'Monitoreo Satelital' },
+                { id: 2, label: 'Gobernanza Ejidal' },
+                { id: 3, label: 'Galardón WESS' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTabWess(tab.id)}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-sans font-semibold transition-all text-center ${
+                    activeTabWess === tab.id
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm'
+                      : 'bg-[#eae4d2]/80 text-[#6b6048] hover:bg-[#eae4d2] hover:text-[#2d2618]'
+                  }`}
                 >
-                  <div>Conocer el proyecto galardonado</div>
-                  <div className="transition-transform group-hover/btn:translate-x-1">&rarr;</div>
-                </Link>
-                <Link
-                  to="/agenda-2030"
-                  className="text-xs uppercase tracking-widest text-[#7a6e58] hover:text-[#2d2618] font-semibold"
-                >
-                  Ver Metas ODS
-                </Link>
-              </div>
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            <div className="lg:col-span-5 relative min-h-[360px] lg:min-h-full h-full overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1600&h=1200&fit=crop&auto=format"
-                alt="Gobernanza ambiental y agricultura comunitaria"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#eae4d2]/90 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-[#d8ceb6] shadow-sm">
-                <div className="flex items-center justify-between text-xs text-[#2d2618] font-semibold">
-                  <div>14 Territorios Piloto</div>
-                  <div className="text-[#4a5a22]">100% Trazabilidad</div>
-                </div>
-              </div>
+            {/* Detalle Dinámico del Pilar Seleccionado */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#eae4d2]/75 backdrop-blur-md border border-[#d8ceb6]/80 mb-8 min-h-[135px] flex flex-col justify-center shadow-sm">
+              <AnimatePresence mode="wait">
+                {activeTabWess === 0 && (
+                  <motion.div
+                    key="tab0"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Bancos Comunitarios de Germoplasma</h4>
+                    <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
+                      Preservamos más de 1,500 variedades de semillas nativas de maíz, frijol y hortalizas criollas adaptadas al cambio climático, asegurando la autonomía alimentaria de 14 pueblos originarios.
+                    </p>
+                  </motion.div>
+                )}
+                {activeTabWess === 1 && (
+                  <motion.div
+                    key="tab1"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Monitoreo Satelital y Alertas Tempranas</h4>
+                    <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
+                      Detección en tiempo real vinculada a brigadas territoriales que detienen la tala clandestina y quemas descontroladas antes de que penetren las zonas núcleo protegidas.
+                    </p>
+                  </motion.div>
+                )}
+                {activeTabWess === 2 && (
+                  <motion.div
+                    key="tab2"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Cohesión Territorial y Asambleas Comunitarias</h4>
+                    <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
+                      Mecanismos de consulta previa e informada que reconocen legalmente a los ejidatarios y comuneros como guardianes soberanos de los corredores ecológicos.
+                    </p>
+                  </motion.div>
+                )}
+                {activeTabWess === 3 && (
+                  <motion.div
+                    key="tab3"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">Reconocimiento Global WESS 2026</h4>
+                    <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
+                      Distinción internacional otorgada en Ginebra como una de las 10 mejores iniciativas globales que articulan simultáneamente soberanía alimentaria y mitigación climática.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
+            {/* Acciones y Enlaces más sutiles */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/proyectos"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#4a5a22] hover:bg-[#3a4a18] text-[#f5efe3] rounded-full font-medium text-[11px] tracking-wider uppercase transition-all shadow-sm hover:shadow"
+              >
+                Conocer el proyecto completo &rarr;
+              </Link>
+              <Link
+                to="/agenda-2030"
+                className="inline-flex items-center px-4 py-2.5 rounded-full text-[11px] uppercase tracking-wider text-[#6b6048] hover:text-[#2d2618] hover:bg-[#eae4d2]/80 transition-colors font-medium border border-[#d8ceb6]/80"
+              >
+                Metas Agenda 2030
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* =================================================================
-          CAPÍTULO 4: LÍNEAS ESTRATÉGICAS DE ACCIÓN (Estilo Editorial V2)
+          CAPÍTULO 4: LÍNEAS ESTRATÉGICAS DE ACCIÓN
           ================================================================= */}
       <section className="py-28 px-8 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba]">
         <div className="max-w-7xl mx-auto">
@@ -649,10 +682,10 @@ export default function EditorialOverlay({
             </div>
             <Link
               to="/lineas-estrategicas"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#4a5a22] hover:text-[#2d2618] transition-colors"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#4a5a22] hover:text-[#2d2618] transition-colors group"
             >
               <div>Ver todas las líneas de acción</div>
-              <div>&rarr;</div>
+              <div className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</div>
             </Link>
           </div>
 
@@ -703,29 +736,37 @@ export default function EditorialOverlay({
             ].map((pillar) => (
               <div
                 key={pillar.num}
-                className="p-8 rounded-3xl bg-[#eae4d2]/70 border border-[#d8ceb6] hover:bg-white hover:border-[#4a5a22]/50 transition-all duration-300 flex flex-col justify-between shadow-xs hover:shadow-md group"
+                className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_4px_24px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden cursor-pointer"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-[11px] uppercase tracking-widest font-bold px-3 py-1 rounded-full bg-[#f5efe3] text-[#4a5a22] border border-[#d8ceb6]">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="text-[11px] uppercase tracking-[0.2em] font-medium text-[#7a6e58] group-hover:text-[#4a5a22] transition-colors">
                       {pillar.tag}
                     </div>
-                    <div className="text-xs font-serif text-[#7a6e58] font-bold">{pillar.num}</div>
+                    <div className="font-serif text-3xl font-light text-[#b0a48e] group-hover:text-[#4a5a22] transition-colors leading-none">
+                      {pillar.num}
+                    </div>
                   </div>
-                  <h3 className="font-serif text-2xl text-[#2d2618] font-light mb-3 leading-snug group-hover:text-[#4a5a22] transition-colors">
+
+                  <h3 className="font-serif text-2xl text-[#2d2618] font-light mb-3.5 leading-snug group-hover:text-[#3a4a18] transition-colors">
                     {pillar.title}
                   </h3>
-                  <p className="text-xs text-[#6b6048] font-light leading-relaxed mb-6">
+
+                  <p className="text-xs text-[#6b6048] font-light leading-relaxed mb-6 font-sans">
                     {pillar.desc}
                   </p>
                 </div>
-                <div className="pt-4 border-t border-[#d8ceb6] flex items-center justify-between">
-                  <div className="text-[11px] font-sans text-[#7a6e58] font-medium">{pillar.ods}</div>
+
+                <div className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between">
+                  <div className="text-[11px] font-sans text-[#8a7e68] font-medium">
+                    {pillar.ods}
+                  </div>
                   <Link
                     to="/lineas-estrategicas"
-                    className="text-xs uppercase tracking-wider font-bold text-[#4a5a22] group-hover:translate-x-1 transition-transform"
+                    className="text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:translate-x-1 transition-transform flex items-center gap-1"
                   >
-                    Detalles &rarr;
+                    <div>Detalles</div>
+                    <div>&rarr;</div>
                   </Link>
                 </div>
               </div>
@@ -741,58 +782,50 @@ export default function EditorialOverlay({
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <div className="text-xs tracking-[0.3em] uppercase mb-3 text-[#5a6b2a] font-bold">
+              <div className="text-xs tracking-[0.25em] uppercase mb-3 text-[#5a6b2a] font-bold">
                 Ecosistemas en Crisis
               </div>
-              <h2 className="font-serif text-4xl md:text-5xl text-[#2d2618] font-light">
+              <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light">
                 Cada bioma cuenta
               </h2>
             </div>
             <div className="max-w-md">
-              <p className="text-sm leading-relaxed text-[#6b6048] font-light mb-2">
-                Intervenimos en los ecosistemas más críticos y amenazados del planeta con ciencia aplicada y acción directa en el territorio.
+              <p className="text-sm leading-relaxed text-[#6b6048] font-light">
+                Intervención estratégica en los biomas más amenazados del planeta mediante ciencia aplicada, gobernanza territorial y monitoreo continuo.
               </p>
-              <div className="text-xs text-[#4a5a22] font-semibold tracking-wide flex items-center gap-1.5">
-                <div>Haz clic en cualquier ecosistema para activar la experiencia inmersiva fotorealista</div>
-                <div>&darr;</div>
-              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
             {biomesData.map((eco, idx) => (
               <div
                 key={eco.id}
                 onClick={() => setSelectedBiome(idx)}
-                className="relative rounded-3xl overflow-hidden h-[480px] border border-[#d8ceb6] group shadow-sm cursor-pointer hover:shadow-xl hover:border-[#4a5a22] transition-all duration-500"
+                className="group relative rounded-3xl overflow-hidden h-[500px] border border-[#d8ceb6] shadow-sm cursor-pointer hover:shadow-2xl hover:border-[#4a5a22]/60 hover:-translate-y-1.5 transition-all duration-500 flex flex-col justify-end p-8"
               >
                 <img
                   src={eco.cardImg}
                   alt={eco.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1a160f]/95 via-[#1a160f]/50 to-transparent transition-opacity duration-300 group-hover:via-[#1a160f]/60" />
-                
-                {/* Badge Inmersión Superior */}
-                <div className="absolute top-6 right-6 px-3.5 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-[11px] text-white/90 font-sans tracking-wider uppercase font-medium flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-[#85C441] animate-pulse" />
-                  <div>Ver Inmersión</div>
-                </div>
+                {/* Refined gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-opacity duration-300 group-hover:via-black/50" />
 
-                <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                  <div className="text-xs uppercase tracking-widest text-[#a3e635] font-bold mb-2">
+                {/* Content */}
+                <div className="relative z-10">
+                  <div className="text-[11px] uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold mb-2">
                     {eco.tag}
                   </div>
-                  <h3 className="font-serif text-3xl text-[#f5efe3] font-light mb-3">
+                  <h3 className="font-serif text-3xl sm:text-4xl text-[#f5efe3] font-light mb-3 leading-tight">
                     {eco.title}
                   </h3>
-                  <p className="text-xs text-slate-300 font-light leading-relaxed mb-5 line-clamp-3">
+                  <p className="text-xs text-slate-300 font-light leading-relaxed mb-6 line-clamp-3">
                     {eco.alert}
                   </p>
 
-                  <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[#a3e635] group-hover:translate-x-1 transition-transform">
-                    <div>Activar Vista Inmersiva con Datos</div>
-                    <div>&rarr;</div>
+                  <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#f5efe3] group-hover:text-[#cde48e] transition-colors">
+                    <span>Explorar Inmersión</span>
+                    <span className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</span>
                   </div>
                 </div>
               </div>
@@ -804,11 +837,12 @@ export default function EditorialOverlay({
         <AnimatePresence>
           {selectedBiome !== null && (
             <motion.div
+              id="biome-modal"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.35 }}
-              className="fixed inset-0 z-[100] flex flex-col justify-between overflow-y-auto bg-black text-slate-100"
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-[9999] flex flex-col justify-between overflow-y-auto bg-black text-slate-100"
             >
               {/* Fondo Inmersivo: Video en bucle o Fotografía de alta resolución */}
               {biomesData[selectedBiome].mediaType === 'video' ? (
@@ -818,38 +852,35 @@ export default function EditorialOverlay({
                   loop
                   muted
                   playsInline
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                  className="fixed inset-0 w-full h-full object-cover pointer-events-none"
                 />
               ) : (
                 <img
                   src={biomesData[selectedBiome].src}
                   alt={biomesData[selectedBiome].title}
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                  className="fixed inset-0 w-full h-full object-cover pointer-events-none"
                 />
               )}
 
-              {/* Capa de contraste y gradiente cinemático */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/40 backdrop-blur-[1px] pointer-events-none" />
+              {/* Capa de contraste y gradiente cinemático profundo */}
+              <div className="fixed inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 pointer-events-none" />
 
-              {/* Barra Superior de Controles Inmersivos */}
-              <div className="relative z-20 w-full px-6 md:px-12 py-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 bg-black/30 backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#85C441] animate-pulse" />
-                  <div className="text-xs uppercase tracking-[0.25em] text-[#a3e635] font-bold">
-                    Experiencia Inmersiva &bull; {biomesData[selectedBiome].tag}
-                  </div>
+              {/* Controles Flotantes Transparentes (Sin barra de fondo) */}
+              <div className="relative z-20 w-full px-8 md:px-16 py-7 flex items-center justify-between pointer-events-auto">
+                <div className="text-xs uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold drop-shadow-sm">
+                  {biomesData[selectedBiome].tag}
                 </div>
 
-                {/* Conmutador entre los 3 biomas */}
-                <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-full border border-white/15">
+                {/* Selector entre los 3 biomas */}
+                <div className="hidden sm:flex items-center gap-1.5 bg-black/30 p-1.5 rounded-full border border-white/15 backdrop-blur-md">
                   {biomesData.map((b, i) => (
                     <button
                       key={b.id}
                       onClick={() => setSelectedBiome(i)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-sans transition-all ${
+                      className={`px-4 py-1.5 rounded-full text-xs font-sans transition-all duration-300 ${
                         selectedBiome === i
-                          ? 'bg-[#4a5a22] text-[#f5efe3] font-bold shadow-md'
-                          : 'text-slate-300 hover:text-white hover:bg-white/10'
+                          ? 'bg-white/25 text-white font-medium border border-white/30 shadow-sm'
+                          : 'text-slate-300 hover:text-white'
                       }`}
                     >
                       {b.title}
@@ -857,108 +888,63 @@ export default function EditorialOverlay({
                   ))}
                 </div>
 
-                {/* Botón Cerrar Inmersión */}
+                {/* Botón Cerrar Minimalista Flotante */}
                 <button
                   onClick={() => setSelectedBiome(null)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-xs font-bold uppercase tracking-widest text-white transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 hover:bg-black/65 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-widest text-white transition-all duration-300 shadow-md"
                 >
-                  <div>Cerrar Inmersión</div>
-                  <div>&times;</div>
+                  <div>Cerrar</div>
+                  <div className="text-sm font-light leading-none">&times;</div>
                 </button>
               </div>
 
-              {/* Contenido Editorial con Toda la Información */}
-              <div className="relative z-20 max-w-7xl mx-auto w-full px-6 md:px-12 py-12 flex-1 flex flex-col justify-center">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                  
-                  {/* Columna Izquierda: Información Narrativa, Crisis y Acciones */}
-                  <div className="lg:col-span-7 text-left space-y-6">
-                    <div className="inline-block px-3.5 py-1 rounded-full bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#a3e635] text-xs uppercase tracking-widest font-bold">
-                      {biomesData[selectedBiome].tag}
-                    </div>
+              {/* Contenido Editorial Minimalista y Despejado */}
+              <div className="relative z-20 max-w-6xl mx-auto w-full px-8 md:px-16 py-12 md:py-20 flex-1 flex flex-col justify-end">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end">
 
-                    <h2 className="font-serif text-4xl sm:text-6xl text-white font-light tracking-tight leading-[1.05]">
+                  {/* Columna Izquierda: Gran Título Editorial y Narrativa */}
+                  <div className="lg:col-span-7 space-y-6">
+                    <h2 className="font-serif text-4xl sm:text-6xl md:text-7xl text-white font-light tracking-tight leading-[1.05]">
                       {biomesData[selectedBiome].title}
                     </h2>
 
-                    <p className="font-serif text-xl sm:text-2xl text-emerald-200/90 font-light italic">
+                    <p className="font-serif text-xl sm:text-2xl text-[#d8ceb6] font-light italic leading-snug">
                       &ldquo;{biomesData[selectedBiome].subtitle}&rdquo;
                     </p>
 
-                    {/* Alerta de Crisis Ecosistémica */}
-                    <div className="p-5 rounded-2xl bg-red-950/40 border border-red-500/30 backdrop-blur-md">
-                      <div className="text-[11px] uppercase tracking-wider text-red-300 font-bold mb-1">
-                        Estado de Alerta Biosférica
-                      </div>
-                      <p className="text-xs sm:text-sm text-red-100 font-light leading-relaxed">
-                        {biomesData[selectedBiome].alert}
-                      </p>
-                    </div>
-
-                    {/* Descripción Detallada */}
-                    <p className="text-sm sm:text-base text-slate-200 font-light leading-relaxed">
+                    <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed max-w-xl font-sans">
                       {biomesData[selectedBiome].desc}
                     </p>
 
-                    {/* Puntos de Acción Concretos */}
-                    <div className="space-y-3 pt-2">
-                      <div className="text-xs uppercase tracking-wider text-[#a3e635] font-bold">
-                        {biomesData[selectedBiome].actionsTitle}
-                      </div>
-                      {biomesData[selectedBiome].actions.map((act, aIdx) => (
-                        <div key={aIdx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-300 font-light">
-                          <div className="text-[#a3e635] font-bold mt-0.5">&bull;</div>
-                          <div>{act}</div>
-                        </div>
-                      ))}
+                    <div className="pt-2 flex items-center gap-4">
+                      <Link
+                        to="/proyectos"
+                        onClick={() => setSelectedBiome(null)}
+                        className="inline-flex items-center gap-2 py-3 px-7 rounded-full bg-[#f5efe3] hover:bg-white text-[#2d2618] font-semibold text-xs uppercase tracking-widest transition-all duration-300 shadow-xl group"
+                      >
+                        <div>Ver Proyectos Territoriales</div>
+                        <div className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</div>
+                      </Link>
                     </div>
                   </div>
 
-                  {/* Columna Derecha: Métricas en Vivo y Enlace a Acción */}
-                  <div className="lg:col-span-5 space-y-5">
-                    <div className="p-8 rounded-3xl bg-black/60 backdrop-blur-xl border border-white/20 shadow-2xl space-y-6">
-                      <div className="text-xs uppercase tracking-[0.25em] text-slate-400 font-bold border-b border-white/10 pb-3">
-                        Indicadores de Impacto Territorial
-                      </div>
-
-                      <div className="space-y-5">
-                        {biomesData[selectedBiome].metrics.map((m, mIdx) => (
-                          <div key={mIdx} className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <div className="font-serif text-3xl sm:text-4xl text-[#a3e635] font-bold mb-1">
-                              {m.val}
-                            </div>
-                            <div className="text-xs text-slate-300 font-sans font-light">
-                              {m.label}
-                            </div>
+                  {/* Columna Derecha: Métricas Limpias de Alto Impacto */}
+                  <div className="lg:col-span-5 space-y-8 lg:border-l lg:border-white/15 lg:pl-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
+                      {biomesData[selectedBiome].metrics.map((m, mIdx) => (
+                        <div key={mIdx}>
+                          <div className="font-serif text-4xl sm:text-5xl text-[#f5efe3] font-light mb-1">
+                            {m.val}
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="p-4 rounded-2xl bg-[#4a5a22]/30 border border-[#85C441]/30">
-                        <div className="text-[10px] uppercase tracking-widest text-[#a3e635] font-bold mb-1">
-                          Alineación con Objetivos de Desarrollo Sostenible
+                          <div className="text-xs text-slate-400 font-sans font-light tracking-wide">
+                            {m.label}
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-200 font-medium">
-                          {biomesData[selectedBiome].ods}
-                        </div>
-                      </div>
+                      ))}
+                    </div>
 
-                      <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                        <Link
-                          to="/proyectos"
-                          onClick={() => setSelectedBiome(null)}
-                          className="flex-1 py-3.5 px-6 rounded-full bg-[#85C441] hover:bg-[#96d552] text-black font-bold text-xs uppercase tracking-widest text-center transition-colors shadow-lg"
-                        >
-                          Ver Proyectos en Territorio &rarr;
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBiome(null)}
-                          className="py-3.5 px-6 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs uppercase tracking-widest text-center transition-colors"
-                        >
-                          Regresar
-                        </button>
-                      </div>
+                    <div className="pt-4 border-t border-white/10 text-xs text-slate-400 font-light">
+                      <span className="text-[#d8ceb6] font-medium">Alineación ODS:</span> {biomesData[selectedBiome].ods}
                     </div>
                   </div>
 
@@ -970,85 +956,88 @@ export default function EditorialOverlay({
       </section>
 
       {/* =================================================================
-          CAPÍTULO 6: GOBERNANZA & LIDERAZGO INSTITUCIONAL (Fondo Sólido V2)
+          CAPÍTULO 6: GOBERNANZA & LIDERAZGO INSTITUCIONAL
           ================================================================= */}
       <section id="liderazgo" className="py-28 px-8 md:px-20 relative bg-[#f5efe3] border-t border-[#d8ceb6]">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="text-xs uppercase tracking-[0.25em] text-[#5a6b2a] font-bold mb-3">
-              Estructura e Institucionalidad
-            </div>
-            <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light">
+            <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light mb-4">
               Liderazgo del Consejo Global Ambiental
             </h2>
-            <p className="mt-4 text-sm text-[#6b6048] font-light max-w-xl mx-auto leading-relaxed">
+            <p className="text-sm text-[#6b6048] font-light max-w-xl mx-auto leading-relaxed font-sans">
               Órgano colegiado de alta dirección que articula la diplomacia internacional, la investigación científica y la ejecución territorial.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Presidente */}
-            <div className="p-8 sm:p-10 rounded-3xl bg-[#eae4d2] border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div className="text-[11px] uppercase tracking-widest font-bold px-3.5 py-1.5 rounded-full bg-[#f5efe3] text-[#4a5a22] border border-[#d8ceb6] mb-6 inline-block">
-                  Presidencia y Estrategia Multilateral
-                </div>
-                <div className="flex items-center gap-5 mb-6">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-[#4a5a22]/30 shrink-0 bg-[#f5efe3] shadow-sm">
-                    <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&auto=format"
-                      alt="Mtro. Luis García González"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-light">Mtro. Luis García González</h3>
-                    <p className="text-xs text-[#4a5a22] font-semibold tracking-wide mt-1">Consejero Presidente y Fundador</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[#6b6048] font-light leading-relaxed mb-6">
-                  Con amplia experiencia en diplomacia multilateral y gobernanza ambiental de alto nivel. Ha impulsado acuerdos vinculantes con organismos internacionales y consolidado marcos de resiliencia ecosistémica.
-                </p>
+            <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
+              {/* Columna Izquierda: Imagen */}
+              <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
+                <img
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop&auto=format"
+                  alt="Mtro. Luis García González"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
-              <Link
-                to="/gobernanza"
-                className="text-xs uppercase tracking-widest font-bold text-[#4a5a22] hover:text-[#2d2618] flex items-center gap-2 pt-4 border-t border-[#d8ceb6]"
-              >
-                <div>Conocer trayectoria institucional</div>
-                <div>&rarr;</div>
-              </Link>
+
+              {/* Columna Derecha: Información */}
+              <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">
+                    Mtro. Luis García González
+                  </h3>
+                  <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">
+                    Consejero Presidente y Fundador
+                  </p>
+                  <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">
+                    Con amplia experiencia en diplomacia multilateral y gobernanza ambiental de alto nivel. Ha impulsado acuerdos vinculantes con organismos internacionales y consolidado marcos de resiliencia ecosistémica.
+                  </p>
+                </div>
+
+                <Link
+                  to="/gobernanza"
+                  className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors"
+                >
+                  <div>Conocer trayectoria institucional</div>
+                  <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
+                </Link>
+              </div>
             </div>
 
             {/* Secretario Ejecutivo */}
-            <div className="p-8 sm:p-10 rounded-3xl bg-[#eae4d2] border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div className="text-[11px] uppercase tracking-widest font-bold px-3.5 py-1.5 rounded-full bg-[#f5efe3] text-[#4a5a22] border border-[#d8ceb6] mb-6 inline-block">
-                  Dirección Ejecutiva y Alianzas en Territorio
-                </div>
-                <div className="flex items-center gap-5 mb-6">
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-[#4a5a22]/30 shrink-0 bg-[#f5efe3] shadow-sm">
-                    <img
-                      src={franciscoSolorioImg}
-                      alt="Mtro. Francisco Solorio"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-light">Mtro. Francisco Solorio</h3>
-                    <p className="text-xs text-[#4a5a22] font-semibold tracking-wide mt-1">Secretario Ejecutivo y Fundador</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[#6b6048] font-light leading-relaxed mb-6">
-                  Especialista en gestión técnica, cooperación territorial y alianzas público-privadas. Encabeza el despliegue operativo en campo, la vinculación con ejidos y comunidades, y la implementación de los proyectos galardonados.
-                </p>
+            <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
+              {/* Columna Izquierda: Imagen */}
+              <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
+                <img
+                  src={franciscoSolorioImg}
+                  alt="Mtro. Francisco Solorio"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
-              <Link
-                to="/gobernanza"
-                className="text-xs uppercase tracking-widest font-bold text-[#4a5a22] hover:text-[#2d2618] flex items-center gap-2 pt-4 border-t border-[#d8ceb6]"
-              >
-                <div>Conocer coordinación operativa</div>
-                <div>&rarr;</div>
-              </Link>
+
+              {/* Columna Derecha: Información */}
+              <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">
+                    Mtro. Francisco Solorio
+                  </h3>
+                  <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">
+                    Secretario Ejecutivo y Fundador
+                  </p>
+                  <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">
+                    Especialista en gestión técnica, cooperación territorial y alianzas público-privadas. Encabeza el despliegue operativo en campo, la vinculación con ejidos y comunidades, y la implementación de los proyectos galardonados.
+                  </p>
+                </div>
+
+                <Link
+                  to="/gobernanza"
+                  className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors"
+                >
+                  <div>Conocer coordinación operativa</div>
+                  <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -1058,32 +1047,51 @@ export default function EditorialOverlay({
           CAPÍTULO 7: IMPACTO TERRITORIAL MEDIBLE (Cifras Reales V1)
           ================================================================= */}
       <section id="oceano" className="py-28 px-8 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba]">
-        <div className="max-w-6xl mx-auto w-full">
-          <div className="max-w-2xl mb-16">
-            <div className="inline-block px-4 py-1.5 rounded-full border border-[#a0a870]/30 bg-[#eae4d2] mb-8 text-[11px] uppercase tracking-[0.28em] text-[#5a6b2a] font-sans font-medium">
-              Impacto Territorial
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <div className="text-xs uppercase tracking-[0.25em] text-[#5a6b2a] font-bold mb-3">
+                Métricas & Resultados
+              </div>
+              <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light">
+                Cifras que transforman el territorio
+              </h2>
             </div>
-
-            <h2 className="font-serif text-4xl sm:text-6xl text-[#2d2618] tracking-tight leading-[1.05] mb-6 font-light">
-              Cifras que transforman el territorio.
-            </h2>
-
-            <p className="font-sans text-base sm:text-lg text-[#6b6048] font-light leading-relaxed">
-              Reflejo directo de nuestro compromiso con la gobernanza ambiental, la cooperación institucional y la acción directa en campo.
-            </p>
+            <div className="max-w-md">
+              <p className="text-sm text-[#6b6048] font-light leading-relaxed font-sans">
+                Reflejo directo de nuestro compromiso con la gobernanza ambiental, la cooperación institucional y la acción directa en campo.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
             {[
-              { val: "16,890+", label: "Personas beneficiarias", sub: "Comunidades y ejidos capacitados" },
-              { val: "1,500+", label: "Semillas nativas conservadas", sub: "Bancos comunitarios de germoplasma" },
-              { val: "44", label: "Recorridos territoriales", sub: "Inspección y dictamen en campo" },
-              { val: "31k+", label: "Alcance en medios", sub: "Divulgación socioambiental activa" },
+              { num: "01", val: "16,890+", label: "Personas beneficiarias", sub: "Comunidades y ejidos capacitados en territorio" },
+              { num: "02", val: "1,500+", label: "Semillas nativas conservadas", sub: "Bancos comunitarios de germoplasma activo" },
+              { num: "03", val: "44", label: "Recorridos territoriales", sub: "Inspección técnica y dictamen en campo" },
+              { num: "04", val: "31k+", label: "Alcance en divulgación", sub: "Incidencia socioambiental activa en medios" },
             ].map((s, idx) => (
-              <div key={idx} className="p-8 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all">
-                <div className="font-serif text-4xl sm:text-5xl text-[#4a5a22] font-bold mb-2">{s.val}</div>
-                <h3 className="text-base text-[#2d2618] font-semibold mb-1 font-sans">{s.label}</h3>
-                <p className="text-xs text-[#7a6e58] font-light font-sans">{s.sub}</p>
+              <div
+                key={idx}
+                className="group relative p-8 sm:p-9 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer"
+              >
+                {/* Specular Edge Highlight on Hover */}
+                <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.2em] font-medium text-[#7a6e58] group-hover:text-[#4a5a22] transition-colors mb-6">
+                    Métrica {s.num}
+                  </div>
+                  <div className="font-serif text-4xl sm:text-5xl text-[#3a4a18] font-light tracking-tight mb-4 group-hover:scale-105 transition-transform duration-300 origin-left">
+                    {s.val}
+                  </div>
+                  <h3 className="text-sm sm:text-[15px] text-[#2d2618] font-semibold mb-2 leading-snug font-sans">
+                    {s.label}
+                  </h3>
+                  <p className="text-xs text-[#7a6e58] font-light font-sans leading-relaxed">
+                    {s.sub}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -1091,87 +1099,121 @@ export default function EditorialOverlay({
       </section>
 
       {/* =================================================================
-          CAPÍTULO 8: MANIFIESTO INTERACTIVO POR LA TIERRA
+          CAPÍTULO 8: MANIFIESTO INTERACTIVO POR LA TIERRA (2 Columnas)
           ================================================================= */}
-      <section id="manifiesto" className="min-h-screen relative flex items-center justify-center px-8 md:px-14 py-36 bg-[#f5efe3] border-t border-[#e0d4ba]">
-        <div className="max-w-4xl w-full p-8 md:p-16 rounded-3xl border border-[#d8ceb6] bg-[#eae4d2]/90 relative overflow-hidden shadow-md">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-block px-3.5 py-1.5 rounded-full bg-white border border-[#6b7c3a]/30 text-[#4a5a22] font-sans font-bold text-xs uppercase tracking-widest mb-6">
-              Acción Global y Territorial
-            </div>
+      <section id="manifiesto" className="py-24 sm:py-32 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba]">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Columna Izquierda: Manifiesto Editorial y Declaración */}
+            <div className="lg:col-span-5 space-y-8">
+              <div className="space-y-4">
+                <div className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#5a6b2a]">
+                  Manifiesto Institucional
+                </div>
 
-            <h2 className="font-serif text-4xl sm:text-6xl text-[#2d2618] font-light tracking-tight mb-6">
-              El planeta no es un recurso.<br />
-              <em className="font-normal text-[#4a5a22]">Es nuestra relación más sagrada.</em>
-            </h2>
-
-            <p className="text-[#6b6048] font-sans text-sm sm:text-base font-light leading-relaxed">
-              Súmate a la red de personas, especialistas e instituciones que impulsan la gobernanza ambiental. Recibe reportes técnicos, guías de acción territorial e iniciativas conjuntas.
-            </p>
-          </div>
-
-          <form onSubmit={handlePledge} className="space-y-5 max-w-xl mx-auto font-sans">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-[#3a3020] mb-2 font-medium">Nombre o Institución</label>
-                <input
-                  type="text"
-                  required
-                  value={pledgeName}
-                  onChange={(e) => setPledgeName(e.target.value)}
-                  placeholder="Tu nombre o institución"
-                  className="w-full px-5 py-3.5 rounded-xl bg-white border border-[#d8ceb6] text-[#2d2618] placeholder-[#7a6e58] focus:outline-none focus:border-[#4a5a22] transition-colors text-sm"
-                />
+                <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] text-[#2d2618] font-light leading-[1.18]">
+                  El planeta no es un recurso.<br />
+                  <span className="italic text-[#4a5a22] font-normal">Es nuestra relación más sagrada.</span>
+                </h2>
               </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-[#3a3020] mb-2 font-medium">Correo Electrónico</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="correo@ejemplo.com"
-                  className="w-full px-5 py-3.5 rounded-xl bg-white border border-[#d8ceb6] text-[#2d2618] placeholder-[#7a6e58] focus:outline-none focus:border-[#4a5a22] transition-colors text-sm"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-[#3a3020] mb-2 font-medium">Tu Compromiso Principal</label>
-              <select className="w-full px-5 py-3.5 rounded-xl bg-white border border-[#d8ceb6] text-[#2d2618] focus:outline-none focus:border-[#4a5a22] transition-colors text-sm">
-                <option value="forest">Protección y Reforestación de Bosques Nativos</option>
-                <option value="ocean">Conservación de Océanos y Arrecifes Marinos</option>
-                <option value="soil">Regeneración y Salud del Suelo de Conservación</option>
-                <option value="education">Conciencia, Investigación y Educación Ambiental</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-4 rounded-xl bg-[#4a5a22] text-[#f5efe3] font-bold text-xs uppercase tracking-widest hover:bg-[#3a4a18] transition-all shadow-md mt-4"
-            >
-              Firmar el Manifiesto por la Tierra &rarr;
-            </button>
-          </form>
-
-          {pledgeSubmitted && (
-            <div className="mt-8 p-6 rounded-2xl bg-[#4a5a22]/15 border border-[#4a5a22]/30 text-center font-sans">
-              <h3 className="font-serif text-xl text-[#2d2618] mb-1 font-light">Compromiso Registrado</h3>
-              <p className="text-sm text-[#4a5a22] font-semibold">
-                Gracias {pledgeName ? pledgeName : ''}. Tu adhesión institucional ha sido registrada oficialmente.
+              <p className="text-sm sm:text-[15px] text-[#5c523e] font-light leading-relaxed font-sans">
+                Súmate a la red de personas, especialistas e instituciones que impulsan la gobernanza ambiental. Recibe reportes técnicos, guías de acción territorial e iniciativas conjuntas.
               </p>
-            </div>
-          )}
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto border-t border-[#d8ceb6] pt-8">
-            {[
-              { num: "2.4M+", label: "Personas alcanzadas" },
-              { num: "5", label: "Países con presencia" },
-              { num: "10", label: "Líneas estratégicas" },
-            ].map((s, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-white border border-[#d8ceb6] text-center shadow-xs">
-                <div className="font-serif text-2xl font-bold text-[#4a5a22] mb-1">{s.num}</div>
-                <p className="text-xs text-[#6b6048] font-medium">{s.label}</p>
+              <div className="pt-6 border-t border-[#d8ceb6]/60 flex items-center gap-4">
+                <div className="w-8 h-[1px] bg-[#4a5a22]/40" />
+                <div className="text-xs uppercase tracking-[0.2em] text-[#7a6e58] font-sans font-medium">
+                  Consejo Global Ambiental &bull; 2026
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Columna Derecha: Acta de Adhesión en Card Editorial Liquid Glass */}
+            <div className="lg:col-span-7 w-full">
+              <div className="p-8 sm:p-10 rounded-2xl bg-[#eae4d2]/60 backdrop-blur-xl border border-[#d8ceb6] shadow-[0_10px_35px_rgba(45,38,24,0.06)]">
+                
+                <div className="mb-7 pb-5 border-b border-[#d8ceb6]/60 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#5a6b2a] mb-1">
+                      Acta de Adhesión
+                    </div>
+                    <h3 className="font-serif text-2xl text-[#2d2618] font-light">
+                      Firma del Manifiesto
+                    </h3>
+                  </div>
+                  <div className="text-xs text-[#7a6e58] font-light font-sans hidden sm:block">
+                    Pacto Territorial
+                  </div>
+                </div>
+
+                <form onSubmit={handlePledge} className="space-y-5 font-sans">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#5c523e] mb-2 font-semibold">
+                        Nombre o Institución
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={pledgeName}
+                        onChange={(e) => setPledgeName(e.target.value)}
+                        placeholder="Tu nombre o institución"
+                        className="w-full px-4 py-3.5 rounded-xl bg-white/90 border border-[#cfc4ab] text-[#2d2618] placeholder-[#9e9077] focus:outline-none focus:border-[#4a5a22] focus:bg-white focus:ring-1 focus:ring-[#4a5a22] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-[#5c523e] mb-2 font-semibold">
+                        Correo Electrónico
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="correo@ejemplo.com"
+                        className="w-full px-4 py-3.5 rounded-xl bg-white/90 border border-[#cfc4ab] text-[#2d2618] placeholder-[#9e9077] focus:outline-none focus:border-[#4a5a22] focus:bg-white focus:ring-1 focus:ring-[#4a5a22] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-[#5c523e] mb-2 font-semibold">
+                      Tu Compromiso Principal
+                    </label>
+                    <div className="relative">
+                      <select className="w-full appearance-none px-4 py-3.5 pr-10 rounded-xl bg-white/90 border border-[#cfc4ab] text-[#2d2618] focus:outline-none focus:border-[#4a5a22] focus:bg-white focus:ring-1 focus:ring-[#4a5a22] transition-all text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] cursor-pointer">
+                        <option value="forest">Protección y Reforestación de Bosques Nativos</option>
+                        <option value="ocean">Conservación de Océanos y Arrecifes Marinos</option>
+                        <option value="soil">Regeneración y Salud del Suelo de Conservación</option>
+                        <option value="education">Conciencia, Investigación y Educación Ambiental</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#7a6e58]">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-4 px-6 rounded-xl bg-[#334215] hover:bg-[#24300d] text-[#f5efe3] font-semibold text-xs uppercase tracking-[0.22em] transition-all duration-300 shadow-[0_4px_16px_rgba(51,66,21,0.25)] hover:shadow-[0_6px_24px_rgba(51,66,21,0.35)] hover:-translate-y-0.5 flex items-center justify-center gap-3 group cursor-pointer mt-3"
+                  >
+                    <span>Firmar el Manifiesto por la Tierra</span>
+                    <span className="transition-transform duration-300 group-hover:translate-x-1.5 font-sans text-base leading-none">&rarr;</span>
+                  </button>
+                </form>
+
+                {pledgeSubmitted && (
+                  <div className="mt-6 p-5 rounded-xl bg-[#4a5a22]/15 border border-[#4a5a22]/30 text-center font-sans animate-fade-in">
+                    <h4 className="font-serif text-lg text-[#2d2618] mb-1 font-light">Compromiso Registrado Oficialmente</h4>
+                    <p className="text-xs text-[#4a5a22] font-medium">
+                      Gracias {pledgeName ? pledgeName : ''}. Tu adhesión institucional ha sido registrada.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
