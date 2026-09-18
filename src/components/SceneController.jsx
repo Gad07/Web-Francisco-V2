@@ -12,8 +12,10 @@ export default function SceneController({ scrollProgress = 0, mouse = { x: 0, y:
 
     // Loading Phase — Pure White Background
     if (!isLoaded) {
-      camera.position.set(0, 0, 12);
-      smoothCam.current.z = 12;
+      // Original zoom effect: move the camera closer to the Earth
+      const currentZ = 12 - (zoomProgress * 8.8); // Dives from z=12 to z=3.2
+      camera.position.set(0, 0, currentZ);
+      smoothCam.current.z = currentZ;
       smoothCam.current.y = 0;
       scene.background = new THREE.Color('#ffffff');
       scene.fog.color.setHex(0xffffff);
