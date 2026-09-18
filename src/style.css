@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   CONSEJO GLOBAL AMBIENTAL — ULTRA-REALISTIC CINEMATIC & EDITORIAL STYLES
+   ========================================================================== */
+
+:root {
+  --font-serif: 'Cormorant Garamond', 'Cinzel', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #000000;
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+html { scroll-behavior: smooth; }
+
+/* Typography */
+.font-serif { font-family: var(--font-serif) !important; }
+.font-sans  { font-family: var(--font-sans)  !important; }
+
+/* Cinematic Vignette */
+.cinematic-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.70) 100%);
+}
+
+/* Nav scrolled state */
+#main-nav.scrolled {
+  background: rgba(0, 0, 0, 0.80);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,0.5); }
+
+.text-balance { text-wrap: balance; }
