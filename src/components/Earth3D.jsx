@@ -1,115 +1,131 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Easing in-out cúbico
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+// ── Shader de Atmósfera Rayleigh ──
 const atmVS = `
   varying vec3 vNormal;
   varying vec3 vViewPos;
   void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vViewPos = -(modelViewMatrix * vec4(position,1.0)).xyz;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    vNormal   = normalize(normalMatrix * normal);
+    vViewPos  = -(modelViewMatrix * vec4(position, 1.0)).xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 const atmFS = `
   varying vec3 vNormal;
   varying vec3 vViewPos;
-  uniform vec3 atmColor;
+  uniform vec3  atmColor;
   uniform float atmPower;
+  uniform float atmOpacity;
   void main() {
-    float fres = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewPos)), 0.0, 1.0), atmPower);
-    gl_FragColor = vec4(atmColor, fres * 0.85);
+    float rim = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewPos)), 0.0, 1.0), atmPower);
+    gl_FragColor = vec4(atmColor, rim * atmOpacity);
   }
 `;
 
-function EarthModel({ zoomProgress, isLoaded }) {
+function EarthModel({ zoomProgress = 0, isLoaded = false }) {
   const earthRef = useRef();
   const cloudRef = useRef();
   const groupRef = useRef();
-  const starsRef = useRef();
 
-  // Load high-resolution realistic textures
+  // Texturas originales de Three.js (NASA)
   const [colorMap, normalMap, specularMap, cloudsMap] = useTexture([
     'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
     'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
     'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
-    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png'
+    'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
   ]);
 
-  colorMap.colorSpace = THREE.SRGBColorSpace;
+  colorMap.colorSpace  = THREE.SRGBColorSpace;
   cloudsMap.colorSpace = THREE.SRGBColorSpace;
 
-  const atmMat = new THREE.ShaderMaterial({
-    vertexShader: atmVS,
+  const atmMat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader:   atmVS,
     fragmentShader: atmFS,
     uniforms: {
-      atmColor: { value: new THREE.Color(0x3b82f6) },
-      atmPower: { value: 4.5 },
+      atmColor:   { value: new THREE.Color(0x5bbfff) },
+      atmPower:   { value: 3.2 },
+      atmOpacity: { value: 1.0 },
     },
-    side: THREE.FrontSide,
-    blending: THREE.AdditiveBlending,
+    side:        THREE.BackSide,
+    blending:    THREE.AdditiveBlending,
     transparent: true,
-    depthWrite: false,
-  });
-
-  // Star field
-  const { starPositions, starColors } = React.useMemo(() => {
-    const count = 1500;
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const r = 40 + Math.random() * 90;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      pos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-      const warm = Math.random() > 0.88;
-      col[i * 3]     = warm ? 1.0 : 0.88 + Math.random() * 0.12;
-      col[i * 3 + 1] = warm ? 0.92 : 0.92 + Math.random() * 0.08;
-      col[i * 3 + 2] = warm ? 0.72 : 1.0;
-    }
-    return { starPositions: pos, starColors: col };
-  }, []);
+    depthWrite:  false,
+  }), []);
 
   useFrame((state, delta) => {
-    if (earthRef.current) earthRef.current.rotation.y += delta * 0.02;
-    if (cloudRef.current) cloudRef.current.rotation.y += delta * 0.025;
+    if (earthRef.current) earthRef.current.rotation.y += delta * 0.022;
+    if (cloudRef.current) cloudRef.current.rotation.y += delta * 0.028;
 
-    if (groupRef.current && !isLoaded) {
-      groupRef.current.position.set(0, 0.45, 0);
-      groupRef.current.scale.setScalar(1);
-      groupRef.current.rotation.x = 0.15;
+    if (!groupRef.current || isLoaded) return;
+
+    const ez = easeInOutCubic(zoomProgress);
+
+    // Planet centered vertically (y=0 = screen center)
+    groupRef.current.scale.setScalar(1.0 + ez * 2.0);
+    groupRef.current.rotation.x = 0.10 + ez * 0.18;
+    groupRef.current.rotation.z = 0.41 - ez * 0.06;
+    groupRef.current.position.set(0, 0, 0);
+
+    // Atmósfera: se disuelve en el tramo final
+    if (atmMat.uniforms) {
+      const fade = zoomProgress > 0.72
+        ? Math.max(0, 1.0 - (zoomProgress - 0.72) / 0.28)
+        : 1.0;
+      atmMat.uniforms.atmOpacity.value = fade;
     }
   });
 
-  // Disappear when fully loaded to show white hero
   if (isLoaded) return null;
 
+  const globalOpacity    = zoomProgress > 0.78 ? Math.max(0, 1.0 - (zoomProgress - 0.78) / 0.22) : 1.0;
+  const needsTransparency = globalOpacity < 0.999;
+
   return (
-    <group ref={groupRef} rotation={[0, 0, 0.41]}>
-      <mesh ref={earthRef} castShadow>
-        <sphereGeometry args={[3.4, 64, 64]} />
-        <meshPhongMaterial
+    <group ref={groupRef} position={[0, 0.45, 0]}>
+      {/* 1. Superficie terrestre — MeshStandardMaterial (PBR real) */}
+      <mesh ref={earthRef} castShadow receiveShadow>
+        <sphereGeometry args={[3.4, 96, 96]} />
+        <meshStandardMaterial
           map={colorMap}
           normalMap={normalMap}
-          specularMap={specularMap}
-          specular={new THREE.Color(0x222222)}
-          shininess={15}
+          normalScale={new THREE.Vector2(0.7, 0.7)}
+          roughness={0.82}
+          metalness={0.0}
+          // Sin emissive oscuro — la luz ambiental cumple esa función
+          emissive={new THREE.Color(0x000000)}
+          emissiveIntensity={0}
+          transparent={needsTransparency}
+          opacity={globalOpacity}
         />
       </mesh>
 
+      {/* 2. Capa Volumétrica de Nubes */}
       <mesh ref={cloudRef}>
-        <sphereGeometry args={[3.43, 64, 64]} />
-        <meshPhongMaterial
+        <sphereGeometry args={[3.445, 96, 96]} />
+        <meshStandardMaterial
           map={cloudsMap}
-          transparent={true}
-          opacity={0.85}
+          roughness={1.0}
+          metalness={0.0}
+          transparent
+          opacity={0.90 * globalOpacity}
           blending={THREE.NormalBlending}
           depthWrite={false}
           side={THREE.DoubleSide}
         />
+      </mesh>
+
+      {/* 3. Halo Atmosférico Rayleigh */}
+      <mesh>
+        <sphereGeometry args={[3.62, 64, 64]} />
+        <primitive object={atmMat} attach="material" />
       </mesh>
     </group>
   );
