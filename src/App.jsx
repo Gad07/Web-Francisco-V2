@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { motion, AnimatePresence } from 'framer-motion';
 import Earth3D from './components/Earth3D.jsx';
-import Branches3D from './components/Branches3D.jsx';
-import ContinuousVine3D from './components/ContinuousVine3D.jsx';
 import OceanAbyss3D from './components/OceanAbyss3D.jsx';
 import SceneController from './components/SceneController.jsx';
 import EditorialOverlay from './components/EditorialOverlay.jsx';
@@ -152,8 +150,6 @@ export default function App() {
             scrollProgress={scrollProgress}
             isLoaded={isLoaded}
           />
-          {/* Branches replaced by Rama 1.svg/Rama 2.svg interactive overlay */}
-          {/* <ContinuousVine3D scrollProgress={scrollProgress} /> */}
           <OceanAbyss3D />
         </Canvas>
       </div>
@@ -168,31 +164,54 @@ export default function App() {
         {loaderVisible && (
           <motion.div
             key="loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-end pb-12 sm:pb-16 pointer-events-auto select-none"
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(4px)' }}
+            exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)', transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] } }}
+            transition={{ duration: 1 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-end pb-12 sm:pb-20 pointer-events-auto select-none"
             style={{
               background: 'transparent',
             }}
           >
             {/* Center-bottom counter */}
             <div className="flex flex-col items-center text-center">
-              <div
+              <motion.div
+                initial={{ y: 30, opacity: 0, filter: 'blur(5px)' }}
+                animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="font-serif font-light text-slate-900 tracking-tight"
                 style={{
-                  fontSize: 'clamp(3rem, 7vw, 5.5rem)',
+                  fontSize: 'clamp(4rem, 8vw, 6.5rem)',
                   lineHeight: 1,
                 }}
               >
                 {Math.floor(loadingProgress)}%
-              </div>
-              <div className="w-36 sm:w-52 h-[2px] bg-slate-200 rounded-full mt-4 overflow-hidden">
+              </motion.div>
+
+              <motion.div 
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '100%', opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="w-48 sm:w-64 h-[2px] bg-slate-200 rounded-full mt-6 overflow-hidden relative shadow-sm"
+              >
                 <div
-                  className="h-full bg-emerald-600 rounded-full"
+                  className="absolute top-0 left-0 h-full bg-emerald-600 rounded-full"
                   style={{ width: `${loadingProgress}%`, transition: 'width 80ms linear' }}
                 />
-              </div>
+                <div
+                  className="absolute top-0 left-0 h-full bg-emerald-400 rounded-full blur-sm"
+                  style={{ width: `${loadingProgress}%`, opacity: 0.6, transition: 'width 80ms linear' }}
+                />
+              </motion.div>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: loadingProgress > 15 ? 1 : 0, y: loadingProgress > 15 ? 0 : 10 }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+                className="mt-6 text-xs sm:text-sm tracking-[0.25em] text-slate-400 uppercase font-sans"
+              >
+                {loadingProgress < 100 ? 'Sincronizando Biosfera' : 'Entrando al ecosistema'}
+              </motion.p>
             </div>
           </motion.div>
         )}
