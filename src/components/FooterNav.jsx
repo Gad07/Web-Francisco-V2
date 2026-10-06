@@ -60,13 +60,13 @@ export default function FooterNav() {
       <div aria-hidden className="orb orb-ocean orb-drift-slow w-[26rem] h-[26rem] bottom-10 -right-24 opacity-25" />
 
       {/* Contenido único del footer */}
-      <div className="relative max-w-7xl mx-auto px-8 md:px-20">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-12 md:px-20">
         {/* Cabecera de cierre */}
-        <div className="pt-44 md:pt-56 pb-20 md:pb-24 border-b border-[#f5efe3]/15">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+        <div className="pt-36 sm:pt-48 md:pt-56 pb-16 md:pb-24 border-b border-[#f5efe3]/15">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-10">
             <Reveal delay={0.08}>
               <h2
-                className="font-serif text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] text-[#f5efe3] font-light leading-[1.12] max-w-3xl text-balance"
+                className="font-serif text-2xl sm:text-4xl lg:text-5xl xl:text-[60px] text-[#f5efe3] font-light leading-[1.14] max-w-3xl text-balance"
                 style={{ textShadow: '0 2px 24px rgba(0,0,0,0.45)' }}
               >
                 {t('footer.futurePrefix')}
@@ -107,14 +107,14 @@ export default function FooterNav() {
         </div>
 
         {/* Columnas unificadas */}
-        <div className="grid grid-cols-2 lg:grid-cols-12 gap-10 py-16">
-          <div className="col-span-2 lg:col-span-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 py-12 md:py-16">
+          <div className="sm:col-span-2 lg:col-span-5">
             <Reveal>
               <Link to="/" className="group inline-block mb-6" aria-label={t('a11y.home')}>
                 <img
                   src="/logos/logo-cga-footer.webp"
                   alt={t('brand.name')}
-                  className="h-14 md:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_2px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_2px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </Link>
               <p className="text-[#d8d2c2]/80 text-[13px] font-light leading-relaxed max-w-xs">
@@ -125,8 +125,8 @@ export default function FooterNav() {
 
           <div className="col-span-1 lg:col-span-2">
             <RevealItem index={1}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-5">{t('footer.elConsejo')}</p>
-              <ul className="space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.elConsejo')}</p>
+              <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
                 {GROUP_CONSEJO.map((l) => (
                   <li key={l.to}>
                     <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
@@ -138,8 +138,8 @@ export default function FooterNav() {
 
           <div className="col-span-1 lg:col-span-2">
             <RevealItem index={2}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-5">{t('footer.accion')}</p>
-              <ul className="space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.accion')}</p>
+              <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
                 {GROUP_ACCION.map((l) => (
                   <li key={l.to}>
                     <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
@@ -149,10 +149,10 @@ export default function FooterNav() {
             </RevealItem>
           </div>
 
-          <div className="col-span-2 lg:col-span-2">
+          <div className="col-span-1 sm:col-span-2 lg:col-span-3">
             <RevealItem index={3}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-5">{t('footer.explorar')}</p>
-              <ul className="space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.explorar')}</p>
+              <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
                 <li>
                   <Link to="/presencia-global" className={LINK_HOVER}>{t('nav.presenciaGlobal')}</Link>
                 </li>
@@ -173,7 +173,7 @@ export default function FooterNav() {
         </div>
 
         {/* Barra final */}
-        <div className="py-8 border-t border-[#f5efe3]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light">
+        <div className="py-6 sm:py-8 border-t border-[#f5efe3]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light text-center sm:text-left">
           <span>{t('footer.rights')}</span>
           <span className="hidden sm:block h-px w-16 bg-[#f5efe3]/25" />
           <span className="uppercase tracking-[0.2em] font-medium">{t('footer.cities')}</span>

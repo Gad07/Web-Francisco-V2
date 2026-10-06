@@ -277,21 +277,10 @@ export default function HeaderNav({
               </svg>
             </Link>
 
-            {/* CTA móvil compacto */}
-            <Link
-              to="/contacto"
-              className="sm:hidden flex items-center justify-center h-9 w-9 rounded-full bg-[#2d2618] text-[#f5efe3] active:scale-90 transition-transform duration-200 shadow-md"
-              aria-label={t('nav.contacto')}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 3l-3 9-4-2-4 2-3-9 14-0zM6 12l-3 9" />
-              </svg>
-            </Link>
-
             {/* Mobile menu trigger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full border border-[#d8ceb6]/70 bg-[#f5efe3]/80 text-[#2d2618] backdrop-blur-md active:scale-90 transition-all duration-200"
+              className="lg:hidden flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[#d8ceb6]/70 bg-[#f5efe3]/80 text-[#2d2618] backdrop-blur-md active:scale-90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a5a22]/50"
               aria-label={mobileMenuOpen ? t('a11y.closeMenu') : t('a11y.openMenu')}
               aria-expanded={mobileMenuOpen}
             >
@@ -313,57 +302,61 @@ export default function HeaderNav({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: EASE_LUX }}
-            className="fixed inset-0 z-40 bg-[#f5efe3]/96 backdrop-blur-2xl lg:hidden flex flex-col justify-end overflow-y-auto"
+            className="fixed inset-0 z-40 bg-[#f5efe3]/98 backdrop-blur-2xl lg:hidden flex flex-col justify-start overflow-y-auto"
           >
-            <div className="px-8 pt-24 pb-12 flex flex-col gap-1 font-sans">
-              {[
-                { to: '/', labelKey: 'nav.home', num: '01' },
-                { to: '/nosotros', labelKey: 'nav.quienesSomos', num: '02' },
-                { to: '/gobernanza', labelKey: 'nav.gobernanza', num: '03' },
-                { to: '/asamblea-anual', labelKey: 'nav.asambleaAnual', num: '04' },
-                { to: '/lineas-estrategicas', labelKey: 'nav.lineasEstrategicas', num: '05' },
-                { to: '/proyectos', labelKey: 'nav.proyectos', num: '06' },
-                { to: '/agenda-2030', labelKey: 'nav.agenda2030', num: '07' },
-                { to: '/presencia-global', labelKey: 'nav.presenciaGlobal', num: '08' },
-                { to: '/conocimiento', labelKey: 'nav.conocimiento', num: '09' },
-              ].map((l, i) => (
-                <motion.div
-                  key={l.to}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 12 }}
-                  transition={{ duration: 0.5, delay: 0.05 * i, ease: EASE_LUX }}
-                >
-                  <Link
-                    to={l.to}
-                    className={`flex items-center justify-between border-b border-[#d8ceb6]/40 py-4 font-sans text-[24px] font-medium tracking-tight transition-colors duration-300 ${
-                      location.pathname === l.to ? 'text-[#4a5a22]' : 'text-[#2d2618] hover:text-[#4a5a22]'
-                    }`}
+            <div className="px-6 sm:px-10 pt-24 pb-16 flex flex-col gap-1 font-sans min-h-full justify-between">
+              <div className="flex flex-col gap-1">
+                {[
+                  { to: '/', labelKey: 'nav.home', num: '01' },
+                  { to: '/nosotros', labelKey: 'nav.quienesSomos', num: '02' },
+                  { to: '/gobernanza', labelKey: 'nav.gobernanza', num: '03' },
+                  { to: '/asamblea-anual', labelKey: 'nav.asambleaAnual', num: '04' },
+                  { to: '/lineas-estrategicas', labelKey: 'nav.lineasEstrategicas', num: '05' },
+                  { to: '/proyectos', labelKey: 'nav.proyectos', num: '06' },
+                  { to: '/agenda-2030', labelKey: 'nav.agenda2030', num: '07' },
+                  { to: '/presencia-global', labelKey: 'nav.presenciaGlobal', num: '08' },
+                  { to: '/conocimiento', labelKey: 'nav.conocimiento', num: '09' },
+                ].map((l, i) => (
+                  <motion.div
+                    key={l.to}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.4, delay: 0.04 * i, ease: EASE_LUX }}
                   >
-                    <span className="flex items-baseline gap-5 min-w-0">
-                      <span className="font-sans text-[10px] tracking-[0.2em] text-[#8a7e68] not-italic tabular flex-shrink-0">{l.num}</span>
-                      <span>{t(l.labelKey)}</span>
-                    </span>
-                    <span className="text-lg opacity-40">&rarr;</span>
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      to={l.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center justify-between border-b border-[#d8ceb6]/40 py-3.5 sm:py-4 font-sans text-[20px] sm:text-[24px] font-medium tracking-tight transition-colors duration-300 ${
+                        location.pathname === l.to ? 'text-[#4a5a22]' : 'text-[#2d2618] hover:text-[#4a5a22]'
+                      }`}
+                    >
+                      <span className="flex items-baseline gap-4 sm:gap-5 min-w-0">
+                        <span className="font-sans text-[10px] tracking-[0.2em] text-[#8a7e68] not-italic tabular flex-shrink-0">{l.num}</span>
+                        <span className="truncate">{t(l.labelKey)}</span>
+                      </span>
+                      <span className="text-base sm:text-lg opacity-40">&rarr;</span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
 
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, delay: 0.5, ease: EASE_LUX }}
-                className="mt-8"
+                transition={{ duration: 0.45, delay: 0.4, ease: EASE_LUX }}
+                className="mt-8 pt-4"
               >
                 <Link
                   to="/contacto"
-                  className="flex w-full items-center justify-center gap-3 rounded-full bg-[#4a5a22] py-4 text-xs font-bold uppercase tracking-[0.22em] text-[#f5efe3] active:scale-[0.98] transition-all duration-200 shadow-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center gap-3 rounded-full bg-[#4a5a22] py-3.5 sm:py-4 text-xs font-bold uppercase tracking-[0.22em] text-[#f5efe3] active:scale-[0.98] transition-all duration-200 shadow-lg"
                 >
                   <span>{t('nav.contacto')}</span>
                   <span>&rarr;</span>
                 </Link>
-                <p className="mt-6 text-center text-[11px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
+                <p className="mt-5 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
                   {t('brand.name')} &middot; 2026
                 </p>
               </motion.div>

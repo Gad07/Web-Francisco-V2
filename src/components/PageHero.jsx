@@ -93,7 +93,7 @@ export function PageHero({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[88px] xl:text-[98px] leading-[1.02] mb-8 tracking-tight text-[#2d2618] font-light"
+          className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-[84px] xl:text-[94px] leading-[1.04] mb-6 sm:mb-8 tracking-tight text-[#2d2618] font-light text-balance"
         >
           {t(titleWhite)}{' '}
           <span className="italic text-[#4a5a22] font-normal block sm:inline">
@@ -107,7 +107,7 @@ export function PageHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.2 }}
-            className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-[#5c523e] font-sans font-light leading-relaxed mb-12 text-balance"
+            className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl text-[#5c523e] font-sans font-light leading-relaxed mb-8 sm:mb-12 text-balance"
           >
             {t(description)}
           </motion.p>

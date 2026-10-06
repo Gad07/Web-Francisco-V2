@@ -46,6 +46,9 @@ const en = {
   },
 
   hero: {
+    line1: 'Transforming the present,',
+    line2: 'for a sustainable future.',
+    title: 'Transforming the present, for a sustainable future.',
     exploreChapter: 'Explore Chapter',
   },
 

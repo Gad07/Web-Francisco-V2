@@ -224,14 +224,14 @@ export default function StrategicLines() {
         <section className="pt-16 sm:pt-20 pb-20 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full">
 
           <div className="pb-6 border-b border-[#d8ceb6]/70 mb-8">
-            <div className="space-y-4 text-center">
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light leading-[1.12] lg:whitespace-nowrap">
+            <div className="space-y-4 text-center max-w-3xl mx-auto">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light leading-[1.12] text-balance">
                 {t({ es: 'Diez líneas, un mismo', en: 'Ten lines, one shared' })}{' '}
                 <span className="italic text-[#4a5a22] font-normal">
                   {t({ es: 'compromiso territorial.', en: 'territorial commitment.' })}
                 </span>
               </h2>
-              <p className="text-xs sm:text-[13px] text-[#635741] font-light leading-relaxed lg:whitespace-nowrap">
+              <p className="text-xs sm:text-[13px] text-[#635741] font-light leading-relaxed text-balance">
                 {t({
                   es: 'Cada línea articula su campo de acción con ejes verificables, dictámenes técnicos y mecanismos de rendición de cuentas.',
                   en: 'Each line links its field of action to verifiable goals, technical opinions and accountability mechanisms.',

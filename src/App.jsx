@@ -53,7 +53,7 @@ export default function App() {
       'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
       '/imagenes/Rama 1.svg',
       '/imagenes/Rama 2.svg',
-      '/imagenes/Piedra.png',
+      '/VideoFrames/frame_001.jpg',
       // Primeros 15 fotogramas clave
       ...Array.from({ length: 15 }, (_, i) => `/VideoFrames/frame_${String(i + 1).padStart(3, '0')}.jpg`),
     ];

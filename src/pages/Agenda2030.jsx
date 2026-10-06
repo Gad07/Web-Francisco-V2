@@ -674,7 +674,7 @@ export default function Agenda2030() {
             <div className="fixed inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/35 pointer-events-none z-10" />
 
             {/* ─── TOP BAR: SELECTOR RÁPIDO + BOTÓN CERRAR ─── */}
-            <div className="relative z-20 w-full px-6 sm:px-12 md:px-16 py-7 flex items-center justify-between pointer-events-auto">
+            <div className="relative z-20 w-full px-4 sm:px-8 md:px-16 py-4 sm:py-7 flex items-center justify-between pointer-events-auto">
               <div className="w-8 sm:w-16" />
 
               {/* Selector Rápido de ODS en Desktop */}
@@ -697,7 +697,7 @@ export default function Agenda2030() {
               {/* Botón Cerrar */}
               <button
                 onClick={() => setActiveOdsIndex(null)}
-                className="group inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 bg-black/50 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[11px] font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-300 active:scale-[0.96] shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)] cursor-pointer"
+                className="group inline-flex items-center gap-2 rounded-full px-4 py-2 sm:px-5 sm:py-2.5 bg-black/50 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[10px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-300 active:scale-[0.96] shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)] cursor-pointer"
                 aria-label={t({ es: 'Cerrar inmersión', en: 'Close immersion' })}
               >
                 <span>{t({ es: 'Cerrar', en: 'Close' })}</span>
@@ -717,11 +717,11 @@ export default function Agenda2030() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="relative z-20 max-w-6xl mx-auto w-full px-6 sm:px-12 md:px-16 py-12 md:py-16 flex-1 flex flex-col justify-end"
+                className="relative z-20 max-w-6xl mx-auto w-full px-4 sm:px-8 md:px-16 py-8 md:py-16 flex-1 flex flex-col justify-end"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-end">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-end">
                   {/* Columna Izquierda: Título y Síntesis */}
-                  <div className="lg:col-span-7 space-y-5">
+                  <div className="lg:col-span-7 space-y-4 sm:space-y-5">
                     <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-light tracking-tight leading-[1.05]">
                       {t(activeOds.title)}
                     </h2>

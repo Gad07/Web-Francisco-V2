@@ -6,7 +6,7 @@ import React, { useRef, useEffect } from 'react';
  * Eliminates DOM layout recalculations, avoids DOM memory leaks, and delivers
  * buttery-smooth 60 FPS playback during scroll.
  */
-export default function CanvasFrameSequence({
+function CanvasFrameSequenceComponent({
   currentFrame = 1,
   totalFrames = 153,
   showFrames = false,
@@ -208,3 +208,6 @@ export default function CanvasFrameSequence({
     </div>
   );
 }
+
+const CanvasFrameSequence = React.memo(CanvasFrameSequenceComponent);
+export default CanvasFrameSequence;

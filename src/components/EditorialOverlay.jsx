@@ -8,7 +8,6 @@ import Reveal, { RevealItem } from './Reveal.jsx';
 import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
 import { useI18n } from '../i18n/index.jsx';
 
-const EASE_LUX = [0.16, 1, 0.3, 1];
 const EASE_SPRING = { type: 'spring', stiffness: 340, damping: 30 };
 
 export default function EditorialOverlay({
@@ -181,7 +180,6 @@ export default function EditorialOverlay({
 
   const branchContainerRef = useRef(null);
   const maskRef = useRef(null);
-  const fgMaskRef = useRef(null);
   const interdependenciaRef = useRef(null);
   const videoLoopRef = useRef(null);
 
@@ -203,7 +201,6 @@ export default function EditorialOverlay({
     [scrollProgress, fallbackMV]
   );
 
-  const heroBranchOpacity = useTransform(scrollMV, [0, 0.18], [1, 0]);
   // Parallax sutil: la rama se eleva ligeramente al comenzar el scroll (sensación de profundidad)
   const heroBranchY = useTransform(scrollMV, [0, 0.1], [0, -40]);
   const heroBranchScale = useTransform(scrollMV, [0, 0.12], [1, 1.04]);
@@ -316,14 +313,14 @@ export default function EditorialOverlay({
 
       if (cur !== next) {
         setPhase(next);
-      }
-
-      // Control del video del arrecife
-      if (videoLoopRef.current) {
-        if (next === 2 && videoLoopRef.current.paused) {
-          videoLoopRef.current.play().catch(() => {});
-        } else if (next !== 2 && !videoLoopRef.current.paused) {
-          videoLoopRef.current.pause();
+        // Control del video del arrecife (solo al transicionar de fase)
+        if (videoLoopRef.current) {
+          if (next === 2) {
+            const p = videoLoopRef.current.play();
+            if (p && typeof p.catch === 'function') p.catch(() => { });
+          } else {
+            videoLoopRef.current.pause();
+          }
         }
       }
     };
@@ -359,17 +356,21 @@ export default function EditorialOverlay({
     return () => document.removeEventListener('mousemove', onMove);
   }, []);
 
+  const [activeBaseLayer, setActiveBaseLayer] = useState(1);
+  const isExpandingRef = useRef(false);
+
   const handleHeroMouseMove = (e) => {
+    if (isExpandingRef.current) return;
     if (!branchContainerRef.current) return;
     const rect = branchContainerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const inBounds = x >= -60 && x <= rect.width + 60 && y >= -60 && y <= rect.height + 60;
-    const maskVal = `radial-gradient(circle 180px at ${x}px ${y}px, black 30%, transparent 100%)`;
+    const inBounds = x >= -80 && x <= rect.width + 80 && y >= -80 && y <= rect.height + 80;
 
     if (maskRef.current) {
       if (inBounds) {
+        const maskVal = `radial-gradient(circle 220px at ${x}px ${y}px, black 30%, transparent 100%)`;
         maskRef.current.style.maskImage = maskVal;
         maskRef.current.style.webkitMaskImage = maskVal;
         maskRef.current.style.opacity = '1';
@@ -377,21 +378,69 @@ export default function EditorialOverlay({
         maskRef.current.style.opacity = '0';
       }
     }
-
-    if (fgMaskRef.current) {
-      if (inBounds) {
-        fgMaskRef.current.style.maskImage = maskVal;
-        fgMaskRef.current.style.webkitMaskImage = maskVal;
-        fgMaskRef.current.style.opacity = '1';
-      } else {
-        fgMaskRef.current.style.opacity = '0';
-      }
-    }
   };
 
   const handleHeroMouseLeave = () => {
-    if (maskRef.current) maskRef.current.style.opacity = '0';
-    if (fgMaskRef.current) fgMaskRef.current.style.opacity = '0';
+    if (isExpandingRef.current) return;
+    if (maskRef.current) {
+      maskRef.current.style.opacity = '0';
+    }
+  };
+
+  const handleBranchDoubleClick = (e) => {
+    if (isExpandingRef.current || !branchContainerRef.current) return;
+    const rect = branchContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    isExpandingRef.current = true;
+
+    let startTime = null;
+    const duration = 900; // ms
+
+    const animateExpansion = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Smooth cubic easeInOut for luxurious cinematic expansion
+      const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const currentRadius = 220 + ease * 3400;
+
+      if (maskRef.current) {
+        const maskVal = `radial-gradient(circle ${currentRadius}px at ${x}px ${y}px, black 75%, transparent 100%)`;
+        maskRef.current.style.maskImage = maskVal;
+        maskRef.current.style.webkitMaskImage = maskVal;
+        maskRef.current.style.opacity = '1';
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animateExpansion);
+      } else {
+        // Full coverage reached: solidify top layer first
+        if (maskRef.current) {
+          maskRef.current.style.maskImage = 'none';
+          maskRef.current.style.webkitMaskImage = 'none';
+          maskRef.current.style.opacity = '1';
+        }
+
+        // Swap base layer underneath while top layer is 100% solid
+        setActiveBaseLayer((prev) => (prev === 1 ? 2 : 1));
+
+        // Two RAFs guarantee React has updated the DOM before releasing mask
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (maskRef.current) {
+              maskRef.current.style.opacity = '0';
+              maskRef.current.style.maskImage = `radial-gradient(circle 220px at ${x}px ${y}px, black 30%, transparent 100%)`;
+              maskRef.current.style.webkitMaskImage = `radial-gradient(circle 220px at ${x}px ${y}px, black 30%, transparent 100%)`;
+            }
+            isExpandingRef.current = false;
+          });
+        });
+      }
+    };
+
+    requestAnimationFrame(animateExpansion);
   };
 
   const handlePledge = (e) => {
@@ -402,130 +451,135 @@ export default function EditorialOverlay({
   return (
     <main className={`relative z-10 transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'} overflow-x-clip`}>
 
-      {/* CAPÍTULO 1 */}
+      {/* CAPÍTULO 1 — HERO */}
       <section
         id="hero"
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
-        className="h-screen w-full min-h-[640px] md:min-h-[700px] max-h-[1100px] relative flex items-center px-6 sm:px-12 md:px-16 lg:px-24 pt-20 md:pt-24 pb-10 overflow-hidden bg-[#f5efe3]"
+        onDoubleClick={handleBranchDoubleClick}
+        className="min-h-[100dvh] h-[100dvh] w-full relative flex flex-col justify-between px-5 sm:px-10 md:px-16 lg:px-20 pt-20 sm:pt-28 pb-6 sm:pb-8 md:pb-10 overflow-hidden bg-[#f5efe3]"
       >
         {/* Atmósfera ambiental — orbes difuminados que respiran */}
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="orb orb-moss orb-drift w-[42vw] h-[42vw] max-w-[620px] max-h-[620px] -top-[14%] -right-[10%]" />
-          <div className="orb orb-ocean orb-drift-slow w-[34vw] h-[34vw] max-w-[520px] max-h-[520px] bottom-[-18%] left-[-8%]" />
-          <div className="orb orb-bone orb-drift w-[26vw] h-[26vw] max-w-[400px] max-h-[400px] top-[32%] left-[26%] opacity-70" />
+          <div className="orb orb-moss orb-drift w-[50vw] sm:w-[42vw] h-[50vw] sm:h-[42vw] max-w-[620px] max-h-[620px] -top-[14%] -right-[10%]" />
+          <div className="orb orb-ocean orb-drift-slow w-[40vw] sm:w-[34vw] h-[40vw] sm:h-[34vw] max-w-[520px] max-h-[520px] bottom-[-18%] left-[-8%]" />
+          <div className="orb orb-bone orb-drift w-[30vw] sm:w-[26vw] h-[30vw] sm:h-[26vw] max-w-[400px] max-h-[400px] top-[32%] left-[26%] opacity-70" />
         </div>
 
-        {/* Fade inferior: funde el recorte de la rama con la siguiente sección */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-28 z-20 pointer-events-none" style={{ background: 'linear-gradient(to top, #f5efe3 0%, rgba(245,239,227,0.55) 55%, transparent 100%)' }} />
+        {/* Fade inferior sutil (detrás de la rama para no empañarla ni cortarla) */}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-16 sm:h-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, #f5efe3 0%, rgba(245,239,227,0.4) 50%, transparent 100%)' }} />
 
+        {/* Rama fotográfica — interactiva con doble clic y hover reveal (Cubre 100% la altura de la pantalla) */}
         <motion.div
           ref={branchContainerRef}
-          initial={{ opacity: 0, x: 80 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          onDoubleClick={handleBranchDoubleClick}
           style={{
             position: 'absolute',
-            right: 'calc(0% + 5px)',
-            bottom: '-10%',
-            width: 'min(88vw, 1360px)',
-            aspectRatio: '1536 / 857.25',
-            pointerEvents: 'none',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            height: '100%',
+            width: '100%',
+            pointerEvents: 'auto',
+            cursor: 'pointer',
             zIndex: 15,
             y: heroBranchY,
             scale: heroBranchScale,
           }}
         >
+          {/* Capa Base: Imagen activa actual */}
           <img
-            src="/imagenes/Rama 1.svg"
-            alt={t({ es: 'Rama Exterior', en: 'Outer Branch' })}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              objectPosition: 'right center',
-              mixBlendMode: 'multiply',
-              userSelect: 'none',
-              pointerEvents: 'none',
-              display: 'block',
-            }}
+            src={activeBaseLayer === 1 ? '/imagenes/Rama 1.svg' : '/imagenes/Rama 2.svg'}
+            alt={activeBaseLayer === 1 ? t({ es: 'Rama con Follaje', en: 'Canopy Branch with Foliage' }) : t({ es: 'Rama sin Follaje (Estructura Leñosa)', en: 'Bare Wood Branch Structure' })}
+            className="hero-branch-img"
             draggable={false}
           />
 
+          {/* Capa Revelable en Hover: Imagen alternativa que se revela bajo el cursor o se expande en doble clic */}
           <div
             ref={maskRef}
             style={{
               position: 'absolute',
-              top: '0.7%',
-              left: 0,
+              top: 0,
+              right: 0,
               width: '100%',
               height: '100%',
               pointerEvents: 'none',
               opacity: 0,
-              transition: 'opacity 0.2s ease',
-              maskImage: 'radial-gradient(circle 140px at -999px -999px, black 25%, transparent 100%)',
-              WebkitMaskImage: 'radial-gradient(circle 140px at -999px -999px, black 25%, transparent 100%)',
+              transition: 'opacity 0.25s ease',
+              maskImage: 'radial-gradient(circle 220px at -999px -999px, black 30%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(circle 220px at -999px -999px, black 30%, transparent 100%)',
             }}
           >
             <img
-              src="/imagenes/Rama 2.svg"
-              alt={t({ es: 'Rama Interior', en: 'Inner Branch' })}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                objectPosition: 'right center',
-                mixBlendMode: 'multiply',
-                userSelect: 'none',
-                display: 'block',
-                pointerEvents: 'none',
-              }}
+              src={activeBaseLayer === 1 ? '/imagenes/Rama 2.svg' : '/imagenes/Rama 1.svg'}
+              alt={activeBaseLayer === 1 ? t({ es: 'Rama sin Follaje (Estructura Leñosa)', en: 'Bare Wood Branch Structure' }) : t({ es: 'Rama con Follaje', en: 'Canopy Branch with Foliage' })}
+              className="hero-branch-img"
               draggable={false}
             />
           </div>
         </motion.div>
 
-        <div className="relative z-30 max-w-4xl lg:max-w-5xl select-none">
+        {/* Fila Principal: Columna Izquierda con el Titular Centrado Verticalmente */}
+        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center my-auto select-none">
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-[clamp(2.4rem,5.2vw,5.8rem)] tracking-tight text-[#2d2618] leading-[1.04] mb-8 sm:mb-10 font-light"
+            transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="font-serif text-left tracking-[-0.025em] leading-[0.93] max-w-2xl lg:max-w-[50%]"
           >
-            <div className="block">
-              {t({ es: 'No hay afuera,', en: 'There is no outside,' })}
-            </div>
-            <div className="italic font-normal text-[#5a6b2a] block">
-              {t({ es: 'solo un mundo', en: 'only one world' })}
-            </div>
-            <div className="italic font-normal text-[#5a6b2a] block">
-              {t({ es: 'que sostener.', en: 'to sustain.' })}
-            </div>
+            <span className="block font-light text-[#2d2618] text-[clamp(2.75rem,7.8vw,6.2rem)] leading-[0.95]">
+              {t('hero.line1')}
+            </span>
+            <span className="block font-serif italic font-normal text-[#4a5a22] text-[clamp(2.5rem,7.2vw,5.8rem)] leading-[0.98] mt-1.5 sm:mt-2.5">
+              {t('hero.line2')}
+            </span>
           </motion.h1>
+        </div>
 
-          <Reveal y={20} delay={0.35}>
-            <div className="flex items-center gap-10 mt-8">
-              <a
-                href="#interdependencia"
-                className="inline-flex items-center gap-4 group cursor-pointer"
-              >
-                <div className="text-xs uppercase tracking-[0.3em] font-sans font-medium text-[#8a7e68] group-hover:text-[#4a5a22] transition-colors leading-none pt-0.5">
-                  {t({ es: 'Comenzar Exploración', en: 'Begin Exploration' })}
-                </div>
-                <div className="relative w-[1.5px] h-10 bg-[#d8ceb6]/60 rounded-full overflow-hidden">
-                  <motion.div
-                    animate={{ y: ['-100%', '100%'] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent via-[#4a5a22] to-[#4a5a22] shadow-[0_0_6px_#4a5a22]"
-                  />
-                </div>
-              </a>
+        {/* Capa Dinámica: Letras Blancas activas ÚNICAMENTE donde se tocan con la silueta de Rama 2 cuando esta está en primer plano */}
+        {activeBaseLayer === 2 && (
+          <div
+            aria-hidden="true"
+            className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex flex-col justify-between px-5 sm:px-10 md:px-16 lg:px-20 pt-20 sm:pt-28 pb-6 sm:pb-8 md:pb-10 overflow-hidden"
+          >
+            <div className="w-full max-w-[1440px] mx-auto opacity-0" />
+            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center my-auto select-none">
+              <div className="font-serif text-left tracking-[-0.025em] leading-[0.93] max-w-2xl lg:max-w-[50%]">
+                <span className="block font-light text-white text-[clamp(2.75rem,7.8vw,6.2rem)] leading-[0.95] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                  {t('hero.line1')}
+                </span>
+                <span className="block font-serif italic font-normal text-white text-[clamp(2.5rem,7.2vw,5.8rem)] leading-[0.98] mt-1.5 sm:mt-2.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                  {t('hero.line2')}
+                </span>
+              </div>
             </div>
+            <div className="relative w-full max-w-[1440px] mx-auto flex items-center justify-start pb-2 opacity-0 select-none">
+              <div className="inline-flex items-center gap-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8" />
+                <span className="text-[10px] sm:text-xs">Scroll</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fila Inferior: Solo Scroll down pill a la izquierda (Sin línea divisoria ni 20-26) */}
+        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex items-center justify-start pb-1 sm:pb-2 select-none">
+          <Reveal y={15} delay={0.4}>
+            <a
+              href="#interdependencia"
+              className="inline-flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-[#4a3f2d] hover:text-[#140f08] transition-colors duration-300"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#2d2618]/25 text-[#2d2618] flex items-center justify-center text-[10px] sm:text-xs font-sans group-hover:border-[#2d2618] transition-colors">
+                ↓
+              </div>
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.22em] font-sans font-medium">
+                {t({ es: 'Scroll para explorar', en: 'Scroll down for more' })}
+              </span>
+            </a>
           </Reveal>
         </div>
       </section>
@@ -552,7 +606,7 @@ export default function EditorialOverlay({
             }}
           >
             <img
-              src="/imagenes/Piedra.png"
+              src="/VideoFrames/frame_001.jpg"
               alt={t({ es: 'Piedra Ecosistémica', en: 'Ecosystem Rock' })}
               style={{
                 position: 'absolute',
@@ -596,10 +650,10 @@ export default function EditorialOverlay({
           </div>
 
           <div
-            className={`w-full max-w-[1400px] flex flex-col md:flex-row items-center justify-between gap-8 relative z-20 pointer-events-none px-8 md:px-12 ${stoneVisible ? '' : 'invisible'}`}
+            className={`w-full max-w-[1400px] flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-8 relative z-20 pointer-events-none px-4 sm:px-8 md:px-12 ${stoneVisible ? '' : 'invisible'}`}
           >
             <div
-              className="relative w-full md:w-[38%] text-left pointer-events-auto p-8 rounded-3xl overflow-hidden"
+              className="relative w-full md:w-[38%] text-left pointer-events-auto p-5 sm:p-8 rounded-2xl sm:rounded-3xl overflow-hidden"
               style={{
                 background:
                   'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.40), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.58) 0%, rgba(246,240,224,0.20) 50%, rgba(246,240,224,0.42) 100%)',
@@ -615,10 +669,10 @@ export default function EditorialOverlay({
                 <div className="absolute right-[-8%] bottom-[-20%] h-[70%] w-[34%] rotate-[18deg] bg-gradient-to-l from-white/10 via-white/4 to-transparent" />
               </div>
               <motion.div style={{ opacity: stoneTextOpacity }}>
-                <h2 className="relative font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] tracking-tight leading-[1.06] mb-5 font-light">
+                <h2 className="relative font-serif text-2xl sm:text-4xl md:text-5xl text-[#2d2618] tracking-tight leading-[1.06] mb-3 sm:mb-5 font-light">
                   {t({ es: 'La trama viva de las raíces.', en: 'The living web of roots.' })}
                 </h2>
-                <p className="relative font-sans text-sm sm:text-base text-[#6b6048] font-light leading-relaxed">
+                <p className="relative font-sans text-xs sm:text-base text-[#6b6048] font-light leading-relaxed">
                   {t({
                     es: 'En las profundidades del suelo, una inmensa red de raíces y micelio conecta cada árbol en una sinfonía silenciosa. Lo que ocurre en la copa de un roble alimenta la vida bajo la corteza terrestre.',
                     en: 'Deep in the soil, an immense network of roots and mycelium links every tree in a silent symphony. What happens in the crown of an oak feeds the life beneath the earth’s crust.',
@@ -627,9 +681,9 @@ export default function EditorialOverlay({
               </motion.div>
             </div>
 
-            <div className="w-full md:w-[36%] flex flex-col gap-4 text-left pointer-events-auto">
+            <div className="w-full md:w-[36%] flex flex-col gap-3 sm:gap-4 text-left pointer-events-auto">
               <div
-                className="relative p-6 rounded-2xl overflow-hidden"
+                className="relative p-4 sm:p-6 rounded-xl sm:rounded-2xl overflow-hidden"
                 style={{
                   background:
                     'radial-gradient(120% 120% at 15% 0%, rgba(255,255,255,0.36), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.52) 0%, rgba(246,240,224,0.18) 50%, rgba(246,240,224,0.40) 100%)',
@@ -643,7 +697,7 @@ export default function EditorialOverlay({
                   <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/45 via-white/10 to-transparent blur-[2px]" />
                 </div>
                 <motion.div style={{ opacity: stoneTextOpacity }}>
-                  <h3 className="relative font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Metabolismo Vital', en: 'Vital Metabolism' })}</h3>
+                  <h3 className="relative font-serif text-xl sm:text-2xl text-[#2d2618] font-light mb-1.5">{t({ es: 'Metabolismo Vital', en: 'Vital Metabolism' })}</h3>
                   <p className="relative text-xs text-[#6b6048] leading-relaxed font-sans font-light">
                     {t({
                       es: 'El suelo alberga más del 50% de todas las especies vivas de la Tierra y sustenta el ciclo biológico del planeta.',
@@ -653,7 +707,7 @@ export default function EditorialOverlay({
                 </motion.div>
               </div>
               <div
-                className="relative p-6 rounded-2xl overflow-hidden"
+                className="relative p-4 sm:p-6 rounded-xl sm:rounded-2xl overflow-hidden"
                 style={{
                   background:
                     'radial-gradient(120% 120% at 15% 0%, rgba(255,255,255,0.36), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.52) 0%, rgba(246,240,224,0.18) 50%, rgba(246,240,224,0.40) 100%)',
@@ -667,7 +721,7 @@ export default function EditorialOverlay({
                   <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/45 via-white/10 to-transparent blur-[2px]" />
                 </div>
                 <motion.div style={{ opacity: stoneTextOpacity }}>
-                  <h3 className="relative font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Pulmón Verde', en: 'Green Lung' })}</h3>
+                  <h3 className="relative font-serif text-xl sm:text-2xl text-[#2d2618] font-light mb-1.5">{t({ es: 'Pulmón Verde', en: 'Green Lung' })}</h3>
                   <p className="relative text-xs text-[#6b6048] leading-relaxed font-sans font-light">
                     {t({
                       es: 'Cada hectárea de bosque primario purifica millones de litros de agua y aire al año, estabilizando el clima continental.',
@@ -680,17 +734,18 @@ export default function EditorialOverlay({
           </div>
 
           <div
-            className={`w-full max-w-[1400px] flex flex-col md:flex-row items-center justify-between gap-8 absolute inset-x-0 mx-auto z-20 pointer-events-none px-8 md:px-12 ${reefVisible ? '' : 'invisible'}`}
+            className={`w-full max-w-[1400px] flex flex-col md:flex-row items-stretch justify-between gap-4 sm:gap-8 absolute inset-x-0 mx-auto z-20 pointer-events-none px-4 sm:px-8 md:px-12 ${reefVisible ? '' : 'invisible'}`}
           >
+            {/* Tarjeta 1: Nuestra misión con el océano — Estilo Cálido de Vidrio Líquido */}
             <div
-              className="relative w-full md:w-[42%] text-left pointer-events-auto p-8 sm:p-10 rounded-3xl overflow-hidden"
+              className="relative w-full md:w-[48%] lg:w-[45%] text-left pointer-events-auto p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl overflow-hidden"
               style={{
                 background:
-                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.42), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(245,239,227,0.5) 0%, rgba(245,239,227,0.16) 50%, rgba(245,239,227,0.38) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.5)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
+                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.40), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.58) 0%, rgba(246,240,224,0.20) 50%, rgba(246,240,224,0.42) 100%)',
+                backdropFilter: 'blur(22px) saturate(1.4)',
+                WebkitBackdropFilter: 'blur(22px) saturate(1.4)',
                 boxShadow:
-                  'inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(16,60,90,0.16), inset 0 -16px 32px -20px rgba(70,110,140,0.38), 0 30px 80px -30px rgba(16,60,90,0.55)',
+                  'inset 0 1px 0 rgba(255,255,255,0.5), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(90,70,40,0.12), inset 0 -16px 32px -20px rgba(100,90,45,0.30), 0 30px 80px -30px rgba(45,38,24,0.45)',
               }}
             >
               {/* Brillos especulares del liquid glass */}
@@ -698,28 +753,31 @@ export default function EditorialOverlay({
                 <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/50 via-white/12 to-transparent blur-[2px]" />
                 <div className="absolute right-[-8%] bottom-[-20%] h-[70%] w-[34%] rotate-[18deg] bg-gradient-to-l from-white/10 via-white/4 to-transparent" />
               </div>
-              <motion.div style={{ opacity: reefTextOpacity }}>
-                <h2 className="relative font-serif text-3xl sm:text-5xl text-[#3a4a18] tracking-tight leading-[1.06] mb-5 font-light">
-                  {t({ es: 'Nuestra misión con el océano', en: 'Our mission with the ocean' })}
+
+              <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
+                <h2 className="relative font-serif text-2xl sm:text-4xl md:text-5xl text-[#2d2618] tracking-tight leading-[1.06] mb-3 sm:mb-5 font-light">
+                  {t({ es: 'Lo que cuidamos en tierra respira bajo el agua.', en: 'What we protect on land breathes underwater.' })}
                 </h2>
-                <p className="relative font-sans text-sm sm:text-base text-[#4a5a22]/90 font-light leading-relaxed">
+
+                <p className="relative font-sans text-xs sm:text-base text-[#6b6048] font-light leading-relaxed">
                   {t({
-                    es: 'Lo que cuidamos en tierra respira bajo el agua: proteger los bosques y frenar la escorrentía es proteger la continuidad de los corales y la vida marina.',
-                    en: 'What we protect on land breathes underwater: safeguarding forests and curbing runoff is safeguarding the continuity of corals and marine life.',
+                    es: 'En la inmensidad del océano, la luz del sol baila entre los arrecifes y el fitoplancton genera el aliento de nuestro planeta. Proteger los bosques y frenar la escorrentía es proteger la continuidad de los corales y la vida marina.',
+                    en: 'In the ocean’s depth, sunlight dances through coral reefs and phytoplankton generates the planet’s breath. Safeguarding forests and curbing runoff sustains corals and marine life.',
                   })}
                 </p>
               </motion.div>
             </div>
 
+            {/* Tarjeta 2: Restauración territorial y marina — Estilo Cálido de Vidrio Líquido */}
             <div
-              className="relative w-full md:w-[40%] text-left pointer-events-auto p-8 sm:p-10 rounded-3xl overflow-hidden"
+              className="relative w-full md:w-[46%] lg:w-[43%] text-left pointer-events-auto p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl overflow-hidden"
               style={{
                 background:
-                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.42), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(245,239,227,0.5) 0%, rgba(245,239,227,0.16) 50%, rgba(245,239,227,0.38) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.5)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
+                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.40), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.58) 0%, rgba(246,240,224,0.20) 50%, rgba(246,240,224,0.42) 100%)',
+                backdropFilter: 'blur(22px) saturate(1.4)',
+                WebkitBackdropFilter: 'blur(22px) saturate(1.4)',
                 boxShadow:
-                  'inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(16,60,90,0.16), inset 0 -16px 32px -20px rgba(70,110,140,0.38), 0 30px 80px -30px rgba(16,60,90,0.55)',
+                  'inset 0 1px 0 rgba(255,255,255,0.5), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(90,70,40,0.12), inset 0 -16px 32px -20px rgba(100,90,45,0.30), 0 30px 80px -30px rgba(45,38,24,0.45)',
               }}
             >
               {/* Brillos especulares del liquid glass */}
@@ -727,14 +785,16 @@ export default function EditorialOverlay({
                 <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/50 via-white/12 to-transparent blur-[2px]" />
                 <div className="absolute right-[-8%] bottom-[-20%] h-[70%] w-[34%] rotate-[18deg] bg-gradient-to-l from-white/10 via-white/4 to-transparent" />
               </div>
-              <motion.div style={{ opacity: reefTextOpacity }}>
-                <h3 className="relative font-serif text-2xl sm:text-3xl text-[#3a4a18] font-light leading-snug mb-4">
-                  {t({ es: 'Restauración territorial y marina', en: 'Territorial and marine restoration' })}
+
+              <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
+                <h3 className="relative font-serif text-2xl sm:text-4xl text-[#2d2618] font-light leading-[1.08] mb-3 sm:mb-5">
+                  {t({ es: 'Restauración territorial y marina.', en: 'Territorial and marine restoration.' })}
                 </h3>
-                <p className="relative font-sans text-xs sm:text-sm text-[#4a5a22]/90 font-light leading-relaxed">
+
+                <p className="relative font-sans text-xs sm:text-base text-[#6b6048] font-light leading-relaxed">
                   {t({
-                    es: 'Protegemos las cuencas altas que nutren a los arrecifes costeros con monitoreo satelital y gobernanza comunitaria.',
-                    en: 'We protect the upper watersheds that feed coastal reefs through satellite monitoring and community governance.',
+                    es: 'Protegemos las cuencas altas que nutren a los arrecifes costeros mediante monitoreo continuo y gobernanza compartida con comunidades locales para preservar los santuarios marinos.',
+                    en: 'We protect the upper watersheds that feed coastal reefs through continuous monitoring and shared governance with local communities to preserve marine sanctuaries.',
                   })}
                 </p>
               </motion.div>
@@ -755,10 +815,10 @@ export default function EditorialOverlay({
                 activeTabWess === 0
                   ? "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1800&h=1400&fit=crop&auto=format"
                   : activeTabWess === 1
-                  ? "https://images.unsplash.com/photo-1511497584788-87676104235f?w=1800&h=1400&fit=crop&auto=format"
-                  : activeTabWess === 2
-                  ? "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1800&h=1400&fit=crop&auto=format"
-                  : "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1800&h=1400&fit=crop&auto=format"
+                    ? "https://images.unsplash.com/photo-1511497584788-87676104235f?w=1800&h=1400&fit=crop&auto=format"
+                    : activeTabWess === 2
+                      ? "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1800&h=1400&fit=crop&auto=format"
+                      : "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1800&h=1400&fit=crop&auto=format"
               }
               alt={t({ es: 'Proyecto Insignia Gobernanza Ambiental', en: 'Flagship Environmental Governance Project' })}
               initial={{ opacity: 0, scale: 1.03 }}
@@ -769,8 +829,11 @@ export default function EditorialOverlay({
             />
           </AnimatePresence>
 
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to right, #f5efe3 0%, rgba(245,239,227,0.92) 12%, rgba(245,239,227,0.45) 45%, transparent 85%)' }} />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #f5efe3 0%, transparent 15%, transparent 85%, #f5efe3 100%)' }} />
+          {/* Overlay suave en Mobile/Tablet que permite apreciar la fotografía manteniendo la legibilidad */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#f5efe3]/80 via-[#f5efe3]/55 to-[#f5efe3]/90 lg:hidden" />
+          {/* Overlay en Desktop */}
+          <div className="hidden lg:block absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to right, #f5efe3 0%, rgba(245,239,227,0.94) 30%, rgba(245,239,227,0.5) 60%, transparent 90%)' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #f5efe3 0%, transparent 10%, transparent 90%, #f5efe3 100%)' }} />
         </div>
 
         <div className="max-w-7xl mx-auto w-full relative z-10">
@@ -797,11 +860,10 @@ export default function EditorialOverlay({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTabWess(tab.id)}
-                  className={`relative py-2.5 px-3 rounded-xl text-xs font-sans font-semibold transition-colors duration-300 text-center active:scale-[0.97] ${
-                    activeTabWess === tab.id
-                      ? 'text-[#f5efe3]'
-                      : 'text-[#6b6048] hover:text-[#2d2618] bg-[#eae4d2]/80 hover:bg-[#eae4d2]'
-                  }`}
+                  className={`relative py-2.5 px-3 rounded-xl text-xs font-sans font-semibold transition-colors duration-300 text-center active:scale-[0.97] ${activeTabWess === tab.id
+                    ? 'text-[#f5efe3]'
+                    : 'text-[#6b6048] hover:text-[#2d2618] bg-[#eae4d2] hover:bg-[#d8ceb6]'
+                    }`}
                 >
                   {activeTabWess === tab.id && (
                     <motion.span
@@ -815,7 +877,7 @@ export default function EditorialOverlay({
               ))}
             </div>
 
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#eae4d2]/75 backdrop-blur-md border border-[#d8ceb6]/80 mb-8 min-h-[135px] flex flex-col justify-center shadow-sm">
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#eae4d2]/95 sm:bg-[#eae4d2]/85 backdrop-blur-md border border-[#d8ceb6] mb-8 min-h-[135px] flex flex-col justify-center shadow-sm">
               <AnimatePresence mode="wait">
                 {activeTabWess === 0 && (
                   <motion.div key="tab0" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
@@ -868,7 +930,7 @@ export default function EditorialOverlay({
               <Link to="/proyectos" className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#4a5a22] hover:bg-[#3a4a18] text-[#f5efe3] rounded-full font-medium text-[11px] tracking-wider uppercase transition-all shadow-sm hover:shadow">
                 {t({ es: 'Conocer el proyecto completo', en: 'Explore the full project' })} &rarr;
               </Link>
-              <Link to="/agenda-2030" className="inline-flex items-center px-4 py-2.5 rounded-full text-[11px] uppercase tracking-wider text-[#6b6048] hover:text-[#2d2618] hover:bg-[#eae4d2]/80 transition-colors font-medium border border-[#d8ceb6]/80">
+              <Link to="/agenda-2030" className="inline-flex items-center px-4 py-2.5 rounded-full text-[11px] uppercase tracking-wider text-[#2d2618] bg-[#eae4d2] hover:bg-[#d8ceb6] transition-colors font-medium border border-[#d8ceb6] shadow-sm">
                 {t({ es: 'Metas Agenda 2030', en: 'Agenda 2030 Goals' })}
               </Link>
             </div>
@@ -898,7 +960,7 @@ export default function EditorialOverlay({
             </div>
           </Reveal>
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
             {[
               {
                 num: '01',
@@ -1009,38 +1071,35 @@ export default function EditorialOverlay({
             {biomesData.map((eco, idx) => {
               const ecoTitle = t(eco.title);
               return (
-              <RevealItem
-                key={eco.id}
-                index={idx}
-                className={idx === 0 ? 'lg:col-span-2 lg:row-span-2' : ''}
-              >
-                <div
-                  onClick={() => setSelectedBiome(idx)}
-                  className={`group relative overflow-hidden rounded-[2rem] border border-[#d8ceb6]/80 shadow-sm cursor-pointer hover:shadow-[0_28px_70px_-28px_rgba(20,28,16,0.55)] hover:border-[#4a5a22]/60 hover:-translate-y-1.5 active:scale-[0.995] transition-all duration-500 flex flex-col justify-end p-8 ${
-                    idx === 0 ? 'h-[520px] lg:h-full min-h-[520px]' : 'h-[250px]'
-                  }`}
+                <RevealItem
+                  key={eco.id}
+                  index={idx}
+                  className={idx === 0 ? 'lg:col-span-2 lg:row-span-2' : ''}
                 >
-                  <img src={eco.cardImg} alt={ecoTitle} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-out" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5 transition-opacity duration-500 group-hover:via-black/45" />
+                  <div
+                    onClick={() => setSelectedBiome(idx)}
+                    className={`group relative overflow-hidden rounded-[2rem] border border-[#d8ceb6]/80 shadow-sm cursor-pointer hover:shadow-[0_28px_70px_-28px_rgba(20,28,16,0.55)] hover:border-[#4a5a22]/60 hover:-translate-y-1.5 active:scale-[0.995] transition-all duration-500 flex flex-col justify-end p-8 ${idx === 0 ? 'h-[520px] lg:h-full min-h-[520px]' : 'h-[250px]'
+                      }`}
+                  >
+                    <img src={eco.cardImg} alt={ecoTitle} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-out" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5 transition-opacity duration-500 group-hover:via-black/45" />
 
-                  <div className="relative z-10">
-                    <div className="text-[11px] uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold mb-2">{t(eco.tag)}</div>
-                    <h3 className={`font-serif text-[#f5efe3] font-light mb-3 leading-tight ${
-                      idx === 0 ? 'text-4xl sm:text-5xl' : 'text-2xl'
-                    }`}>
-                      {idx === 0 ? ecoTitle.split(' ')[0] : ''}
-                      <span>{idx === 0 ? ' ' + ecoTitle.split(' ').slice(1).join(' ') : ecoTitle}</span>
-                    </h3>
-                    <p className={`text-xs text-slate-300 font-light leading-relaxed mb-6 ${
-                      idx === 0 ? 'max-w-md line-clamp-3' : 'hidden sm:line-clamp-1'
-                    }`}>{t(eco.alert)}</p>
-                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#f5efe3] group-hover:text-[#cde48e] transition-colors">
-                      <span>{t({ es: 'Explorar Inmersión', en: 'Explore Immersion' })}</span>
-                      <span className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</span>
+                    <div className="relative z-10">
+                      <div className="text-[11px] uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold mb-2">{t(eco.tag)}</div>
+                      <h3 className={`font-serif text-[#f5efe3] font-light mb-3 leading-tight ${idx === 0 ? 'text-4xl sm:text-5xl' : 'text-2xl'
+                        }`}>
+                        {idx === 0 ? ecoTitle.split(' ')[0] : ''}
+                        <span>{idx === 0 ? ' ' + ecoTitle.split(' ').slice(1).join(' ') : ecoTitle}</span>
+                      </h3>
+                      <p className={`text-xs text-slate-300 font-light leading-relaxed mb-6 ${idx === 0 ? 'max-w-md line-clamp-3' : 'hidden sm:line-clamp-1'
+                        }`}>{t(eco.alert)}</p>
+                      <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#f5efe3] group-hover:text-[#cde48e] transition-colors">
+                        <span>{t({ es: 'Explorar Inmersión', en: 'Explore Immersion' })}</span>
+                        <span className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </RevealItem>
+                </RevealItem>
               );
             })}
           </div>
@@ -1057,12 +1116,12 @@ export default function EditorialOverlay({
 
               <div className="fixed inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 pointer-events-none" />
 
-              <div className="relative z-20 w-full px-8 md:px-16 py-7 flex items-center justify-between pointer-events-auto">
-                <div className="text-xs uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold drop-shadow-sm">{t(biomesData[selectedBiome].tag)}</div>
+              <div className="relative z-20 w-full px-4 sm:px-8 md:px-16 py-4 sm:py-7 flex items-center justify-between pointer-events-auto">
+                <div className="text-[11px] sm:text-xs uppercase tracking-[0.22em] text-[#d8ceb6] font-semibold drop-shadow-sm">{t(biomesData[selectedBiome].tag)}</div>
 
-                <div className="hidden sm:flex items-center gap-1.5 bg-black/30 p-1.5 rounded-full border border-white/15 backdrop-blur-md">
+                <div className="hidden md:flex items-center gap-1.5 bg-black/30 p-1.5 rounded-full border border-white/15 backdrop-blur-md">
                   {biomesData.map((b, i) => (
-                    <button key={b.id} onClick={() => setSelectedBiome(i)} className={`px-4 py-1.5 rounded-full text-xs font-sans transition-all duration-300 ${selectedBiome === i ? 'bg-white/25 text-white font-medium border border-white/30 shadow-sm' : 'text-slate-300 hover:text-white'}`}>
+                    <button key={b.id} onClick={() => setSelectedBiome(i)} className={`px-4 py-1.5 rounded-full text-xs font-sans transition-all duration-300 cursor-pointer ${selectedBiome === i ? 'bg-white/25 text-white font-medium border border-white/30 shadow-sm' : 'text-slate-300 hover:text-white'}`}>
                       {t(b.title)}
                     </button>
                   ))}
@@ -1070,7 +1129,7 @@ export default function EditorialOverlay({
 
                 <button
                   onClick={() => setSelectedBiome(null)}
-                  className="group inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 bg-black/50 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[11px] font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-300 active:scale-[0.96] shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)] cursor-pointer"
+                  className="group inline-flex items-center gap-2 rounded-full px-4 py-2 sm:px-5 sm:py-2.5 bg-black/50 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[10px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-300 active:scale-[0.96] shadow-[0_10px_30px_-8px_rgba(0,0,0,0.5)] cursor-pointer"
                   aria-label={t({ es: 'Cerrar inmersión', en: 'Close immersion' })}
                 >
                   <span>{t({ es: 'Cerrar', en: 'Close' })}</span>
@@ -1080,32 +1139,28 @@ export default function EditorialOverlay({
                     </svg>
                   </span>
                 </button>
-
-
-
-
               </div>
 
-              <div className="relative z-20 max-w-6xl mx-auto w-full px-8 md:px-16 py-12 md:py-20 flex-1 flex flex-col justify-end">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end">
-                  <div className="lg:col-span-7 space-y-6">
-                    <h2 className="font-serif text-4xl sm:text-6xl md:text-7xl text-white font-light tracking-tight leading-[1.05]">{t(biomesData[selectedBiome].title)}</h2>
-                    <p className="font-serif text-xl sm:text-2xl text-[#d8ceb6] font-light italic leading-snug">&ldquo;{t(biomesData[selectedBiome].subtitle)}&rdquo;</p>
-                    <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed max-w-xl font-sans">{t(biomesData[selectedBiome].desc)}</p>
+              <div className="relative z-20 max-w-6xl mx-auto w-full px-4 sm:px-8 md:px-16 py-8 md:py-20 flex-1 flex flex-col justify-end">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end">
+                  <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+                    <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-light tracking-tight leading-[1.05]">{t(biomesData[selectedBiome].title)}</h2>
+                    <p className="font-serif text-lg sm:text-xl md:text-2xl text-[#d8ceb6] font-light italic leading-snug">&ldquo;{t(biomesData[selectedBiome].subtitle)}&rdquo;</p>
+                    <p className="text-xs sm:text-base text-slate-300 font-light leading-relaxed max-w-xl font-sans">{t(biomesData[selectedBiome].desc)}</p>
                     <div className="pt-2 flex items-center gap-4">
-                      <Link to="/proyectos" onClick={() => setSelectedBiome(null)} className="inline-flex items-center gap-2 py-3 px-7 rounded-full bg-[#f5efe3] hover:bg-white text-[#2d2618] font-semibold text-xs uppercase tracking-widest transition-all duration-300 shadow-xl group">
+                      <Link to="/proyectos" onClick={() => setSelectedBiome(null)} className="inline-flex items-center gap-2 py-2.5 sm:py-3 px-5 sm:px-7 rounded-full bg-[#f5efe3] hover:bg-white text-[#2d2618] font-semibold text-[11px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-xl group">
                         <div>{t({ es: 'Ver Proyectos Territoriales', en: 'View Territorial Projects' })}</div>
                         <div className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</div>
                       </Link>
                     </div>
                   </div>
 
-                  <div className="lg:col-span-5 space-y-8 lg:border-l lg:border-white/15 lg:pl-10">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
+                  <div className="lg:col-span-5 space-y-6 sm:space-y-8 lg:border-l lg:border-white/15 lg:pl-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 sm:gap-6">
                       {biomesData[selectedBiome].metrics.map((m, mIdx) => (
                         <div key={mIdx}>
-                          <div className="font-serif text-4xl sm:text-5xl text-[#f5efe3] font-light mb-1">{m.val}</div>
-                          <div className="text-xs text-slate-400 font-sans font-light tracking-wide">{t(m.label)}</div>
+                          <div className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#f5efe3] font-light mb-0.5">{m.val}</div>
+                          <div className="text-[11px] sm:text-xs text-slate-400 font-sans font-light tracking-wide">{t(m.label)}</div>
                         </div>
                       ))}
                     </div>
@@ -1133,41 +1188,41 @@ export default function EditorialOverlay({
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <RevealItem index={0} className="h-full">
-            <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
-              <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop&auto=format" alt="Mtro. Luis García González" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">Mtro. Luis García González</h3>
-                  <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Consejero Presidente y Fundador', en: 'President and Founding Councillor' })}</p>
-                  <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Con amplia experiencia en diplomacia multilateral y gobernanza ambiental de alto nivel. Ha impulsado acuerdos vinculantes con organismos internacionales y consolidado marcos de resiliencia ecosistémica.', en: 'With extensive experience in multilateral diplomacy and high-level environmental governance. He has driven binding agreements with international bodies and consolidated ecosystem resilience frameworks.' })}</p>
+              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
+                <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop&auto=format" alt="Mtro. Luis García González" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
                 </div>
-                <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
-                  <div>{t({ es: 'Conocer trayectoria institucional', en: 'View institutional track record' })}</div>
-                  <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
-                </Link>
+                <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">Mtro. Luis García González</h3>
+                    <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Consejero Presidente y Fundador', en: 'President and Founding Councillor' })}</p>
+                    <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Con amplia experiencia en diplomacia multilateral y gobernanza ambiental de alto nivel. Ha impulsado acuerdos vinculantes con organismos internacionales y consolidado marcos de resiliencia ecosistémica.', en: 'With extensive experience in multilateral diplomacy and high-level environmental governance. He has driven binding agreements with international bodies and consolidated ecosystem resilience frameworks.' })}</p>
+                  </div>
+                  <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
+                    <div>{t({ es: 'Conocer trayectoria institucional', en: 'View institutional track record' })}</div>
+                    <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
+                  </Link>
+                </div>
               </div>
-            </div>
             </RevealItem>
 
             <RevealItem index={1} className="h-full">
-            <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
-              <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
-                <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">Mtro. Francisco Solorio</h3>
-                  <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Secretario Ejecutivo y Fundador', en: 'Executive Secretary and Founder' })}</p>
-                  <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas. Encabeza el despliegue operativo en campo, la vinculación con ejidos y comunidades, y la implementación de los proyectos galardonados.', en: 'Specialist in technical management, territorial cooperation and public-private partnerships. He leads field operations, relations with communal landholdings and communities, and the implementation of award-winning projects.' })}</p>
+              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
+                <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
+                  <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
-                <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
-                  <div>{t({ es: 'Conocer coordinación operativa', en: 'View operational coordination' })}</div>
-                  <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
-                </Link>
+                <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug group-hover:text-[#3a4a18] transition-colors mb-1">Mtro. Francisco Solorio</h3>
+                    <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Secretario Ejecutivo y Fundador', en: 'Executive Secretary and Founder' })}</p>
+                    <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas. Encabeza el despliegue operativo en campo, la vinculación con ejidos y comunidades, y la implementación de los proyectos galardonados.', en: 'Specialist in technical management, territorial cooperation and public-private partnerships. He leads field operations, relations with communal landholdings and communities, and the implementation of award-winning projects.' })}</p>
+                  </div>
+                  <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
+                    <div>{t({ es: 'Conocer coordinación operativa', en: 'View operational coordination' })}</div>
+                    <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
+                  </Link>
+                </div>
               </div>
-            </div>
             </RevealItem>
           </div>
         </div>
@@ -1299,76 +1354,76 @@ export default function EditorialOverlay({
                       <span className="font-serif italic text-sm text-[#8a7e68] hidden sm:block">{t({ es: 'Adhesión N.º 01', en: 'Accession No. 01' })}</span>
                     </div>
 
-                <form onSubmit={handlePledge} className="space-y-9 font-sans">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-9">
-                    <div className="group border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                      <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Nombre o Institución', en: 'Name or Institution' })}</label>
-                      <input
-                        type="text"
-                        required
-                        value={pledgeName}
-                        onChange={(e) => setPledgeName(e.target.value)}
-                        placeholder={t({ es: 'Tu nombre', en: 'Your name' })}
-                        className="peer w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] py-1 transition-all duration-300 placeholder:font-sans placeholder:text-sm"
-                      />
-                      <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                    </div>
-                    <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                      <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Correo Electrónico', en: 'Email Address' })}</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="email@example.com"
-                        className="w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] placeholder:font-sans placeholder:text-sm py-1"
-                      />
-                      <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                    </div>
-                  </div>
-
-                  <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                    <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Tu Compromiso Principal', en: 'Your Main Commitment' })}</label>
-                    <select className="w-full cursor-pointer appearance-none bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] pr-8 py-1" defaultValue="forest">
-                      <option value="forest">{t({ es: 'Protección y Reforestación de Bosques Nativos', en: 'Protection and Reforestation of Native Forests' })}</option>
-                      <option value="ocean">{t({ es: 'Conservación de Océanos y Arrecifes Marinos', en: 'Conservation of Oceans and Marine Reefs' })}</option>
-                      <option value="soil">{t({ es: 'Regeneración y Salud del Suelo de Conservación', en: 'Regeneration and Health of Conservation Land' })}</option>
-                      <option value="education">{t({ es: 'Conciencia, Investigación y Educación Ambiental', en: 'Awareness, Research and Environmental Education' })}</option>
-                    </select>
-                    <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                    <svg className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a6e58]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      className="group relative w-full overflow-hidden rounded-full bg-[#4a5a22] py-3 sm:py-3.5 pl-8 pr-3 flex items-center justify-between gap-4 text-[#f5efe3] font-sans text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_14px_36px_-14px_rgba(51,66,21,0.55)] transition-all duration-300 hover:bg-[#3a4a18] active:scale-[0.98] cursor-pointer"
-                    >
-                      <span className="pl-1 text-left">{t({ es: 'Firmar el Manifiesto por la Tierra', en: 'Sign the Manifesto for the Earth' })}</span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5efe3]/14 ring-1 ring-[#f5efe3]/25 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-px">
-                        <span className="text-base leading-none">&rarr;</span>
-                      </span>
-                    </button>
-                  </div>
-                </form>
-
-                <AnimatePresence>
-                  {pledgeSubmitted && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="mt-6 rounded-2xl border border-[#4a5a22]/25 bg-[#4a5a22]/10 py-6 px-6 text-center font-sans"
-                    >
-                      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#4a5a22] text-[#f5efe3] shadow-[0_8px_20px_-8px_rgba(51,66,21,0.6)]">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                    <form onSubmit={handlePledge} className="space-y-9 font-sans">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-9">
+                        <div className="group border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
+                          <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Nombre o Institución', en: 'Name or Institution' })}</label>
+                          <input
+                            type="text"
+                            required
+                            value={pledgeName}
+                            onChange={(e) => setPledgeName(e.target.value)}
+                            placeholder={t({ es: 'Tu nombre', en: 'Your name' })}
+                            className="peer w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] py-1 transition-all duration-300 placeholder:font-sans placeholder:text-sm"
+                          />
+                          <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
+                        </div>
+                        <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
+                          <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Correo Electrónico', en: 'Email Address' })}</label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="email@example.com"
+                            className="w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] placeholder:font-sans placeholder:text-sm py-1"
+                          />
+                          <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
+                        </div>
                       </div>
-                      <h4 className="font-serif text-xl text-[#2d2618] mb-1 font-light">{t({ es: 'Compromiso registrado', en: 'Commitment registered' })}</h4>
-                      <p className="text-xs text-[#4a5a22] font-medium">{t({ es: 'Gracias', en: 'Thank you' })}{pledgeName ? `, ${pledgeName}` : ''}. {t({ es: 'Tu adhesión institucional ha sido registrada.', en: 'Your institutional accession has been recorded.' })}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+
+                      <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
+                        <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Tu Compromiso Principal', en: 'Your Main Commitment' })}</label>
+                        <select className="w-full cursor-pointer appearance-none bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] pr-8 py-1" defaultValue="forest">
+                          <option value="forest">{t({ es: 'Protección y Reforestación de Bosques Nativos', en: 'Protection and Reforestation of Native Forests' })}</option>
+                          <option value="ocean">{t({ es: 'Conservación de Océanos y Arrecifes Marinos', en: 'Conservation of Oceans and Marine Reefs' })}</option>
+                          <option value="soil">{t({ es: 'Regeneración y Salud del Suelo de Conservación', en: 'Regeneration and Health of Conservation Land' })}</option>
+                          <option value="education">{t({ es: 'Conciencia, Investigación y Educación Ambiental', en: 'Awareness, Research and Environmental Education' })}</option>
+                        </select>
+                        <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
+                        <svg className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a6e58]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="submit"
+                          className="group relative w-full overflow-hidden rounded-full bg-[#4a5a22] py-3 sm:py-3.5 pl-8 pr-3 flex items-center justify-between gap-4 text-[#f5efe3] font-sans text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_14px_36px_-14px_rgba(51,66,21,0.55)] transition-all duration-300 hover:bg-[#3a4a18] active:scale-[0.98] cursor-pointer"
+                        >
+                          <span className="pl-1 text-left">{t({ es: 'Firmar el Manifiesto por la Tierra', en: 'Sign the Manifesto for the Earth' })}</span>
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5efe3]/14 ring-1 ring-[#f5efe3]/25 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-px">
+                            <span className="text-base leading-none">&rarr;</span>
+                          </span>
+                        </button>
+                      </div>
+                    </form>
+
+                    <AnimatePresence>
+                      {pledgeSubmitted && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="mt-6 rounded-2xl border border-[#4a5a22]/25 bg-[#4a5a22]/10 py-6 px-6 text-center font-sans"
+                        >
+                          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#4a5a22] text-[#f5efe3] shadow-[0_8px_20px_-8px_rgba(51,66,21,0.6)]">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                          </div>
+                          <h4 className="font-serif text-xl text-[#2d2618] mb-1 font-light">{t({ es: 'Compromiso registrado', en: 'Commitment registered' })}</h4>
+                          <p className="text-xs text-[#4a5a22] font-medium">{t({ es: 'Gracias', en: 'Thank you' })}{pledgeName ? `, ${pledgeName}` : ''}. {t({ es: 'Tu adhesión institucional ha sido registrada.', en: 'Your institutional accession has been recorded.' })}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </Reveal>
