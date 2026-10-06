@@ -64,6 +64,7 @@ const es = {
     manifiesto: 'Manifiesto por la Tierra',
     contactArrow: 'Contacto',
     rights: '© 2026 Consejo Global Ambiental · Todos los derechos reservados.',
+    developer: 'Desarrollado por Gadiel Palma',
     cities: 'Genève · Ciudad de México · Brasilia',
   },
 };

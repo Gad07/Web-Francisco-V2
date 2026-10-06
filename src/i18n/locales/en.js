@@ -64,6 +64,7 @@ const en = {
     manifiesto: 'Manifesto for the Earth',
     contactArrow: 'Contact',
     rights: '© 2026 Global Environmental Council · All rights reserved.',
+    developer: 'Developed by Gadiel Palma',
     cities: 'Geneva · Mexico City · Brasilia',
   },
 };

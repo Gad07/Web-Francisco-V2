@@ -173,9 +173,12 @@ export default function FooterNav() {
         </div>
 
         {/* Barra final */}
-        <div className="py-6 sm:py-8 border-t border-[#f5efe3]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light text-center sm:text-left">
+        <div className="py-6 sm:py-8 border-t border-[#f5efe3]/15 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light text-center md:text-left">
           <span>{t('footer.rights')}</span>
-          <span className="hidden sm:block h-px w-16 bg-[#f5efe3]/25" />
+          <span className="inline-flex items-center gap-1.5 text-[#d8d2c2]/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#5a6b2a] inline-block" />
+            <span>{t('footer.developer')}</span>
+          </span>
           <span className="uppercase tracking-[0.2em] font-medium">{t('footer.cities')}</span>
         </div>
       </div>
