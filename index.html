@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Consejo Global Ambiental — La Voz Viva de la Tierra</title>
   <meta name="description" content="Una experiencia inmersiva cinematográfica sobre el equilibrio y la interdependencia de la biosfera y el océano." />
+  <meta name="theme-color" content="#f5efe3" />
+
+  <!-- Open Graph / Social sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:title" content="Consejo Global Ambiental — La Voz Viva de la Tierra" />
+  <meta property="og:description" content="Organismo internacional dedicado a la gobernanza socioambiental, la conservación de biomas y la Agenda 2030." />
+  <meta property="og:image" content="/logos/og-card.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Consejo Global Ambiental" />
+  <meta name="twitter:description" content="Conservación de biomas, resiliencia comunitaria y la Agenda 2030." />
+  <link rel="icon" type="image/png" href="/logos/favicon.png" />
+  <link rel="apple-touch-icon" href="/logos/favicon.png" />
   
   <!-- Fonts: Cormorant Garamond / Cinzel & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +27,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/src/style.css" />
+
+  <!-- Idioma: se resuelve antes del primer pintado para evitar el parpadeo de lang -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('cga:lang');
+        var lang = saved === 'en' || saved === 'es' ? saved : (navigator.language || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
+        document.documentElement.lang = lang;
+        document.documentElement.setAttribute('data-lang', lang);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="bg-black text-slate-100 overflow-x-hidden select-none">
   <div id="root"></div>

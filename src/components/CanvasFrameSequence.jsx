@@ -85,9 +85,11 @@ export default function CanvasFrameSequence({
 
     const render = () => {
       const img = imagesRef.current.get(currentFrame);
-      if (img && img.complete && img.naturalWidth > 0) {
-        const cw = canvas.width;
-        const ch = canvas.height;
+      const cw = canvas.width;
+      const ch = canvas.height;
+      const hadImage = img && img.complete && img.naturalWidth > 0;
+
+      if (hadImage) {
         const iw = img.naturalWidth;
         const ih = img.naturalHeight;
 
@@ -98,8 +100,13 @@ export default function CanvasFrameSequence({
         const nx = (cw - nw) / 2;
         const ny = (ch - nh) / 2;
 
+        ctx.fillStyle = '#f5efe3';
+        ctx.fillRect(0, 0, cw, ch);
         ctx.drawImage(img, nx, ny, nw, nh);
       } else {
+        // Pintar el fondo de la página mientras el frame no esté decodificado
+        ctx.fillStyle = '#f5efe3';
+        ctx.fillRect(0, 0, cw, ch);
         // Fallback: trigger image load if not yet in cache
         if (!imagesRef.current.has(currentFrame)) {
           const fallbackImg = new Image();

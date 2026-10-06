@@ -1,15 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../i18n/index.jsx';
 
 export function PageHero({
-  tag = "Consejo Global Ambiental",
   titleWhite,
   titleGreen,
   description,
   bgImage
 }) {
+  const { t } = useI18n();
+
   return (
-    <section className="relative min-h-screen w-full flex flex-col justify-center items-center pt-24 pb-16 px-6 overflow-hidden bg-[#f5efe3] border-b border-[#e0d4ba] select-none">
+    <section className="relative min-h-[100dvh] w-full flex flex-col justify-center items-center pt-20 pb-16 px-6 overflow-hidden bg-[#f5efe3] border-b border-[#e0d4ba] select-none">
       
       {/* ─── 1. LIANA BOTÁNICA SUPERIOR IZQUIERDA (Cuelga desde la esquina) ─── */}
       <motion.div
@@ -33,7 +35,7 @@ export function PageHero({
             ease: "easeInOut",
           }}
           src="/imagenes/Liana.png"
-          alt="Liana Botánica Superior"
+          alt={t({ es: 'Liana Botánica Superior', en: 'Upper Botanical Vine' })}
           className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(45,38,24,0.18)]"
           draggable={false}
         />
@@ -61,7 +63,7 @@ export function PageHero({
             ease: "easeInOut",
           }}
           src="/imagenes/Liana.png"
-          alt="Liana Botánica Inferior"
+          alt={t({ es: 'Liana Botánica Inferior', en: 'Lower Botanical Vine' })}
           style={{ transform: 'scaleX(-1) rotate(180deg)' }}
           className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(45,38,24,0.18)]"
           draggable={false}
@@ -73,7 +75,7 @@ export function PageHero({
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
             src={bgImage}
-            alt="Hero Atmosphere"
+            alt={t({ es: 'Atmósfera del Hero', en: 'Hero Atmosphere' })}
             className="w-full h-full object-cover opacity-10 mix-blend-multiply"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#f5efe3]/90 via-[#f5efe3]/75 to-[#f5efe3]" />
@@ -93,9 +95,9 @@ export function PageHero({
           transition={{ duration: 0.85, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[88px] xl:text-[98px] leading-[1.02] mb-8 tracking-tight text-[#2d2618] font-light"
         >
-          {titleWhite}{' '}
+          {t(titleWhite)}{' '}
           <span className="italic text-[#4a5a22] font-normal block sm:inline">
-            {titleGreen}
+            {t(titleGreen)}
           </span>
         </motion.h1>
 
@@ -105,9 +107,9 @@ export function PageHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.2 }}
-            className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-[#5c523e] font-sans font-light leading-relaxed mb-12"
+            className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-[#5c523e] font-sans font-light leading-relaxed mb-12 text-balance"
           >
-            {description}
+            {t(description)}
           </motion.p>
         )}
 
@@ -119,7 +121,7 @@ export function PageHero({
           className="flex flex-col items-center gap-3"
         >
           <div className="text-[10px] uppercase tracking-[0.3em] font-sans font-medium text-[#8a7e68]">
-            Explorar Capítulo
+            {t('hero.exploreChapter')}
           </div>
           <div className="relative w-[1.5px] h-10 bg-[#d8ceb6]/80 rounded-full overflow-hidden">
             <motion.div

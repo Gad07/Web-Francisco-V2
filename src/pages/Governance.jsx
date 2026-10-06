@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageHero } from '../components/PageHero.jsx';
 import FooterNav from '../components/FooterNav.jsx';
+import { useI18n } from '../i18n/index.jsx';
 import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
 
 export default function Governance() {
+  const { t } = useI18n();
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -26,17 +28,32 @@ export default function Governance() {
       category: 'founders',
       num: '01',
       name: 'MTRO. LUIS GARCÍA GONZÁLEZ',
-      role: 'CONSEJERO PRESIDENTE',
-      displayRole: 'Consejero Presidente y Fundador',
-      tag: 'Presidencia & Estrategia Multilateral',
-      area: 'Gobernanza Institucional',
-      country: 'México / Internacional',
-      bio: 'Con amplia experiencia en liderazgo institucional y gobernanza ambiental estratégica. Ha impulsado diálogos de alto nivel, articulación con organismos multilaterales y la consolidación de marcos normativos y territoriales en favor de la sostenibilidad y la regeneración ecosistémica.',
+      role: { es: 'CONSEJERO PRESIDENTE', en: 'PRESIDENT COUNCILLOR' },
+      displayRole: { es: 'Consejero Presidente y Fundador', en: 'President and Founder Councillor' },
+      tag: { es: 'Presidencia & Estrategia Multilateral', en: 'Presidency & Multilateral Strategy' },
+      area: { es: 'Gobernanza Institucional', en: 'Institutional Governance' },
+      country: { es: 'México / Internacional', en: 'Mexico / International' },
+      bio: {
+        es: 'Con amplia experiencia en liderazgo institucional y gobernanza ambiental estratégica. Ha impulsado diálogos de alto nivel, articulación con organismos multilaterales y la consolidación de marcos normativos y territoriales en favor de la sostenibilidad y la regeneración ecosistémica.',
+        en: 'With extensive experience in institutional leadership and strategic environmental governance. He has driven high-level dialogues, coordination with multilateral bodies and the consolidation of regulatory and territorial frameworks in favour of sustainability and ecosystem regeneration.',
+      },
       responsibilities: [
-        'Conducción institucional y representación de alto nivel ante organismos internacionales.',
-        'Orientación estratégica de la agenda ambiental, científica y territorial.',
-        'Presidencia de la Asamblea Anual y articulación de acuerdos multilaterales.',
-        'Supervisión del cumplimiento de los principios y estatutos del Consejo.'
+        {
+          es: 'Conducción institucional y representación de alto nivel ante organismos internacionales.',
+          en: 'Institutional leadership and high-level representation before international bodies.',
+        },
+        {
+          es: 'Orientación estratégica de la agenda ambiental, científica y territorial.',
+          en: 'Strategic guidance of the environmental, scientific and territorial agenda.',
+        },
+        {
+          es: 'Presidencia de la Asamblea Anual y articulación de acuerdos multilaterales.',
+          en: 'Presidency of the Annual Assembly and coordination of multilateral agreements.',
+        },
+        {
+          es: 'Supervisión del cumplimiento de los principios y estatutos del Consejo.',
+          en: 'Oversight of compliance with the principles and statutes of the Council.',
+        },
       ],
       social: {
         email: 'presidencia@consejocga.org',
@@ -50,17 +67,32 @@ export default function Governance() {
       category: 'founders',
       num: '02',
       name: 'MTRO. FRANCISCO SOLORIO',
-      role: 'SECRETARIO EJECUTIVO',
-      displayRole: 'Secretario Ejecutivo y Fundador',
-      tag: 'Dirección Ejecutiva & Alianzas Territoriales',
-      area: 'Operación y Despliegue en Campo',
-      country: 'México / Internacional',
-      bio: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas para la acción ambiental. Encabeza el despliegue operativo en campo, la articulación con ejidos y comunidades, y la implementación rigurosa de proyectos socioambientales.',
+      role: { es: 'SECRETARIO EJECUTIVO', en: 'EXECUTIVE SECRETARY' },
+      displayRole: { es: 'Secretario Ejecutivo y Fundador', en: 'Executive Secretary and Founder' },
+      tag: { es: 'Dirección Ejecutiva & Alianzas Territoriales', en: 'Executive Leadership & Territorial Alliances' },
+      area: { es: 'Operación y Despliegue en Campo', en: 'Operations and Field Deployment' },
+      country: { es: 'México / Internacional', en: 'Mexico / International' },
+      bio: {
+        es: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas para la acción ambiental. Encabeza el despliegue operativo en campo, la articulación con ejidos y comunidades, y la implementación rigurosa de proyectos socioambientales.',
+        en: 'Specialist in technical management, territorial cooperation and public-private alliances for environmental action. He leads field operations, coordination with communal landholdings and communities, and the rigorous implementation of socio-environmental projects.',
+      },
       responsibilities: [
-        'Dirección ejecutiva, gestión técnica y coordinación operativa general.',
-        'Cooperación institucional e internacional con aliados estratégicos.',
-        'Acompañamiento en territorio y desarrollo de proyectos sostenibles.',
-        'Seguimiento a resoluciones y vinculación interinstitucional.'
+        {
+          es: 'Dirección ejecutiva, gestión técnica y coordinación operativa general.',
+          en: 'Executive leadership, technical management and general operational coordination.',
+        },
+        {
+          es: 'Cooperación institucional e internacional con aliados estratégicos.',
+          en: 'Institutional and international cooperation with strategic partners.',
+        },
+        {
+          es: 'Acompañamiento en territorio y desarrollo de proyectos sostenibles.',
+          en: 'Field support and development of sustainable projects.',
+        },
+        {
+          es: 'Seguimiento a resoluciones y vinculación interinstitucional.',
+          en: 'Follow-up on resolutions and interinstitutional coordination.',
+        },
       ],
       social: {
         email: 'secretaria@consejocga.org',
@@ -74,16 +106,28 @@ export default function Governance() {
       category: 'council',
       num: '03',
       name: 'DR. CARLOS ESQUIVEL LACROIX',
-      role: 'CONSEJERO HONORÍFICO',
-      displayRole: 'Consejero Honorífico en Bienestar Animal',
-      tag: 'Cuerpo Académico y Científico',
-      area: 'Bienestar Animal y Una Salud',
-      country: 'México / Internacional',
-      bio: 'Especialista en bienestar animal y medicina veterinaria con amplia trayectoria internacional. Orienta las iniciativas que vinculan el trato digno a los animales con la protección ecosistémica y la salud humana.',
+      role: { es: 'CONSEJERO HONORÍFICO', en: 'HONORARY COUNCILLOR' },
+      displayRole: { es: 'Consejero Honorífico en Bienestar Animal', en: 'Honorary Councillor for Animal Welfare' },
+      tag: { es: 'Cuerpo Académico y Científico', en: 'Academic and Scientific Body' },
+      area: { es: 'Bienestar Animal y Una Salud', en: 'Animal Welfare and One Health' },
+      country: { es: 'México / Internacional', en: 'Mexico / International' },
+      bio: {
+        es: 'Especialista en bienestar animal y medicina veterinaria con amplia trayectoria internacional. Orienta las iniciativas que vinculan el trato digno a los animales con la protección ecosistémica y la salud humana.',
+        en: 'Specialist in animal welfare and veterinary medicine with extensive international experience. He guides initiatives linking dignified treatment of animals with ecosystem protection and human health.',
+      },
       responsibilities: [
-        'Dictamen científico en proyectos de bioseguridad y bienestar animal.',
-        'Integración del enfoque Una Salud (One Health) en políticas públicas.',
-        'Vinculación académica con facultades e institutos de investigación.'
+        {
+          es: 'Dictamen científico en proyectos de bioseguridad y bienestar animal.',
+          en: 'Scientific opinion on biosafety and animal welfare projects.',
+        },
+        {
+          es: 'Integración del enfoque Una Salud (One Health) en políticas públicas.',
+          en: 'Integration of the One Health approach into public policy.',
+        },
+        {
+          es: 'Vinculación académica con facultades e institutos de investigación.',
+          en: 'Academic engagement with faculties and research institutes.',
+        },
       ],
       social: {
         email: 'c.esquivel@consejocga.org',
@@ -96,16 +140,28 @@ export default function Governance() {
       category: 'council',
       num: '04',
       name: 'DRA. ELENA VANCE',
-      role: 'CONSEJERA HONORÍFICA',
-      displayRole: 'Consejera Honorífica en Océanos',
-      tag: 'Cuerpo Académico y Científico',
-      area: 'Conservación Marina y Océanos',
-      country: 'Internacional',
-      bio: 'Investigadora en oceanografía y arrecifes coralinos. Aporta conocimiento para los programas de conservación costera y restauración de ecosistemas marinos en cuencas del Pacífico y el Caribe.',
+      role: { es: 'CONSEJERA HONORÍFICA', en: 'HONORARY COUNCILLOR' },
+      displayRole: { es: 'Consejera Honorífica en Océanos', en: 'Honorary Councillor for Oceans' },
+      tag: { es: 'Cuerpo Académico y Científico', en: 'Academic and Scientific Body' },
+      area: { es: 'Conservación Marina y Océanos', en: 'Marine Conservation and Oceans' },
+      country: { es: 'Internacional', en: 'International' },
+      bio: {
+        es: 'Investigadora en oceanografía y arrecifes coralinos. Aporta conocimiento para los programas de conservación costera y restauración de ecosistemas marinos en cuencas del Pacífico y el Caribe.',
+        en: 'Researcher in oceanography and coral reefs. She contributes expertise to coastal conservation programmes and marine ecosystem restoration in Pacific and Caribbean basins.',
+      },
       responsibilities: [
-        'Asesoría técnica en monitoreo batimétrico y salud arrecifal.',
-        'Desarrollo de metodologías de restauración biocultural marina.',
-        'Articulación con programas de decenio oceánico de Naciones Unidas.'
+        {
+          es: 'Asesoría técnica en monitoreo batimétrico y salud arrecifal.',
+          en: 'Technical advice on bathymetric monitoring and reef health.',
+        },
+        {
+          es: 'Desarrollo de metodologías de restauración biocultural marina.',
+          en: 'Development of marine biocultural restoration methodologies.',
+        },
+        {
+          es: 'Articulación con programas de decenio oceánico de Naciones Unidas.',
+          en: 'Coordination with United Nations ocean decade programmes.',
+        },
       ],
       social: {
         email: 'e.vance@consejocga.org',
@@ -118,16 +174,28 @@ export default function Governance() {
       category: 'council',
       num: '05',
       name: 'MTRO. MATEO MORALES',
-      role: 'CONSEJERO HONORÍFICO',
-      displayRole: 'Consejero Honorífico en Gobernanza del Suelo',
-      tag: 'Cuerpo Académico y Científico',
-      area: 'Gobernanza Territorial y Suelo',
-      country: 'Latinoamérica',
-      bio: 'Especialista en ordenamiento territorial, derecho ambiental y protección comunitaria del suelo de conservación con más de 20 años acompañando asambleas ejidales y comunales.',
+      role: { es: 'CONSEJERO HONORÍFICO', en: 'HONORARY COUNCILLOR' },
+      displayRole: { es: 'Consejero Honorífico en Gobernanza del Suelo', en: 'Honorary Councillor for Land Governance' },
+      tag: { es: 'Cuerpo Académico y Científico', en: 'Academic and Scientific Body' },
+      area: { es: 'Gobernanza Territorial y Suelo', en: 'Territorial Governance and Land' },
+      country: { es: 'Latinoamérica', en: 'Latin America' },
+      bio: {
+        es: 'Especialista en ordenamiento territorial, derecho ambiental y protección comunitaria del suelo de conservación con más de 20 años acompañando asambleas ejidales y comunales.',
+        en: 'Specialist in territorial planning, environmental law and community protection of conservation land, with more than 20 years supporting ejidal and communal assemblies.',
+      },
       responsibilities: [
-        'Blindaje jurídico y normativo de áreas naturales protegidas comunitarias.',
-        'Diseño de reglamentos internos para reservas territoriales.',
-        'Capacitación técnica a comités de vigilancia ambiental comunal.'
+        {
+          es: 'Blindaje jurídico y normativo de áreas naturales protegidas comunitarias.',
+          en: 'Legal and regulatory protection of community protected natural areas.',
+        },
+        {
+          es: 'Diseño de reglamentos internos para reservas territoriales.',
+          en: 'Drafting of internal regulations for territorial reserves.',
+        },
+        {
+          es: 'Capacitación técnica a comités de vigilancia ambiental comunal.',
+          en: 'Technical training for communal environmental monitoring committees.',
+        },
       ],
       social: {
         email: 'm.morales@consejocga.org',
@@ -179,10 +247,12 @@ export default function Governance() {
     <div className="min-h-screen bg-[#f5efe3] text-[#2d2618] font-sans flex flex-col justify-between">
       <div>
         <PageHero
-          tag="Estructura e Institucionalidad"
-          titleWhite="Gobernanza y"
-          titleGreen="liderazgo internacional"
-          description="Personalidades, especialistas y cuerpos colegiados que dirigen el rumbo estratégico y operativo del Consejo Global Ambiental."
+          titleWhite={{ es: 'Gobernanza y', en: 'Governance and' }}
+          titleGreen={{ es: 'liderazgo internacional', en: 'international leadership' }}
+          description={{
+            es: 'Personalidades, especialistas y cuerpos colegiados que dirigen el rumbo estratégico y operativo del Consejo Global Ambiental.',
+            en: 'Professionals, specialists and collegiate bodies that steer the strategic and operational course of the Global Environmental Council.',
+          }}
           bgImage="https://images.unsplash.com/photo-1577985051167-0d49eec21977?w=1600&h=900&fit=crop"
         />
 
@@ -195,11 +265,14 @@ export default function Governance() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#d8ceb6]/70 mb-8">
             <div className="space-y-2 max-w-2xl">
               <div className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#5a6b2a]">
-                Estructura Directiva
+                {t({ es: 'Estructura Directiva', en: 'Board Structure' })}
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-light text-[#2d2618] leading-[1.12]">
-                Cuerpo de Gobernanza <br />
-                <span className="italic text-[#4a5a22] font-normal">e Investigadores.</span>
+                {t({ es: 'Cuerpo de Gobernanza', en: 'Governance Body' })}{' '}
+                <br />
+                <span className="italic text-[#4a5a22] font-normal">
+                  {t({ es: 'e Investigadores.', en: 'and Researchers.' })}
+                </span>
               </h2>
             </div>
 
@@ -207,9 +280,9 @@ export default function Governance() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5 p-1 bg-[#eae4d2]/80 rounded-xl border border-[#d8ceb6]">
                 {[
-                  { id: 'all', label: 'Todos los Miembros' },
-                  { id: 'founders', label: 'Liderazgo Fundador' },
-                  { id: 'council', label: 'Consejeros Honoríficos' },
+                  { id: 'all', label: { es: 'Todos los Miembros', en: 'All Members' } },
+                  { id: 'founders', label: { es: 'Liderazgo Fundador', en: 'Founding Leadership' } },
+                  { id: 'council', label: { es: 'Consejeros Honoríficos', en: 'Honorary Councillors' } },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -225,7 +298,7 @@ export default function Governance() {
                         : 'text-[#6b6048] hover:text-[#2d2618]'
                     }`}
                   >
-                    {tab.label}
+                    {t(tab.label)}
                   </button>
                 ))}
               </div>
@@ -323,7 +396,7 @@ export default function Governance() {
                               className="absolute top-4 left-4 z-30 px-3 py-1.5 rounded-lg bg-[#2d2618]/90 hover:bg-[#3a4a18] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
                               <span className="font-bold text-sm">&larr;</span>
-                              <span>Volver al carrusel</span>
+                              <span>{t({ es: 'Volver al carrusel', en: 'Back to carousel' })}</span>
                             </button>
                           )}
 
@@ -337,17 +410,17 @@ export default function Governance() {
 
                             {!isAnySelected && (
                               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#2d2618]/85 text-[#f5efe3] text-[10px] font-sans font-medium uppercase tracking-widest px-2.5 py-1 rounded-sm shadow-sm">
-                                Abrir Ficha &rarr;
+                                {t({ es: 'Abrir Ficha', en: 'Open Profile' })} &rarr;
                               </div>
                             )}
                           </div>
 
                           {/* Barra Inferior con Cargo Completo, Nombre (hover verde), Separador y Share */}
                           <div className="p-4 sm:p-5 bg-white flex items-center justify-between border-t border-[#f0ece4] relative shrink-0">
-                            
+
                             <div className="space-y-1 pr-2">
                               <span className="block text-[11px] tracking-[0.16em] uppercase font-semibold text-[#7a6e58] font-sans line-clamp-1">
-                                {member.displayRole || member.role}
+                                {t(member.displayRole || member.role)}
                               </span>
                               <h3 className="text-[14px] sm:text-[15px] font-extrabold uppercase tracking-tight text-[#221e16] font-sans leading-tight transition-colors duration-200 group-hover:text-[#4a5a22]">
                                 {member.name}
@@ -361,7 +434,7 @@ export default function Governance() {
                                 type="button"
                                 onClick={() => setActiveShareId(activeShareId === member.id ? null : member.id)}
                                 className="w-8 h-8 flex items-center justify-center text-[#554e40] hover:text-[#e53e3e] hover:bg-[#f8f5ee] rounded-full transition-colors cursor-pointer"
-                                title="Contacto y Redes"
+                                title={t({ es: 'Contacto y Redes', en: 'Contact and Social Links' })}
                               >
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                   <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
@@ -434,13 +507,13 @@ export default function Governance() {
                   <div className="flex items-start justify-between gap-4 pb-3 border-b border-[#e5dfd3] shrink-0">
                     <div className="space-y-0.5">
                       <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#5a6b2a]">
-                        {selectedMember.tag}
+                        {t(selectedMember.tag)}
                       </div>
                       <h2 className="font-serif text-2xl sm:text-3xl lg:text-[30px] font-light text-[#221e16] leading-[1.12]">
                         {selectedMember.name}
                       </h2>
                       <p className="italic text-[#4a5a22] font-serif text-sm sm:text-base">
-                        {selectedMember.displayRole || selectedMember.role}
+                        {t(selectedMember.displayRole || selectedMember.role)}
                       </p>
                     </div>
 
@@ -448,7 +521,7 @@ export default function Governance() {
                       type="button"
                       onClick={() => setSelectedMemberId(null)}
                       className="w-8 h-8 rounded-full bg-[#f5efe3] hover:bg-[#3a4a18] text-[#5c523e] hover:text-white flex items-center justify-center transition-colors duration-200 cursor-pointer border border-[#d8ceb6] shrink-0"
-                      title="Cerrar y volver al carrusel"
+                      title={t({ es: 'Cerrar y volver al carrusel', en: 'Close and return to carousel' })}
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -459,10 +532,10 @@ export default function Governance() {
                   {/* Semblanza Institucional */}
                   <div className="space-y-1.5 shrink-0 my-auto">
                     <div className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7a6e58]">
-                      Semblanza Institucional
+                      {t({ es: 'Semblanza Institucional', en: 'Institutional Profile' })}
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#4a4232] font-light leading-relaxed font-sans bg-[#faf7f0] p-3 sm:p-3.5 rounded-xl border border-[#ebe5d8]">
-                      {selectedMember.bio}
+                      {t(selectedMember.bio)}
                     </p>
                   </div>
 
@@ -470,7 +543,7 @@ export default function Governance() {
                   {selectedMember.responsibilities && (
                     <div className="space-y-1.5 shrink-0 my-auto">
                       <div className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#5a6b2a]">
-                        Atribuciones y Responsabilidades Directivas
+                        {t({ es: 'Atribuciones y Responsabilidades Directivas', en: 'Board Duties and Responsibilities' })}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {selectedMember.responsibilities.map((resp, idx) => (
@@ -479,7 +552,7 @@ export default function Governance() {
                             className="p-2.5 rounded-xl bg-[#faf7f0] border border-[#ebe5d8] text-[11px] text-[#5c523e] flex items-start gap-2 font-sans font-light leading-snug"
                           >
                             <span className="text-[#4a5a22] font-bold text-xs leading-none shrink-0">•</span>
-                            <span>{resp}</span>
+                            <span>{t(resp)}</span>
                           </div>
                         ))}
                       </div>
@@ -490,7 +563,10 @@ export default function Governance() {
                   <div className="pt-3 border-t border-[#e5dfd3] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#7a6e58] font-sans shrink-0">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#5a6b2a]" />
-                      <span>{selectedMember.country} &bull; Órgano Colegiado CGA</span>
+                      <span>
+                        {t(selectedMember.country)} &bull;{' '}
+                        {t({ es: 'Órgano Colegiado CGA', en: 'CGA Collegial Body' })}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -500,7 +576,7 @@ export default function Governance() {
                           type="button"
                           onClick={handlePrevMember}
                           className="w-7 h-7 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center justify-center"
-                          title="Miembro anterior"
+                          title={t({ es: 'Miembro anterior', en: 'Previous member' })}
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
@@ -510,7 +586,7 @@ export default function Governance() {
                           type="button"
                           onClick={handleNextMember}
                           className="w-7 h-7 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center justify-center"
-                          title="Siguiente miembro"
+                          title={t({ es: 'Siguiente miembro', en: 'Next member' })}
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
@@ -526,7 +602,7 @@ export default function Governance() {
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <span>Contacto</span>
+                        <span>{t('nav.contacto')}</span>
                       </a>
                     </div>
                   </div>
@@ -558,8 +634,8 @@ export default function Governance() {
                       ? 'opacity-30 cursor-not-allowed border-[#d8ceb6] text-[#8c826e]'
                       : 'bg-[#eae4d2]/90 hover:bg-[#3a4a18] hover:text-[#f5efe3] border-[#d8ceb6] text-[#2d2618] cursor-pointer shadow-sm active:scale-95'
                   }`}
-                  aria-label="Anterior"
-                  title="Deslizar a la izquierda"
+                  aria-label={t({ es: 'Anterior', en: 'Previous' })}
+                  title={t({ es: 'Deslizar a la izquierda', en: 'Slide left' })}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
@@ -576,7 +652,7 @@ export default function Governance() {
                       className={`h-2.5 rounded-full transition-all cursor-pointer ${
                         currentIndex === idx ? 'w-8 bg-[#3a4a18]' : 'w-2.5 bg-[#d8ceb6] hover:bg-[#8a8170]'
                       }`}
-                      title={`Página ${idx + 1}`}
+                      title={t({ es: 'Página', en: 'Page' }) + ` ${idx + 1}`}
                     />
                   ))}
                 </div>
@@ -591,8 +667,8 @@ export default function Governance() {
                       ? 'opacity-30 cursor-not-allowed border-[#d8ceb6] text-[#8c826e]'
                       : 'bg-[#eae4d2]/90 hover:bg-[#3a4a18] hover:text-[#f5efe3] border-[#d8ceb6] text-[#2d2618] cursor-pointer shadow-sm active:scale-95'
                   }`}
-                  aria-label="Siguiente"
-                  title="Deslizar a la derecha"
+                  aria-label={t({ es: 'Siguiente', en: 'Next' })}
+                  title={t({ es: 'Deslizar a la derecha', en: 'Slide right' })}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
