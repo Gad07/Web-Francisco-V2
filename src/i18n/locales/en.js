@@ -16,25 +16,48 @@ const en = {
   nav: {
     home: 'Home',
     consejo: 'The Council',
-    accion: 'Action & Strategy',
+    quienesSomos: 'About Us',
+    gobiernoEstructura: 'Governance & Structure',
+    alianzasInstitucionales: 'Institutional Alliances',
+    informesAnuales: 'Annual Reports',
+
+    nuestraAccion: 'Our Action',
+    ejesAccion: 'Action Lines & Impact',
+    programasProyectos: 'Programs & Projects',
+
     presenciaGlobal: 'Global Presence',
-    conocimiento: 'Knowledge',
+
+    capacitacion: 'Training & Academy',
+    ofertaAcademica: 'Academic Programs',
+    diplomados: 'Executive Diplomas',
+    cursosTalleres: 'Courses & Workshops',
+    conferenciasWebinars: 'Conferences & Webinars',
+    programasOrganizaciones: 'Programs for Organizations',
+    especialistas: 'Faculty & Specialists',
+    calendario: 'Academic Calendar',
+    inscripciones: 'Admissions',
+
+    comunicacion: 'Communication',
+    noticiasComunicados: 'News & Press Releases',
+    eventos: 'Events',
+    opinionAnalisis: 'Opinion & Analysis',
+    dialogosCGA: 'CGA Dialogues',
+    publicaciones: 'Publications & Papers',
+
     contacto: 'Contact',
-    quienesSomos: 'Who We Are',
-    gobernanza: 'Governance & Team',
-    asambleaAnual: 'Annual Assembly',
-    lineasEstrategicas: 'Strategic Lines',
-    proyectos: 'Projects & WESS Impact',
-    agenda2030: 'Agenda 2030 & SDGs',
   },
 
   navSub: {
-    quienesSomos: 'Governance body',
-    gobernanza: 'Board and staff',
-    asambleaAnual: 'Annual meeting',
-    lineasEstrategicas: 'Lines of action',
-    proyectos: 'WESS Project',
-    agenda2030: 'Global goals',
+    quienesSomos: 'Mission, vision, principles and history',
+    gobiernoEstructura: 'Board of directors and structure',
+    alianzasInstitucionales: 'Global cooperation network',
+    informesAnuales: 'Accountability and annual records',
+
+    ejesAccion: 'Six territorial impact fronts',
+    programasProyectos: 'WESS initiatives and projects',
+
+    capacitacion: 'Environmental leadership training',
+    comunicacion: 'News, publications and dialogues',
   },
 
   a11y: {

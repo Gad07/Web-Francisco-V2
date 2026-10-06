@@ -6,15 +6,30 @@ import { useI18n } from '../i18n/index.jsx';
 const LINK_HOVER = 'transition-colors duration-200 hover:text-[#f5efe3]';
 
 const GROUP_CONSEJO = [
-  { to: '/nosotros', labelKey: 'nav.quienesSomos' },
-  { to: '/gobernanza', labelKey: 'nav.gobernanza' },
-  { to: '/asamblea-anual', labelKey: 'nav.asambleaAnual' },
+  { to: '/quienes-somos', labelKey: 'nav.quienesSomos' },
+  { to: '/gobernanza', labelKey: 'nav.gobiernoEstructura' },
+  { to: '/alianzas-institucionales', labelKey: 'nav.alianzasInstitucionales' },
+  { to: '/informes-anuales', labelKey: 'nav.informesAnuales' },
 ];
 
 const GROUP_ACCION = [
-  { to: '/lineas-estrategicas', labelKey: 'nav.lineasEstrategicas' },
-  { to: '/proyectos', labelKey: 'nav.proyectos' },
-  { to: '/agenda-2030', labelKey: 'nav.agenda2030' },
+  { to: '/lineas-estrategicas', labelKey: 'nav.ejesAccion' },
+  { to: '/proyectos', labelKey: 'nav.programasProyectos' },
+  { to: '/presencia-global', labelKey: 'nav.presenciaGlobal' },
+];
+
+const GROUP_CAPACITACION = [
+  { to: '/capacitacion', labelKey: 'nav.ofertaAcademica' },
+  { to: '/capacitacion', labelKey: 'nav.diplomados' },
+  { to: '/capacitacion', labelKey: 'nav.cursosTalleres' },
+  { to: '/capacitacion', labelKey: 'nav.inscripciones' },
+];
+
+const GROUP_COMUNICACION = [
+  { to: '/comunicacion', labelKey: 'nav.noticiasComunicados' },
+  { to: '/comunicacion', labelKey: 'nav.opinionAnalisis' },
+  { to: '/comunicacion', labelKey: 'nav.dialogosCGA' },
+  { to: '/comunicacion', labelKey: 'nav.publicaciones' },
 ];
 
 const TERRITORY_PHOTO =
@@ -80,17 +95,14 @@ export default function FooterNav() {
                 to="/contacto"
                 className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full py-2 pl-5 pr-2 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f5efe3] bg-white/10 ring-1 ring-inset ring-white/20 backdrop-blur-xl backdrop-saturate-150 shadow-[0_12px_32px_-14px_rgba(0,0,0,0.6),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:bg-white/15 hover:ring-white/30 hover:shadow-[0_16px_40px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_0_rgba(255,255,255,0.42)] active:scale-[0.98]"
               >
-                {/* Tinte moss translúcido — identidad de marca dentro del cristal */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-full bg-[#5a6b2a]/25"
                 />
-                {/* Reflejo especular superior — material liquid glass */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/30 via-white/5 to-transparent"
                 />
-                {/* Sheen de barrido al hover */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 -translate-x-[130%] bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[130%]"
@@ -108,7 +120,7 @@ export default function FooterNav() {
 
         {/* Columnas unificadas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 py-12 md:py-16">
-          <div className="sm:col-span-2 lg:col-span-5">
+          <div className="sm:col-span-2 lg:col-span-4">
             <Reveal>
               <Link to="/" className="group inline-block mb-6" aria-label={t('a11y.home')}>
                 <img
@@ -125,10 +137,10 @@ export default function FooterNav() {
 
           <div className="col-span-1 lg:col-span-2">
             <RevealItem index={1}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.elConsejo')}</p>
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('nav.consejo')}</p>
               <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
                 {GROUP_CONSEJO.map((l) => (
-                  <li key={l.to}>
+                  <li key={l.labelKey}>
                     <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
                   </li>
                 ))}
@@ -138,10 +150,10 @@ export default function FooterNav() {
 
           <div className="col-span-1 lg:col-span-2">
             <RevealItem index={2}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.accion')}</p>
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('nav.nuestraAccion')}</p>
               <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
                 {GROUP_ACCION.map((l) => (
-                  <li key={l.to}>
+                  <li key={l.labelKey}>
                     <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
                   </li>
                 ))}
@@ -149,24 +161,28 @@ export default function FooterNav() {
             </RevealItem>
           </div>
 
-          <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+          <div className="col-span-1 lg:col-span-2">
             <RevealItem index={3}>
-              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('footer.explorar')}</p>
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('nav.capacitacion')}</p>
               <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
-                <li>
-                  <Link to="/presencia-global" className={LINK_HOVER}>{t('nav.presenciaGlobal')}</Link>
-                </li>
-                <li>
-                  <Link to="/conocimiento" className={LINK_HOVER}>{t('nav.conocimiento')}</Link>
-                </li>
-                <li>
-                  <Link to="/" className={LINK_HOVER}>{t('footer.manifiesto')}</Link>
-                </li>
-                <li>
-                  <Link to="/contacto" className="font-medium text-[#cdd2a6] hover:text-[#f5efe3] transition-colors duration-200">
-                    {t('footer.contactArrow')} &rarr;
-                  </Link>
-                </li>
+                {GROUP_CAPACITACION.map((l) => (
+                  <li key={l.labelKey}>
+                    <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
+                  </li>
+                ))}
+              </ul>
+            </RevealItem>
+          </div>
+
+          <div className="col-span-1 lg:col-span-2">
+            <RevealItem index={4}>
+              <p className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6] mb-4 sm:mb-5">{t('nav.comunicacion')}</p>
+              <ul className="space-y-2.5 sm:space-y-3 text-[13px] border-l border-[#f5efe3]/15 pl-4">
+                {GROUP_COMUNICACION.map((l) => (
+                  <li key={l.labelKey}>
+                    <Link to={l.to} className={LINK_HOVER}>{t(l.labelKey)}</Link>
+                  </li>
+                ))}
               </ul>
             </RevealItem>
           </div>

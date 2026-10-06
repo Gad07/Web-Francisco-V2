@@ -16,25 +16,48 @@ const es = {
   nav: {
     home: 'Inicio',
     consejo: 'El Consejo',
-    accion: 'Acción & Estrategias',
-    presenciaGlobal: 'Presencia Global',
-    conocimiento: 'Conocimiento',
-    contacto: 'Contacto',
     quienesSomos: 'Quiénes Somos',
-    gobernanza: 'Gobernanza & Equipo',
-    asambleaAnual: 'Asamblea Anual',
-    lineasEstrategicas: 'Líneas Estratégicas',
-    proyectos: 'Proyectos & Impacto WESS',
-    agenda2030: 'Agenda 2030 & ODS',
+    gobiernoEstructura: 'Gobierno y Estructura',
+    alianzasInstitucionales: 'Alianzas Institucionales',
+    informesAnuales: 'Informes Anuales',
+
+    nuestraAccion: 'Nuestra Acción',
+    ejesAccion: 'Ejes de Acción y Resultados',
+    programasProyectos: 'Programas y Proyectos',
+
+    presenciaGlobal: 'Presencia Global',
+
+    capacitacion: 'Capacitación',
+    ofertaAcademica: 'Oferta Académica',
+    diplomados: 'Diplomados',
+    cursosTalleres: 'Cursos y Talleres',
+    conferenciasWebinars: 'Conferencias y Webinars',
+    programasOrganizaciones: 'Programas para Organizaciones',
+    especialistas: 'Especialistas',
+    calendario: 'Calendario Académico',
+    inscripciones: 'Inscripciones',
+
+    comunicacion: 'Comunicación',
+    noticiasComunicados: 'Noticias y Comunicados',
+    eventos: 'Eventos',
+    opinionAnalisis: 'Opinión y Análisis',
+    dialogosCGA: 'Diálogos CGA',
+    publicaciones: 'Publicaciones',
+
+    contacto: 'Contacto',
   },
 
   navSub: {
-    quienesSomos: 'Organismo de gobernanza',
-    gobernanza: 'Directivo y equipo',
-    asambleaAnual: 'Reunión anual',
-    lineasEstrategicas: 'Líneas de acción',
-    proyectos: 'Proyecto WESS',
-    agenda2030: 'Metas globales',
+    quienesSomos: 'Misión, visión, principios e historia',
+    gobiernoEstructura: 'Directorio y organigrama',
+    alianzasInstitucionales: 'Red de cooperación global',
+    informesAnuales: 'Rendición de cuentas y memorias',
+
+    ejesAccion: 'Seis frentes de impacto territorial',
+    programasProyectos: 'Iniciativas y proyectos WESS',
+
+    capacitacion: 'Formación de líderes ambientales',
+    comunicacion: 'Actualidad, publicaciones y diálogo',
   },
 
   a11y: {

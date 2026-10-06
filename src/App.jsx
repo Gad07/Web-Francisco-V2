@@ -18,6 +18,9 @@ import GlobalPresence from './pages/GlobalPresence.jsx';
 import Knowledge from './pages/Knowledge.jsx';
 import AnnualAssembly from './pages/AnnualAssembly.jsx';
 import Contact from './pages/Contact.jsx';
+import InstitutionalAlliances from './pages/InstitutionalAlliances.jsx';
+import Training from './pages/Training.jsx';
+import Communication from './pages/Communication.jsx';
 
 export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -243,12 +246,21 @@ export default function App() {
           <Route path="/nosotros" element={<About />} />
           <Route path="/quienes-somos" element={<About />} />
           <Route path="/gobernanza" element={<Governance />} />
-          <Route path="/lineas-estrategicas" element={<StrategicLines />} />
-          <Route path="/proyectos" element={<Projects />} />
-          <Route path="/agenda-2030" element={<Agenda2030 />} />
-          <Route path="/presencia-global" element={<GlobalPresence />} />
-          <Route path="/conocimiento" element={<Knowledge />} />
+          <Route path="/gobierno-estructura" element={<Governance />} />
+          <Route path="/alianzas-institucionales" element={<InstitutionalAlliances />} />
+          <Route path="/informes-anuales" element={<AnnualAssembly />} />
           <Route path="/asamblea-anual" element={<AnnualAssembly />} />
+
+          <Route path="/lineas-estrategicas" element={<StrategicLines />} />
+          <Route path="/ejes-de-accion" element={<StrategicLines />} />
+          <Route path="/proyectos" element={<Projects />} />
+          <Route path="/programas-proyectos" element={<Projects />} />
+          <Route path="/agenda-2030" element={<Agenda2030 />} />
+
+          <Route path="/presencia-global" element={<GlobalPresence />} />
+          <Route path="/capacitacion" element={<Training />} />
+          <Route path="/comunicacion" element={<Communication />} />
+          <Route path="/conocimiento" element={<Communication />} />
           <Route path="/contacto" element={<Contact />} />
         </Routes>
       </div>

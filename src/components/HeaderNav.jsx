@@ -10,19 +10,40 @@ const EASE_SPRING = { type: 'spring', stiffness: 340, damping: 30 };
 const NAV_DEBOUNCE = 300;
 
 const CONSEJO_LINKS = [
-  { to: '/nosotros', labelKey: 'nav.quienesSomos', subKey: 'navSub.quienesSomos' },
-  { to: '/gobernanza', labelKey: 'nav.gobernanza', subKey: 'navSub.gobernanza' },
-  { to: '/asamblea-anual', labelKey: 'nav.asambleaAnual', subKey: 'navSub.asambleaAnual' },
+  { to: '/quienes-somos', labelKey: 'nav.quienesSomos', subKey: 'navSub.quienesSomos' },
+  { to: '/gobernanza', labelKey: 'nav.gobiernoEstructura', subKey: 'navSub.gobiernoEstructura' },
+  { to: '/alianzas-institucionales', labelKey: 'nav.alianzasInstitucionales', subKey: 'navSub.alianzasInstitucionales' },
+  { to: '/informes-anuales', labelKey: 'nav.informesAnuales', subKey: 'navSub.informesAnuales' },
 ];
 
 const ACCION_LINKS = [
-  { to: '/lineas-estrategicas', labelKey: 'nav.lineasEstrategicas', subKey: 'navSub.lineasEstrategicas' },
-  { to: '/proyectos', labelKey: 'nav.proyectos', subKey: 'navSub.proyectos' },
-  { to: '/agenda-2030', labelKey: 'nav.agenda2030', subKey: 'navSub.agenda2030' },
+  { to: '/lineas-estrategicas', labelKey: 'nav.ejesAccion', subKey: 'navSub.ejesAccion' },
+  { to: '/proyectos', labelKey: 'nav.programasProyectos', subKey: 'navSub.programasProyectos' },
 ];
 
-const ACTIVE_ROUTES_CONSEJO = ['/nosotros', '/quienes-somos', '/gobernanza', '/asamblea-anual'];
-const ACTIVE_ROUTES_ACCION = ['/lineas-estrategicas', '/proyectos', '/agenda-2030'];
+const CAPACITACION_LINKS = [
+  { to: '/capacitacion', labelKey: 'nav.ofertaAcademica' },
+  { to: '/capacitacion', labelKey: 'nav.diplomados' },
+  { to: '/capacitacion', labelKey: 'nav.cursosTalleres' },
+  { to: '/capacitacion', labelKey: 'nav.conferenciasWebinars' },
+  { to: '/capacitacion', labelKey: 'nav.programasOrganizaciones' },
+  { to: '/capacitacion', labelKey: 'nav.especialistas' },
+  { to: '/capacitacion', labelKey: 'nav.calendario' },
+  { to: '/capacitacion', labelKey: 'nav.inscripciones' },
+];
+
+const COMUNICACION_LINKS = [
+  { to: '/comunicacion', labelKey: 'nav.noticiasComunicados' },
+  { to: '/comunicacion', labelKey: 'nav.eventos' },
+  { to: '/comunicacion', labelKey: 'nav.opinionAnalisis' },
+  { to: '/comunicacion', labelKey: 'nav.dialogosCGA' },
+  { to: '/comunicacion', labelKey: 'nav.publicaciones' },
+];
+
+const ACTIVE_ROUTES_CONSEJO = ['/nosotros', '/quienes-somos', '/gobernanza', '/alianzas-institucionales', '/informes-anuales', '/asamblea-anual'];
+const ACTIVE_ROUTES_ACCION = ['/lineas-estrategicas', '/ejes-de-accion', '/proyectos', '/programas-proyectos', '/agenda-2030'];
+const ACTIVE_ROUTES_CAPACITACION = ['/capacitacion'];
+const ACTIVE_ROUTES_COMUNICACION = ['/comunicacion', '/conocimiento'];
 
 function Dropdown({ open, children }) {
   return (
@@ -159,6 +180,8 @@ export default function HeaderNav({
 
   const isConsejoActive = ACTIVE_ROUTES_CONSEJO.includes(location.pathname);
   const isAccionActive = ACTIVE_ROUTES_ACCION.includes(location.pathname);
+  const isCapacitacionActive = ACTIVE_ROUTES_CAPACITACION.includes(location.pathname);
+  const isComunicacionActive = ACTIVE_ROUTES_COMUNICACION.includes(location.pathname);
 
   return (
     <>
@@ -202,13 +225,10 @@ export default function HeaderNav({
 
           {/* Navegación central (desktop) */}
           <nav
-            className="hidden lg:flex items-center gap-2 xl:gap-4 2xl:gap-6 flex-shrink-0"
+            className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 flex-shrink-0"
             onMouseLeave={scheduleClose}
           >
-            <div onMouseEnter={() => openMenu(null)}>
-              <NavLink to="/" label={t('nav.home')} active={location.pathname === '/'} />
-            </div>
-
+            {/* 1. EL CONSEJO */}
             <div className="relative" onMouseEnter={() => openMenu('consejo')}>
               <DropdownTrigger
                 label={t('nav.consejo')}
@@ -223,15 +243,16 @@ export default function HeaderNav({
                     to={l.to}
                     label={t(l.labelKey)}
                     sub={t(l.subKey)}
-                    delay={0.04 * i}
+                    delay={0.03 * i}
                   />
                 ))}
               </Dropdown>
             </div>
 
+            {/* 2. NUESTRA ACCIÓN */}
             <div className="relative" onMouseEnter={() => openMenu('accion')}>
               <DropdownTrigger
-                label={t('nav.accion')}
+                label={t('nav.nuestraAccion')}
                 open={openDropdown === 'accion'}
                 active={isAccionActive}
                 onClick={() => setOpenDropdown(openDropdown === 'accion' ? null : 'accion')}
@@ -243,14 +264,26 @@ export default function HeaderNav({
                     to={l.to}
                     label={t(l.labelKey)}
                     sub={t(l.subKey)}
-                    delay={0.04 * i}
+                    delay={0.03 * i}
                   />
                 ))}
               </Dropdown>
             </div>
 
-            <NavLink to="/presencia-global" label={t('nav.presenciaGlobal')} active={location.pathname === '/presencia-global'} />
-            <NavLink to="/conocimiento" label={t('nav.conocimiento')} active={location.pathname === '/conocimiento'} />
+            {/* 3. PRESENCIA GLOBAL */}
+            <div onMouseEnter={() => openMenu(null)}>
+              <NavLink to="/presencia-global" label={t('nav.presenciaGlobal')} active={location.pathname === '/presencia-global'} />
+            </div>
+
+            {/* 4. CAPACITACIÓN */}
+            <div onMouseEnter={() => openMenu(null)}>
+              <NavLink to="/capacitacion" label={t('nav.capacitacion')} active={isCapacitacionActive} />
+            </div>
+
+            {/* 5. COMUNICACIÓN */}
+            <div onMouseEnter={() => openMenu(null)}>
+              <NavLink to="/comunicacion" label={t('nav.comunicacion')} active={isComunicacionActive} />
+            </div>
           </nav>
 
           {/* Acciones derecha */}
@@ -294,7 +327,7 @@ export default function HeaderNav({
         </div>
       </motion.header>
 
-      {/* Mobile full-screen overlay con numeración editorial */}
+      {/* Mobile full-screen overlay con arquitectura agrupada */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -304,50 +337,89 @@ export default function HeaderNav({
             transition={{ duration: 0.35, ease: EASE_LUX }}
             className="fixed inset-0 z-40 bg-[#f5efe3]/98 backdrop-blur-2xl lg:hidden flex flex-col justify-start overflow-y-auto"
           >
-            <div className="px-6 sm:px-10 pt-24 pb-16 flex flex-col gap-1 font-sans min-h-full justify-between">
-              <div className="flex flex-col gap-1">
-                {[
-                  { to: '/', labelKey: 'nav.home', num: '01' },
-                  { to: '/nosotros', labelKey: 'nav.quienesSomos', num: '02' },
-                  { to: '/gobernanza', labelKey: 'nav.gobernanza', num: '03' },
-                  { to: '/asamblea-anual', labelKey: 'nav.asambleaAnual', num: '04' },
-                  { to: '/lineas-estrategicas', labelKey: 'nav.lineasEstrategicas', num: '05' },
-                  { to: '/proyectos', labelKey: 'nav.proyectos', num: '06' },
-                  { to: '/agenda-2030', labelKey: 'nav.agenda2030', num: '07' },
-                  { to: '/presencia-global', labelKey: 'nav.presenciaGlobal', num: '08' },
-                  { to: '/conocimiento', labelKey: 'nav.conocimiento', num: '09' },
-                ].map((l, i) => (
-                  <motion.div
-                    key={l.to}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.4, delay: 0.04 * i, ease: EASE_LUX }}
-                  >
-                    <Link
-                      to={l.to}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center justify-between border-b border-[#d8ceb6]/40 py-3.5 sm:py-4 font-sans text-[20px] sm:text-[24px] font-medium tracking-tight transition-colors duration-300 ${
-                        location.pathname === l.to ? 'text-[#4a5a22]' : 'text-[#2d2618] hover:text-[#4a5a22]'
-                      }`}
-                    >
-                      <span className="flex items-baseline gap-4 sm:gap-5 min-w-0">
-                        <span className="font-sans text-[10px] tracking-[0.2em] text-[#8a7e68] not-italic tabular flex-shrink-0">{l.num}</span>
-                        <span className="truncate">{t(l.labelKey)}</span>
-                      </span>
-                      <span className="text-base sm:text-lg opacity-40">&rarr;</span>
-                    </Link>
-                  </motion.div>
-                ))}
+            <div className="px-6 sm:px-10 pt-24 pb-16 flex flex-col gap-6 font-sans min-h-full justify-between">
+              <div className="flex flex-col gap-5">
+                {/* 01. EL CONSEJO */}
+                <div className="border-b border-[#d8ceb6]/40 pb-3">
+                  <div className="flex items-baseline gap-3 text-xs uppercase font-bold tracking-widest text-[#4a5a22] mb-2">
+                    <span>01</span>
+                    <span>{t('nav.consejo')}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-6">
+                    {CONSEJO_LINKS.map((l) => (
+                      <Link
+                        key={l.to}
+                        to={l.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-sm text-[#2d2618] hover:text-[#4a5a22] py-1 font-medium transition-colors"
+                      >
+                        {t(l.labelKey)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 02. NUESTRA ACCIÓN */}
+                <div className="border-b border-[#d8ceb6]/40 pb-3">
+                  <div className="flex items-baseline gap-3 text-xs uppercase font-bold tracking-widest text-[#4a5a22] mb-2">
+                    <span>02</span>
+                    <span>{t('nav.nuestraAccion')}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-6">
+                    {ACCION_LINKS.map((l) => (
+                      <Link
+                        key={l.to}
+                        to={l.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-sm text-[#2d2618] hover:text-[#4a5a22] py-1 font-medium transition-colors"
+                      >
+                        {t(l.labelKey)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 03. PRESENCIA GLOBAL */}
+                <Link
+                  to="/presencia-global"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between border-b border-[#d8ceb6]/40 pb-2.5 text-lg font-medium text-[#2d2618]"
+                >
+                  <span className="flex items-baseline gap-3">
+                    <span className="text-[10px] tracking-widest text-[#8a7e68] font-bold">03</span>
+                    <span>{t('nav.presenciaGlobal')}</span>
+                  </span>
+                  <span className="text-sm opacity-40">&rarr;</span>
+                </Link>
+
+                {/* 04. CAPACITACIÓN */}
+                <Link
+                  to="/capacitacion"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between border-b border-[#d8ceb6]/40 pb-2.5 text-lg font-medium text-[#2d2618]"
+                >
+                  <span className="flex items-baseline gap-3">
+                    <span className="text-[10px] tracking-widest text-[#8a7e68] font-bold">04</span>
+                    <span>{t('nav.capacitacion')}</span>
+                  </span>
+                  <span className="text-sm opacity-40">&rarr;</span>
+                </Link>
+
+                {/* 05. COMUNICACIÓN */}
+                <Link
+                  to="/comunicacion"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between border-b border-[#d8ceb6]/40 pb-2.5 text-lg font-medium text-[#2d2618]"
+                >
+                  <span className="flex items-baseline gap-3">
+                    <span className="text-[10px] tracking-widest text-[#8a7e68] font-bold">05</span>
+                    <span>{t('nav.comunicacion')}</span>
+                  </span>
+                  <span className="text-sm opacity-40">&rarr;</span>
+                </Link>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.45, delay: 0.4, ease: EASE_LUX }}
-                className="mt-8 pt-4"
-              >
+              <div className="mt-6 pt-3">
                 <Link
                   to="/contacto"
                   onClick={() => setMobileMenuOpen(false)}
@@ -356,10 +428,10 @@ export default function HeaderNav({
                   <span>{t('nav.contacto')}</span>
                   <span>&rarr;</span>
                 </Link>
-                <p className="mt-5 text-center text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
+                <p className="mt-4 text-center text-[10px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
                   {t('brand.name')} &middot; 2026
                 </p>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
