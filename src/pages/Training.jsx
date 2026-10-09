@@ -1,14 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PageHero } from '../components/PageHero.jsx';
 import FooterNav from '../components/FooterNav.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
+import { getUnifiedAcademicCalendar } from '../utils/calendarSync.js';
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  MapPin,
+  CheckCircle2,
+  Filter,
+  Building2,
+  Landmark,
+  Users,
+  Globe,
+  ArrowRight,
+  ExternalLink,
+  Sparkles,
+  Check,
+  Tag,
+  Grid,
+  List,
+} from 'lucide-react';
 
 const EASE_LUX = [0.16, 1, 0.3, 1];
 
 export default function Training() {
   const { t } = useI18n();
+  const { siteSettings, trainingData, addApplication } = useSiteSettings();
   const [activeTab, setActiveTab] = useState('oferta');
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -21,271 +44,61 @@ export default function Training() {
     notes: '',
   });
 
+  // Estados interactivos para el Calendario
+  const [calMonthOffset, setCalMonthOffset] = useState(4); // Mayo (0-indexed: 4 = Mayo 2026)
+  const [calYear, setCalYear] = useState(2026);
+  const [selectedCalEvent, setSelectedCalEvent] = useState(null);
+  const [calCategoryFilter, setCalCategoryFilter] = useState('all');
+  const [calViewMode, setCalViewMode] = useState('grid'); // 'grid' | 'list'
+
+  const handlePrevMonth = () => {
+    if (calMonthOffset === 0) {
+      setCalMonthOffset(11);
+      setCalYear(calYear - 1);
+    } else {
+      setCalMonthOffset(calMonthOffset - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (calMonthOffset === 11) {
+      setCalMonthOffset(0);
+      setCalYear(calYear + 1);
+    } else {
+      setCalMonthOffset(calMonthOffset + 1);
+    }
+  };
+
+  const handleOpenModal = (progName) => {
+    setSelectedProgram(progName);
+    setFormSubmitted(false);
+  };
+
   const tabs = [
     { id: 'oferta', label: { es: 'Oferta Académica', en: 'Academic Overview' } },
     { id: 'diplomados', label: { es: 'Diplomados', en: 'Diplomas' } },
     { id: 'cursos', label: { es: 'Cursos & Talleres', en: 'Workshops' } },
     { id: 'webinars', label: { es: 'Conferencias', en: 'Conferences' } },
-    { id: 'organizaciones', label: { es: 'Organizaciones', en: 'Organizations' } },
+    { id: 'organizaciones', label: { es: 'Programas para Organizaciones', en: 'Programs for Organizations' } },
     { id: 'especialistas', label: { es: 'Especialistas', en: 'Specialists' } },
     { id: 'calendario', label: { es: 'Calendario', en: 'Calendar' } },
     { id: 'inscripciones', label: { es: 'Inscripciones', en: 'Admissions' } },
   ];
 
-  const stats = [
+  const stats = trainingData?.stats || [
     { value: '1,450+', label: { es: 'Líderes formados en 18 países', en: 'Graduates across 18 countries' } },
     { value: '94%', label: { es: 'Impacto directo en políticas territoriales', en: 'Direct impact on territorial policies' } },
     { value: '35+', label: { es: 'Catedráticos y científicos internacionales', en: 'International professors & scientists' } },
     { value: '100%', label: { es: 'Acreditación con validez institucional CGA', en: 'CGA institutional accreditation' } },
   ];
 
-  const diplomados = [
-    {
-      id: 'dip-gobernanza',
-      title: {
-        es: 'Diplomado Internacional en Gobernanza Socioambiental y Biocultural',
-        en: 'International Diploma in Socio-Environmental and Biocultural Governance',
-      },
-      duration: '140 horas lectivas · 5 meses · Modalidad Híbrida',
-      dates: 'Convocatoria Abierta · Inicio: 12 de Mayo de 2026',
-      badge: 'Certificación Internacional CGA Ginebra / México',
-      desc: {
-        es: 'Programa insignia diseñado para capacitar a tomadores de decisiones, líderes territoriales y gestores en la articulación de la Agenda 2030, resolución de controversias ecológicas y gobernanza de cuencas.',
-        en: 'Flagship program designed to train policymakers, territorial leaders and managers in articulating Agenda 2030, resolving ecological disputes and watershed governance.',
-      },
-      target: {
-        es: 'Dirigido a funcionarios públicos, directores de sustentabilidad, líderes ejidales e investigadores.',
-        en: 'For public officials, sustainability directors, community leaders and researchers.',
-      },
-      modules: [
-        'Módulo I: Gobernanza Territorial Multiescalar y Diplomacia Ambiental',
-        'Módulo II: Restauración Ecológica y Conectividad de Corredores Biológicos',
-        'Módulo III: Instrumentos Jurídicos Internacionales y Consulta Previa (C169 OIT)',
-        'Módulo IV: Soberanía Alimentaria y Resguardo Biocultural de Semillas',
-        'Módulo V: Proyecto Integrador de Aplicación Territorial In-Situ',
-      ],
-    },
-    {
-      id: 'dip-satelital',
-      title: {
-        es: 'Diplomado en Monitoreo Satelital, IA y Tecnologías para la Conservación',
-        en: 'Diploma in Satellite Monitoring, AI and Conservation Technologies',
-      },
-      duration: '120 horas lectivas · 4 meses · Modalidad 100% Virtual con Laboratorios GIS',
-      dates: 'Inicio: 1 de Junio de 2026',
-      badge: 'Acreditación Científica & GIS Lab',
-      desc: {
-        es: 'Capacitación técnica avanzada en teledetección multiespectral (Sentinel, Landsat, Planet), algoritmos de inteligencia artificial para detección temprana de deforestación e inventarios de carbono forestal.',
-        en: 'Advanced technical training in multispectral remote sensing (Sentinel, Landsat, Planet), AI algorithms for early deforestation detection and forest carbon inventories.',
-      },
-      target: {
-        es: 'Biólogos, ingenieros ambientales, analistas geoespaciales y brigadas de vigilancia forestal.',
-        en: 'Biologists, environmental engineers, geospatial analysts and forest rangers.',
-      },
-      modules: [
-        'Módulo I: Fundamentos de Teledetección y Sensores Ópticos / Radar (SAR)',
-        'Módulo II: Procesamiento Digital de Imágenes en Google Earth Engine y QGIS',
-        'Módulo III: Modelos de Inteligencia Artificial aplicados a Biomas Críticos',
-        'Módulo IV: Sistemas de Alerta Temprana y Reportes para Guardabosques',
-      ],
-    },
-    {
-      id: 'dip-agua',
-      title: {
-        es: 'Diplomado en Gestión Integral del Agua y Resiliencia Hídrica Urbana',
-        en: 'Diploma in Integrated Water Management and Urban Water Resilience',
-      },
-      duration: '110 horas lectivas · 4 meses · Modalidad Híbrida',
-      dates: 'Inicio: 15 de Agosto de 2026',
-      badge: 'Especialidad de Cuenca Hidrográfica',
-      desc: {
-        es: 'Metodologías de vanguardia para la regeneración de acuíferos, cosecha pluvial a gran escala, diseño de infraestructura verde y gobernanza democrática de cuencas frente a la crisis climática.',
-        en: 'Cutting-edge methodologies for aquifer regeneration, large-scale rainwater harvesting, green infrastructure design and democratic watershed governance.',
-      },
-      target: {
-        es: 'Operadores de organismos de agua, urbanistas, consultores ambientales y líderes civiles.',
-        en: 'Water utility operators, urban planners, environmental consultants and civil leaders.',
-      },
-      modules: [
-        'Módulo I: Hidrología de Cuencas y Dinámica de Acuíferos Sobreexplotados',
-        'Módulo II: Infraestructura Verde y Soluciones Basadas en la Naturaleza (SbN)',
-        'Módulo III: Economía Circular del Agua, Tratamiento Descentralizado y Reúso',
-        'Módulo IV: Marco Regulatorio, Derecho Humano al Agua y Tarifas Equitativas',
-      ],
-    },
-    {
-      id: 'dip-finanzas',
-      title: {
-        es: 'Diplomado en Finanzas Climáticas, Taxonomía Verde y Mercados de Biodiversidad',
-        en: 'Diploma in Climate Finance, Green Taxonomy and Biodiversity Credits',
-      },
-      duration: '100 horas lectivas · 3.5 meses · Modalidad Virtual en Vivo',
-      dates: 'Inicio: 7 de Septiembre de 2026',
-      badge: 'Certificación en Criterios ESG / Fondos Verdes',
-      desc: {
-        es: 'Estructuración de bonos verdes, créditos de carbono de alta integridad, métricas de biodiversidad e inversión de impacto alineada con los estándares de la Unión Europea y el Banco Mundial.',
-        en: 'Structuring green bonds, high-integrity carbon credits, biodiversity metrics and impact investing aligned with EU and World Bank standards.',
-      },
-      target: {
-        es: 'Analistas financieros, gestores de fondos, ejecutivos de sostenibilidad y asesores de políticas.',
-        en: 'Financial analysts, fund managers, sustainability executives and policy advisors.',
-      },
-      modules: [
-        'Módulo I: Arquitectura Financiera Global del Clima (Fondo Verde, BID, BM)',
-        'Módulo II: Mercados de Carbono Voluntario y Regulado (Artículo 6 Acuerdo de París)',
-        'Módulo III: Créditos Bioculturales y Métricas de Conservación Marina y Terrestre',
-        'Módulo IV: Auditoría, Trazabilidad Blockchain y Certificación de Proyectos',
-      ],
-    },
-  ];
+  const diplomados = trainingData?.diplomados || [];
+  const cursos = trainingData?.cursos || [];
+  const webinars = trainingData?.webinars || [];
+  const especialistas = trainingData?.especialistas || [];
+  const organizaciones = trainingData?.organizaciones || {};
+  const calendario = useMemo(() => getUnifiedAcademicCalendar(trainingData), [trainingData]);
 
-  const cursos = [
-    {
-      title: { es: 'Taller de Bancos Comunitarios de Semillas Nativas', en: 'Community Native Seed Banks Workshop' },
-      hours: '30 horas · Presencial en Campo',
-      dates: '19 - 23 Junio 2026',
-      desc: { es: 'Protocolos de recolección botánica, pruebas de viabilidad, almacenamiento hermético y resguardo ante sequías prolongadas.', en: 'Botanical collection protocols, viability testing, hermetic storage and drought resilience.' },
-      instructor: 'Dra. María Soledad Albarrán',
-    },
-    {
-      title: { es: 'Curso de Medición de Huella de Carbono y GHG Protocol', en: 'Carbon Footprint Measurement & GHG Protocol Course' },
-      hours: '40 horas · Virtual en Vivo',
-      dates: '6 - 17 Julio 2026',
-      desc: { es: 'Cálculo de emisiones Alcance 1, 2 y 3 para organizaciones, cadenas de suministro y planes de descarbonización neta.', en: 'Scope 1, 2 and 3 emissions calculation for organizations, supply chains and net-zero plans.' },
-      instructor: 'Dr. Marcus Thorne',
-    },
-    {
-      title: { es: 'Taller de Negociación, Mediación y Consulta Previa Indígena', en: 'Negotiation, Mediation & Indigenous Prior Consultation Workshop' },
-      hours: '35 horas · Híbrido',
-      dates: '10 - 15 Agosto 2026',
-      desc: { es: 'Aplicación práctica de los estándares internacionales de consentimiento libre, previo e informado para megaproyectos.', en: 'Practical application of international free, prior and informed consent standards for major projects.' },
-      instructor: 'Dr. Julien de Saint-Germain',
-    },
-    {
-      title: { es: 'Curso de Bioeconomía Circular y Regeneración de Suelos', en: 'Circular Bioeconomy & Soil Regeneration Course' },
-      hours: '30 horas · Presencial / Virtual',
-      dates: '21 - 26 Septiembre 2026',
-      desc: { es: 'Microbiología de suelos, compostaje industrial, bioinsumos agrícolas y valorización de biomasa residual.', en: 'Soil microbiology, industrial composting, agricultural bio-inputs and biomass valorization.' },
-      instructor: 'Ing. Mateo Cárdenas',
-    },
-  ];
-
-  const webinars = [
-    {
-      title: { es: 'Conferencia Magistral: La Voz de los Océanos en la Era del Antropoceno', en: 'Keynote: The Voice of the Oceans in the Anthropocene' },
-      speaker: 'Dra. Elena Vance · Asesora Científica CGA Ginebra',
-      date: '28 de Mayo, 2026 · 17:00 CET',
-      type: 'Webinar Abierto · Transmisión Global',
-      summary: { es: 'Análisis de la acidificación marina, zonas de oxígeno mínimo y el tratado global de alta mar.', en: 'Analysis of ocean acidification, oxygen minimum zones and the High Seas Treaty.' },
-    },
-    {
-      title: { es: 'Panel Global: De la Soberanía Alimentaria a la Neutralidad de Carbono', en: 'Global Panel: From Food Sovereignty to Carbon Neutrality' },
-      speaker: 'Delegados de WESS Ginebra, FAO y Líderes de Organizaciones Campesinas',
-      date: '18 de Junio, 2026 · 16:00 CET',
-      type: 'Mesa Redonda Multilateral',
-      summary: { es: 'Experiencias de agroforestería comunitaria como sumideros de carbono y garantía de sustento.', en: 'Community agroforestry experiences as carbon sinks and livelihood security.' },
-    },
-    {
-      title: { es: 'Coloquio Técnico: IA y Satélites al Servicio de los Guardianes de la Selva', en: 'Technical Colloquium: AI and Satellites Serving Forest Guardians' },
-      speaker: 'Dr. Marcus Thorne & Laboratorio de Teledetección CGA',
-      date: '9 de Julio, 2026 · 18:00 CET',
-      type: 'Presentación de Casos de Éxito',
-      summary: { es: 'Demostración en tiempo real de modelos neuronales detectando tala ilegal en la Selva Lacandona.', en: 'Real-time demonstration of neural networks detecting illegal logging in the Lacandon Forest.' },
-    },
-    {
-      title: { es: 'Seminario Especial: Litigio Climático y Derechos de la Naturaleza', en: 'Special Seminar: Climate Litigation and Rights of Nature' },
-      speaker: 'Dr. Julien de Saint-Germain & Juristas Internacionales',
-      date: '27 de Agosto, 2026 · 17:30 CET',
-      type: 'Seminario Jurídico Especializado',
-      summary: { es: 'Precedentes vinculantes en cortes interamericanas y tribunales europeos sobre el ecocidio.', en: 'Binding precedents in Inter-American and European courts on ecocide.' },
-    },
-  ];
-
-  const especialistas = [
-    {
-      name: 'Dr. Francisco Solorio',
-      role: { es: 'Presidente del Consejo Directivo', en: 'President of the Board' },
-      credentials: 'Dr. en Gobernanza Territorial y Políticas Públicas',
-      expertise: { es: 'Liderazgo en diplomacia ambiental, conservación de biomas estratégicos y diseño de marcos de resolución de conflictos socioambientales.', en: 'Leadership in environmental diplomacy, biome conservation and socio-environmental conflict frameworks.' },
-      origin: 'México / Suiza',
-    },
-    {
-      name: 'Dra. María Soledad Albarrán',
-      role: { es: 'Directora Académica y de Posgrados', en: 'Academic & Postgraduate Director' },
-      credentials: 'Dra. en Ciencias Biológicas y Ecología del Paisaje',
-      expertise: { es: 'Restauración biocultural de ecosistemas templados y tropicales, bancos de germoplasma y redes de custodia comunitaria de semillas.', en: 'Biocultural restoration of temperate/tropical biomes, germplasm banks and community seed stewardship.' },
-      origin: 'Iberoamérica',
-    },
-    {
-      name: 'Dr. Julien de Saint-Germain',
-      role: { es: 'Catedrático de Derecho Ambiental Internacional', en: 'Professor of International Environmental Law' },
-      credentials: 'LL.M. & Ph.D. en Derecho Internacional (Ginebra)',
-      expertise: { es: 'Tratados multilaterales ambientales, derechos colectivos indígenas, litigio climático ante cortes supranacionales y gobernanza del agua.', en: 'Multilateral environmental treaties, collective indigenous rights, supranational climate litigation and water governance.' },
-      origin: 'Suiza',
-    },
-    {
-      name: 'Dra. Astrid Lindholm',
-      role: { es: 'Directora del Laboratorio de Teledetección e IA', en: 'Director of Remote Sensing & AI Lab' },
-      credentials: 'Ph.D. en Geociencias y Sensores Remotos',
-      expertise: { es: 'Modelado geoespacial, cálculo de biomasa mediante radar SAR, y desarrollo de algoritmos de alerta temprana para la Amazonía y Selva Maya.', en: 'Geospatial modeling, SAR radar biomass calculation, and early-warning algorithms for Amazon and Maya Rainforest.' },
-      origin: 'Suecia / México',
-    },
-    {
-      name: 'Mtro. Cuauhtémoc Mendoza',
-      role: { es: 'Coordinador de Diálogo Territorial y Saberes', en: 'Coordinator of Territorial Dialogue & Knowledge' },
-      credentials: 'Mtro. en Antropología Ecológica y Mediación Comunitaria',
-      expertise: { es: 'Protocolos de consulta previa, rescate de sistemas agrícolas ancestrales (chinampas, milpas) y soberanía hídrica local.', en: 'Prior consultation protocols, ancestral agricultural systems revival and local water sovereignty.' },
-      origin: 'México',
-    },
-    {
-      name: 'Dra. Claire Mercier',
-      role: { es: 'Especialista en Finanzas Climáticas y Bonos Verdes', en: 'Climate Finance & Green Bonds Specialist' },
-      credentials: 'Ph.D. en Economía Ambiental y Desarrollo Sostenible',
-      expertise: { es: 'Estructuración de mecanismos de pago por servicios ambientales, mercados de carbono de alta integridad y taxonomía ESG europea.', en: 'Payment for ecosystem services mechanisms, high-integrity carbon markets and EU ESG taxonomy.' },
-      origin: 'Francia / Suiza',
-    },
-  ];
-
-  const calendario = [
-    {
-      quarter: 'Q1 · Enero - Marzo 2026',
-      events: [
-        { date: '15 Ene 2026', title: { es: 'Apertura de Convocatoria Anual de Becas CGA', en: 'Annual CGA Scholarship Call Opens' }, tag: 'Admisiones' },
-        { date: '20 Feb 2026', title: { es: 'Webinar Inaugural: Desafíos Climáticos 2026', en: 'Inaugural Webinar: 2026 Climate Challenges' }, tag: 'Conferencia' },
-        { date: '15 Mar 2026', title: { es: 'Cierre de Registro Temprano (Early Bird)', en: 'Early Bird Registration Deadline' }, tag: 'Aranceles' },
-      ],
-    },
-    {
-      quarter: 'Q2 · Abril - Junio 2026',
-      events: [
-        { date: '30 Abr 2026', title: { es: 'Cierre Definitivo de Postulaciones Diplomado en Gobernanza', en: 'Governance Diploma Final Application Deadline' }, tag: 'Admisiones' },
-        { date: '12 May 2026', title: { es: 'Inicio de Clases: Diplomado en Gobernanza Socioambiental', en: 'Classes Begin: Socio-Environmental Governance Diploma' }, tag: 'Diplomado' },
-        { date: '1 Jun 2026', title: { es: 'Inicio de Clases: Diplomado en Monitoreo Satelital e IA', en: 'Classes Begin: Satellite Monitoring & AI Diploma' }, tag: 'Diplomado' },
-        { date: '19 Jun 2026', title: { es: 'Taller de Campo: Bancos Comunitarios de Semillas Nativas', en: 'Field Workshop: Community Native Seed Banks' }, tag: 'Taller' },
-      ],
-    },
-    {
-      quarter: 'Q3 · Julio - Septiembre 2026',
-      events: [
-        { date: '6 Jul 2026', title: { es: 'Curso Intensivo: Medición de Huella de Carbono y GHG', en: 'Intensive Course: Carbon Footprint & GHG Protocol' }, tag: 'Curso' },
-        { date: '15 Ago 2026', title: { es: 'Inicio de Clases: Diplomado en Gestión Integral del Agua', en: 'Classes Begin: Integrated Water Management Diploma' }, tag: 'Diplomado' },
-        { date: '7 Sep 2026', title: { es: 'Inicio de Clases: Diplomado en Finanzas Climáticas y Bonos', en: 'Classes Begin: Climate Finance & Green Bonds Diploma' }, tag: 'Diplomado' },
-      ],
-    },
-    {
-      quarter: 'Q4 · Octubre - Diciembre 2026',
-      events: [
-        { date: '15 Oct 2026', title: { es: 'Presentación de Proyectos Territoriales de Graduación', en: 'Final Territorial Graduation Project Presentations' }, tag: 'Evaluación' },
-        { date: '15 Nov 2026', title: { es: 'Simposio Anual de Egresados y Red de Becarios CGA', en: 'Annual CGA Alumni & Fellows Network Symposium' }, tag: 'Simposio' },
-        { date: '10 Dic 2026', title: { es: 'Ceremonia de Graduación y Entrega de Diplomas', en: 'Graduation Ceremony & Diploma Conferral' }, tag: 'Graduación' },
-      ],
-    },
-  ];
-
-  const handleOpenModal = (programTitle) => {
-    setSelectedProgram(programTitle);
-    setFormSubmitted(false);
-  };
 
   return (
     <div className="w-full min-h-screen bg-[#f5efe3] text-[#2d2618]">
@@ -552,50 +365,121 @@ export default function Training() {
           </div>
         )}
 
-        {/* 5. PARA ORGANIZACIONES / IN-COMPANY */}
-        {activeTab === 'organizaciones' && (
-          <div className="max-w-4xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-sm space-y-8">
-            <div>
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Soluciones Institucionales', en: 'Institutional Solutions' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2 mb-4">
-                {t({ es: 'Programas a la Medida para Gobiernos, Empresas y ONGs', en: 'Tailored Training for Governments, Corporations & NGOs' })}
-              </h3>
-              <p className="text-[#6b6048] font-light text-base sm:text-lg leading-relaxed">
-                {t({
-                  es: 'Diseñamos diagnósticos de necesidades y capacitamos a gabinetes ministeriales, equipos de sostenibilidad corporativa, operadores de agua y consejos comunales con currículas cerradas in-situ o en campus virtual exclusivo.',
-                  en: 'We design needs assessments and train ministerial cabinets, corporate sustainability teams, water operators and community councils with private on-site or online curricula.',
-                })}
-              </p>
-            </div>
+        {/* 5. PROGRAMAS PARA ORGANIZACIONES (100% CONFIGURABLE) */}
+        {activeTab === 'organizaciones' && (() => {
+          const org = organizaciones || {};
+          const progs = org.programs && org.programs.length > 0 ? org.programs : [];
+          const benefits = org.benefits && org.benefits.length > 0 ? org.benefits : [];
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-5 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6]">
-                <span className="text-xs font-bold text-[#4a5a22] uppercase tracking-wider block mb-1">Sector Público</span>
-                <h5 className="font-serif text-lg text-[#2d2618] font-medium mb-2">{t({ es: 'Gobiernos & Ministerios', en: 'Governments & Ministries' })}</h5>
-                <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t({ es: 'Ordenamientos territoriales, evaluación de impacto ambiental y fondos de resiliencia hídrica.', en: 'Territorial zoning, environmental impact assessment and water funds.' })}</p>
+          return (
+            <div className="space-y-12 max-w-6xl mx-auto">
+              {/* Encabezado Principal */}
+              <div className="text-center max-w-3xl mx-auto space-y-3">
+                <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
+                  {t(org.subtitle || { es: 'Soluciones Institucionales a Medida', en: 'Tailored Institutional Solutions' })}
+                </span>
+                <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light leading-tight">
+                  {t(org.title || { es: 'Programas para Organizaciones, Gobiernos y Empresas', en: 'Custom Programs for Organizations, Governments & Corporations' })}
+                </h3>
+                <p className="text-[#6b6048] font-light text-base sm:text-lg leading-relaxed pt-2">
+                  {t(org.description || {
+                    es: 'Diseñamos diagnósticos integrales de madurez ecológica y capacitamos a gabinetes ministeriales, equipos de sostenibilidad corporativa (ESG), operadores de agua y comunidades territoriales mediante currículas cerradas in-situ o en campus virtual exclusivo.',
+                    en: 'We design comprehensive ecological maturity assessments and train ministerial cabinets, corporate sustainability teams, water operators and community councils with private on-site or online curricula.',
+                  })}
+                </p>
               </div>
-              <div className="p-5 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6]">
-                <span className="text-xs font-bold text-[#4a5a22] uppercase tracking-wider block mb-1">Corporativo</span>
-                <h5 className="font-serif text-lg text-[#2d2618] font-medium mb-2">{t({ es: 'Empresas & ESG', en: 'Corporations & ESG' })}</h5>
-                <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t({ es: 'Descarbonización de cadenas de valor, reporte de taxonomía verde y debida diligencia de biodiversidad.', en: 'Supply chain decarbonization, green taxonomy reporting and biodiversity due diligence.' })}</p>
+
+              {/* Grid de Programas Especializados para Organizaciones */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {progs.map((p) => (
+                  <div
+                    key={p.id}
+                    className="p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between group space-y-6"
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-serif text-2xl text-[#2d2618] font-medium leading-snug group-hover:text-[#4a5a22] transition-colors">
+                          {t(p.title)}
+                        </h4>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-[#5c523e] font-light leading-relaxed">
+                        {t(p.desc)}
+                      </p>
+
+                      {/* Modalidades / Formatos */}
+                      {p.modalities && p.modalities.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {p.modalities.map((m, mIdx) => (
+                            <span
+                              key={mIdx}
+                              className="px-2.5 py-1 rounded-lg bg-[#eae4d2] text-[#4a5a22] text-[11px] font-semibold font-sans border border-[#d8ceb6]/60"
+                            >
+                              • {m}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-[#eae4d2] flex items-center justify-between">
+                      <span className="text-xs text-[#6b6048] font-light">
+                        Diseño curricular a la medida
+                      </span>
+                      <button
+                        onClick={() => handleOpenModal(typeof p.title === 'string' ? p.title : p.title?.es || 'Programa para Organizaciones')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer"
+                      >
+                        <span>Solicitar Programa</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="p-5 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6]">
-                <span className="text-xs font-bold text-[#4a5a22] uppercase tracking-wider block mb-1">Territorial</span>
-                <h5 className="font-serif text-lg text-[#2d2618] font-medium mb-2">{t({ es: 'Comunidades & Ejidos', en: 'Communities & Cooperatives' })}</h5>
-                <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t({ es: 'Formación de guardabosques comunitarios, gestión de viveros nativos y defensa del agua.', en: 'Ranger training, native nurseries management and water defense.' })}</p>
+
+              {/* Ventajas y Metodología Institucional */}
+              <div className="p-8 sm:p-10 rounded-3xl bg-[#eae4d2]/90 border border-[#d8ceb6] space-y-6">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#4a5a22]">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Ventajas de Capacitación Institucional CGA</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {benefits.map((b, bIdx) => (
+                    <div
+                      key={bIdx}
+                      className="p-4 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6] flex items-start gap-3"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[#4a5a22] shrink-0 mt-0.5" />
+                      <span className="text-xs text-[#2d2618] font-medium leading-relaxed">
+                        {t(b)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-[#d8ceb6]">
+                  <div>
+                    <h5 className="font-serif text-lg text-[#2d2618] font-medium">
+                      ¿Requieres un diagnóstico o currícula específica para tu equipo?
+                    </h5>
+                    <p className="text-xs text-[#6b6048]">
+                      Nuestro consejo académico estructura propuestas técnicas y financieras en menos de 72 horas.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenModal('Propuesta Institucional / Programas para Organizaciones')}
+                    className="px-6 py-3 rounded-full bg-[#2d2618] hover:bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-colors shadow-md whitespace-nowrap cursor-pointer shrink-0"
+                  >
+                    {t(org.ctaText || { es: 'Solicitar Propuesta para mi Organización', en: 'Request Proposal for my Organization' })} &rarr;
+                  </button>
+                </div>
               </div>
             </div>
-
-            <button
-              onClick={() => handleOpenModal(t({ es: 'Programa In-Company / Para Organizaciones', en: 'In-Company / Organization Program' }))}
-              className="px-8 py-4 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider transition-all shadow-md"
-            >
-              {t({ es: 'Solicitar Propuesta Institucional para mi Organización', en: 'Request Custom Proposal for my Organization' })} &rarr;
-            </button>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 6. CLAUSTRO DE ESPECIALISTAS */}
         {activeTab === 'especialistas' && (
@@ -629,42 +513,388 @@ export default function Training() {
           </div>
         )}
 
-        {/* 7. CALENDARIO ACADÉMICO 2026 */}
-        {activeTab === 'calendario' && (
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center max-w-2xl mx-auto mb-8">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Cronograma Oficial', en: 'Official Timeline' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
-                {t({ es: 'Calendario Académico y Convocatorias 2026', en: '2026 Academic Calendar & Calls' })}
-              </h3>
-            </div>
+        {/* 7. CALENDARIO ACADÉMICO INTERACTIVO (COMO CALENDARIO REAL) */}
+        {activeTab === 'calendario' && (() => {
+          const MONTH_NAMES_ES = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+          ];
+          const WEEKDAYS_ES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-            <div className="space-y-6">
-              {calendario.map((q, qIdx) => (
-                <div key={qIdx} className="p-7 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm">
-                  <h4 className="font-serif text-xl text-[#4a5a22] font-semibold mb-4 pb-2 border-b border-[#eae4d2]">
-                    {q.quarter}
-                  </h4>
-                  <div className="space-y-3">
-                    {q.events.map((ev, evIdx) => (
-                      <div key={evIdx} className="p-3.5 rounded-xl bg-[#eae4d2]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-3">
-                          <span className="text-xs font-bold text-[#2d2618] min-w-[90px]">{ev.date}</span>
-                          <span className="text-xs text-[#6b6048] font-medium">{t(ev.title)}</span>
+          const daysInMonth = new Date(calYear, calMonthOffset + 1, 0).getDate();
+          const firstDayIndex = (new Date(calYear, calMonthOffset, 1).getDay() + 6) % 7; // Lunes = 0
+
+          const monthPrefix = `${calYear}-${String(calMonthOffset + 1).padStart(2, '0')}`;
+          
+          const filteredEvents = calendario.filter((ev) => {
+            const matchCat = calCategoryFilter === 'all' || ev.category === calCategoryFilter;
+            return matchCat;
+          });
+
+          const eventsThisMonth = filteredEvents.filter((ev) => ev.date && ev.date.startsWith(monthPrefix));
+
+          // Color tags por categoría
+          const getCategoryBadgeClass = (cat) => {
+            switch (cat) {
+              case 'Diplomado':
+                return 'bg-[#4a5a22] text-[#f5efe3]';
+              case 'Curso / Taller':
+              case 'Cursos & Talleres':
+                return 'bg-[#8c4a2f] text-[#f5efe3]';
+              case 'Conferencia':
+                return 'bg-[#205466] text-[#f5efe3]';
+              case 'Beca & Convocatoria':
+                return 'bg-[#8c6818] text-[#f5efe3]';
+              case 'In-Company':
+                return 'bg-[#5c3d75] text-[#f5efe3]';
+              default:
+                return 'bg-[#4a5a22] text-[#f5efe3]';
+            }
+          };
+
+          return (
+            <div className="space-y-8 max-w-6xl mx-auto">
+              {/* Encabezado del Calendario */}
+              <div className="text-center max-w-3xl mx-auto space-y-2">
+                <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
+                  {t({ es: 'Cronograma Oficial 2026', en: 'Official 2026 Schedule' })}
+                </span>
+                <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light">
+                  {t({ es: 'Calendario Académico y Convocatorias', en: 'Academic Calendar & Calls' })}
+                </h3>
+                <p className="text-sm sm:text-base text-[#6b6048] font-light">
+                  {t({
+                    es: 'Consulta las fechas de inicio de diplomados, talleres de campo, webinars magistrales y cierres de becas en tiempo real.',
+                    en: 'Check diploma start dates, field workshops, keynote webinars and scholarship deadlines in real time.',
+                  })}
+                </p>
+              </div>
+
+              {/* Barra de Filtros por Categoría y Selector de Vista */}
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6]">
+                <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 md:pb-0">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#4a5a22] px-2 flex items-center gap-1 shrink-0">
+                    <Filter className="w-3.5 h-3.5" />
+                    <span>Filtrar:</span>
+                  </span>
+                  {[
+                    { id: 'all', label: 'Todas las Fechas' },
+                    { id: 'Diplomado', label: 'Diplomados' },
+                    { id: 'Curso / Taller', label: 'Cursos & Talleres' },
+                    { id: 'Conferencia', label: 'Conferencias' },
+                    { id: 'Beca & Convocatoria', label: 'Becas' },
+                    { id: 'In-Company', label: 'In-Company' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCalCategoryFilter(cat.id)}
+                      className={`px-3 py-1 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                        calCategoryFilter === cat.id
+                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs'
+                          : 'bg-white/60 text-[#6b6048] hover:bg-white hover:text-[#2d2618]'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1 bg-white/70 p-1 rounded-xl border border-[#d8ceb6] shrink-0">
+                  <button
+                    onClick={() => setCalViewMode('grid')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      calViewMode === 'grid' ? 'bg-[#4a5a22] text-white shadow-xs' : 'text-[#6b6048] hover:text-[#2d2618]'
+                    }`}
+                  >
+                    <Grid className="w-3.5 h-3.5" />
+                    <span>Vista Calendario</span>
+                  </button>
+                  <button
+                    onClick={() => setCalViewMode('list')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      calViewMode === 'list' ? 'bg-[#4a5a22] text-white shadow-xs' : 'text-[#6b6048] hover:text-[#2d2618]'
+                    }`}
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>Vista Lista</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* VISTA 1: CALENDARIO MENSUAL EN CUADRÍCULA (GRID REAL) */}
+              {calViewMode === 'grid' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Cuadrícula del Calendario (2 Columnas) */}
+                  <div className="lg:col-span-2 p-6 sm:p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm space-y-6">
+                    {/* Navegación del Mes */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#4a5a22] text-[#f5efe3] flex items-center justify-center shadow-xs">
+                          <CalendarIcon className="w-5 h-5" />
                         </div>
-                        <span className="text-[11px] font-sans font-semibold uppercase tracking-wider text-[#4a5a22] self-start sm:self-auto">
-                          {ev.tag}
-                        </span>
+                        <div>
+                          <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal capitalize">
+                            {MONTH_NAMES_ES[calMonthOffset]} {calYear}
+                          </h4>
+                          <span className="text-[11px] text-[#6b6048] font-mono">
+                            {eventsThisMonth.length} {eventsThisMonth.length === 1 ? 'actividad programada' : 'actividades programadas'}
+                          </span>
+                        </div>
                       </div>
-                    ))}
+
+                      <div className="flex items-center gap-1 bg-[#eae4d2] p-1 rounded-2xl border border-[#d8ceb6]">
+                        <button
+                          onClick={handlePrevMonth}
+                          className="p-2 rounded-xl hover:bg-white text-[#2d2618] transition-colors cursor-pointer"
+                          title="Mes Anterior"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => { setCalMonthOffset(4); setCalYear(2026); }}
+                          className="px-3 py-1 text-[11px] font-bold text-[#4a5a22] hover:bg-white rounded-lg transition-colors cursor-pointer"
+                        >
+                          Hoy
+                        </button>
+                        <button
+                          onClick={handleNextMonth}
+                          className="p-2 rounded-xl hover:bg-white text-[#2d2618] transition-colors cursor-pointer"
+                          title="Mes Siguiente"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Días de la semana */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs font-bold uppercase tracking-wider text-[#4a5a22] py-2 border-b border-[#eae4d2]">
+                      {WEEKDAYS_ES.map((d, dIdx) => (
+                        <div key={dIdx} className={dIdx >= 5 ? 'text-[#8c4a2f]' : ''}>
+                          {d}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Celdas de días del mes */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                      {/* Espacios vacíos antes del día 1 */}
+                      {Array.from({ length: firstDayIndex }).map((_, emptyIdx) => (
+                        <div
+                          key={`empty-${emptyIdx}`}
+                          className="h-16 sm:h-20 rounded-2xl bg-[#eae4d2]/30 border border-transparent opacity-40"
+                        />
+                      ))}
+
+                      {/* Días del mes */}
+                      {Array.from({ length: daysInMonth }).map((_, dIdx) => {
+                        const dayNum = dIdx + 1;
+                        const dateStr = `${calYear}-${String(calMonthOffset + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                        const dayEvents = filteredEvents.filter((e) => e.date === dateStr);
+                        const hasEvents = dayEvents.length > 0;
+                        const isSelected = selectedCalEvent && selectedCalEvent.date === dateStr;
+
+                        return (
+                          <div
+                            key={dayNum}
+                            onClick={() => hasEvents && setSelectedCalEvent(dayEvents[0])}
+                            className={`h-16 sm:h-20 p-1.5 sm:p-2 rounded-2xl border transition-all flex flex-col justify-between ${
+                              hasEvents
+                                ? isSelected
+                                  ? 'bg-[#4a5a22]/15 border-[#4a5a22] shadow-sm ring-2 ring-[#4a5a22]/30 cursor-pointer'
+                                  : 'bg-white border-[#d8ceb6] hover:border-[#4a5a22] shadow-xs cursor-pointer hover:bg-[#eae4d2]/40'
+                                : 'bg-[#eae4d2]/40 border-transparent text-[#8a7e68]'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span
+                                className={`text-xs font-bold ${
+                                  hasEvents ? 'text-[#2d2618]' : 'text-[#8a7e68]'
+                                }`}
+                              >
+                                {dayNum}
+                              </span>
+                              {hasEvents && (
+                                <span className="w-2 h-2 rounded-full bg-[#4a5a22]" />
+                              )}
+                            </div>
+
+                            {hasEvents && (
+                              <div className="space-y-0.5 overflow-hidden">
+                                {dayEvents.map((ev, evI) => (
+                                  <div
+                                    key={evI}
+                                    className={`px-1 sm:px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold truncate leading-tight ${getCategoryBadgeClass(ev.category)}`}
+                                  >
+                                    {typeof ev.title === 'string' ? ev.title : ev.title?.es || 'Evento'}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Panel Lateral: Detalle del Evento Seleccionado o Próximos Eventos */}
+                  <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/90 border border-[#d8ceb6] shadow-sm flex flex-col justify-between space-y-6">
+                    {selectedCalEvent ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getCategoryBadgeClass(
+                              selectedCalEvent.category
+                            )}`}
+                          >
+                            {selectedCalEvent.category}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-[#4a5a22]">
+                            {selectedCalEvent.date}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="font-serif text-2xl text-[#2d2618] font-medium leading-snug">
+                            {t(selectedCalEvent.title)}
+                          </h4>
+                          {selectedCalEvent.time && (
+                            <div className="flex items-center gap-1.5 text-xs text-[#6b6048] font-semibold mt-1">
+                              <Clock className="w-3.5 h-3.5 text-[#4a5a22]" />
+                              <span>{selectedCalEvent.time}</span>
+                            </div>
+                          )}
+                          {selectedCalEvent.modality && (
+                            <div className="text-[11px] text-[#4a5a22] font-mono mt-0.5">
+                              • {selectedCalEvent.modality}
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-[#5c523e] font-light leading-relaxed">
+                          {t(selectedCalEvent.desc)}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a5a22] block">
+                          Actividades de {MONTH_NAMES_ES[calMonthOffset]}
+                        </span>
+                        {eventsThisMonth.length > 0 ? (
+                          <div className="space-y-3">
+                            {eventsThisMonth.map((ev) => (
+                              <div
+                                key={ev.id}
+                                onClick={() => setSelectedCalEvent(ev)}
+                                className="p-3.5 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6] hover:border-[#4a5a22] transition-colors cursor-pointer space-y-1.5"
+                              >
+                                <div className="flex items-center justify-between text-[10px] font-bold">
+                                  <span className={`px-2 py-0.5 rounded-full ${getCategoryBadgeClass(ev.category)}`}>
+                                    {ev.category}
+                                  </span>
+                                  <span className="font-mono text-[#4a5a22]">{ev.date}</span>
+                                </div>
+                                <h5 className="font-serif text-sm text-[#2d2618] font-medium leading-snug">
+                                  {t(ev.title)}
+                                </h5>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-[#6b6048] italic py-6 text-center">
+                            No hay actividades programadas en este mes con el filtro seleccionado.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="pt-4 border-t border-[#d8ceb6] space-y-2">
+                      <button
+                        onClick={() =>
+                          handleOpenModal(
+                            selectedCalEvent
+                              ? typeof selectedCalEvent.title === 'string'
+                                ? selectedCalEvent.title
+                                : selectedCalEvent.title?.es
+                              : 'Admisiones & Convocatorias 2026'
+                          )
+                        }
+                        className="w-full py-3.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <span>Postularme / Solicitar Información</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      {selectedCalEvent && (
+                        <button
+                          onClick={() => setSelectedCalEvent(null)}
+                          className="w-full py-2 rounded-xl text-xs text-[#6b6048] hover:text-[#2d2618] text-center"
+                        >
+                          Ver listado del mes
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* VISTA 2: LISTADO CRONOLÓGICO DETALLADO */}
+              {calViewMode === 'list' && (
+                <div className="space-y-4">
+                  {filteredEvents.map((ev) => (
+                    <div
+                      key={ev.id}
+                      className="p-6 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+                    >
+                      <div className="flex items-start sm:items-center gap-5 flex-1">
+                        <div className="p-3.5 rounded-2xl bg-[#eae4d2] text-[#4a5a22] text-center min-w-[85px] shrink-0 border border-[#d8ceb6]">
+                          <span className="text-[10px] uppercase font-bold tracking-wider block text-[#6b6048]">
+                            Fecha
+                          </span>
+                          <span className="font-mono text-sm font-bold text-[#2d2618] block mt-0.5">
+                            {ev.date}
+                          </span>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getCategoryBadgeClass(ev.category)}`}>
+                              {ev.category}
+                            </span>
+                            {ev.time && (
+                              <span className="text-xs text-[#6b6048] font-semibold flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-[#4a5a22]" />
+                                {ev.time}
+                              </span>
+                            )}
+                            {ev.modality && (
+                              <span className="text-[11px] text-[#4a5a22] font-mono">
+                                • {ev.modality}
+                              </span>
+                            )}
+                          </div>
+
+                          <h4 className="font-serif text-xl text-[#2d2618] font-medium">
+                            {t(ev.title)}
+                          </h4>
+                          <p className="text-xs text-[#6b6048] font-light max-w-2xl">
+                            {t(ev.desc)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleOpenModal(typeof ev.title === 'string' ? ev.title : ev.title?.es)}
+                        className="px-5 py-2.5 rounded-full bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm transition-all whitespace-nowrap self-end sm:self-center cursor-pointer"
+                      >
+                        Inscribirme &rarr;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 8. INSCRIPCIONES Y BECAS */}
         {activeTab === 'inscripciones' && (

@@ -8,6 +8,7 @@ import OceanAbyss3D from './components/OceanAbyss3D.jsx';
 import SceneController from './components/SceneController.jsx';
 import EditorialOverlay from './components/EditorialOverlay.jsx';
 import HeaderNav from './components/HeaderNav.jsx';
+import WhatsAppButton from './components/WhatsAppButton.jsx';
 
 import About from './pages/About.jsx';
 import Governance from './pages/Governance.jsx';
@@ -21,6 +22,10 @@ import Contact from './pages/Contact.jsx';
 import InstitutionalAlliances from './pages/InstitutionalAlliances.jsx';
 import Training from './pages/Training.jsx';
 import Communication from './pages/Communication.jsx';
+import Admin from './pages/Admin.jsx';
+import { ArticlesProvider } from './context/ArticlesContext.jsx';
+import { SiteSettingsProvider } from './context/SiteSettingsContext.jsx';
+import SiteNotificationSystem from './components/SiteNotificationSystem.jsx';
 
 export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -159,111 +164,132 @@ export default function App() {
     };
   }, [scrollProgress]);
 
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   return (
-    <div className="relative w-full min-h-screen bg-[#f5efe3] text-[#2d2618]">
-      {/* ─── FIXED CAPSULE HEADER / NAVBAR ─── */}
-      <HeaderNav
-        isLoaded={isLoaded || !isHomePage}
-      />
+    <SiteSettingsProvider>
+      <ArticlesProvider>
+        <div className="relative w-full min-h-screen bg-[#f5efe3] text-[#2d2618]">
+          {/* ─── BANNER SUPERIOR & POP-UP NOTIFICATION SYSTEM ─── */}
+          <SiteNotificationSystem />
 
-      {/* ─── 3D CANVAS (Visible on Home Page) ─── */}
-      {isHomePage && (
-        <div className="fixed inset-0 z-0">
-          <Canvas
-            onCreated={() => setWorldReady(true)}
-            gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-            camera={{ position: [0, 0, 12], fov: 45, near: 0.1, far: 200 }}
-            style={{ background: !isLoaded ? '#f5efe3' : isLightMode ? '#ffffff' : '#000000' }}
-          >
-            <SceneController
-              scrollProgress={scrollProgress}
-              isLoaded={isLoaded}
-              zoomProgress={zoomProgress}
+          {/* ─── FIXED CAPSULE HEADER / NAVBAR (Oculto en /admin) ─── */}
+          {!isAdminPage && (
+            <HeaderNav
+              isLoaded={isLoaded || !isHomePage}
             />
-            <Earth3D
-              zoomProgress={zoomProgress}
-              isLoaded={isLoaded}
-            />
-            <OceanAbyss3D />
-          </Canvas>
-        </div>
-      )}
+          )}
 
-      {/* ─── LOADER OVERLAY (Home Page) ─── */}
-      <AnimatePresence>
-        {isHomePage && loaderVisible && (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: worldReady ? 1 : 0 }}
-            exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
-            transition={{ duration: 0.5 }}
-            className={`fixed inset-0 z-50 flex flex-col items-center justify-center select-none overflow-hidden ${
-              worldReady ? 'pointer-events-auto' : 'pointer-events-none'
-            }`}
-            style={{ background: 'transparent' }}
-          >
-            <div className="relative flex flex-col items-center text-center">
-              {/* Contador serif — lo único sobre el mundo */}
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="font-serif font-light text-white leading-none tabular-nums drop-shadow-[0_3px_2px_rgba(0,0,0,0.55)] drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]"
-                style={{ fontSize: 'clamp(2.75rem, 6vw, 4rem)' }}
+          {/* ─── 3D CANVAS (Visible on Home Page) ─── */}
+          {isHomePage && (
+            <div className="fixed inset-0 z-0">
+              <Canvas
+                onCreated={() => setWorldReady(true)}
+                gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+                camera={{ position: [0, 0, 12], fov: 45, near: 0.1, far: 200 }}
+                style={{ background: !isLoaded ? '#f5efe3' : isLightMode ? '#ffffff' : '#000000' }}
               >
-                <AnimatePresence mode="popLayout" initial={false}>
-                  <motion.span
-                    key={safePct}
-                    initial={{ opacity: 0.3, y: 8, scale: 1.06 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.16 }}
-                    className="inline-block"
-                  >
-                    {safePct}
-                  </motion.span>
-                </AnimatePresence>
-                <span className="align-baseline text-[0.3em] text-[#4a5a22]/80">%</span>
-              </motion.div>
+                <SceneController
+                  scrollProgress={scrollProgress}
+                  isLoaded={isLoaded}
+                  zoomProgress={zoomProgress}
+                />
+                <Earth3D
+                  zoomProgress={zoomProgress}
+                  isLoaded={isLoaded}
+                />
+                <OceanAbyss3D />
+              </Canvas>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
 
-      {/* ─── ROUTER CONTENT ─── */}
-      <div className="relative z-10">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <EditorialOverlay
-                isLoaded={isLoaded}
-                scrollProgress={scrollProgress}
+          {/* ─── LOADER OVERLAY (Home Page) ─── */}
+          <AnimatePresence>
+            {isHomePage && loaderVisible && (
+              <motion.div
+                key="loader"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: worldReady ? 1 : 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
+                transition={{ duration: 0.5 }}
+                className={`fixed inset-0 z-50 flex flex-col items-center justify-center select-none overflow-hidden ${
+                  worldReady ? 'pointer-events-auto' : 'pointer-events-none'
+                }`}
+                style={{ background: 'transparent' }}
+              >
+                <div className="relative flex flex-col items-center text-center">
+                  {/* Contador serif — lo único sobre el mundo */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    className="font-serif font-light text-white leading-none tabular-nums drop-shadow-[0_3px_2px_rgba(0,0,0,0.55)] drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]"
+                    style={{ fontSize: 'clamp(2.75rem, 6vw, 4rem)' }}
+                  >
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={safePct}
+                        initial={{ opacity: 0.3, y: 8, scale: 1.06 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.16 }}
+                        className="inline-block"
+                      >
+                        {safePct}
+                      </motion.span>
+                    </AnimatePresence>
+                    <span className="align-baseline text-[0.3em] text-[#4a5a22]/80">%</span>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ─── ROUTER CONTENT ─── */}
+          <div className="relative z-10">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <EditorialOverlay
+                    isLoaded={isLoaded}
+                    scrollProgress={scrollProgress}
+                  />
+                }
               />
-            }
-          />
-          <Route path="/nosotros" element={<About />} />
-          <Route path="/quienes-somos" element={<About />} />
-          <Route path="/gobernanza" element={<Governance />} />
-          <Route path="/gobierno-estructura" element={<Governance />} />
-          <Route path="/alianzas-institucionales" element={<InstitutionalAlliances />} />
-          <Route path="/informes-anuales" element={<AnnualAssembly />} />
-          <Route path="/asamblea-anual" element={<AnnualAssembly />} />
+              <Route path="/nosotros" element={<About />} />
+              <Route path="/quienes-somos" element={<About />} />
+              <Route path="/gobernanza" element={<Governance />} />
+              <Route path="/gobierno-estructura" element={<Governance />} />
+              <Route path="/alianzas-institucionales" element={<InstitutionalAlliances />} />
+              <Route path="/informes-anuales" element={<AnnualAssembly />} />
+              <Route path="/asamblea-anual" element={<AnnualAssembly />} />
 
-          <Route path="/lineas-estrategicas" element={<StrategicLines />} />
-          <Route path="/ejes-de-accion" element={<StrategicLines />} />
-          <Route path="/proyectos" element={<Projects />} />
-          <Route path="/programas-proyectos" element={<Projects />} />
-          <Route path="/agenda-2030" element={<Agenda2030 />} />
+              <Route path="/lineas-estrategicas" element={<StrategicLines />} />
+              <Route path="/ejes-de-accion" element={<StrategicLines />} />
+              <Route path="/proyectos" element={<Projects />} />
+              <Route path="/programas-proyectos" element={<Projects />} />
+              <Route path="/agenda-2030" element={<Agenda2030 />} />
 
-          <Route path="/presencia-global" element={<GlobalPresence />} />
-          <Route path="/capacitacion" element={<Training />} />
-          <Route path="/comunicacion" element={<Communication />} />
-          <Route path="/conocimiento" element={<Communication />} />
-          <Route path="/contacto" element={<Contact />} />
-        </Routes>
-      </div>
-    </div>
+              <Route path="/presencia-global" element={<GlobalPresence />} />
+              <Route path="/capacitacion" element={<Training />} />
+              <Route path="/comunicacion" element={<Communication />} />
+              <Route path="/comunicacion/:id" element={<Communication />} />
+              <Route path="/noticias/:id" element={<Communication />} />
+              <Route path="/articulo/:id" element={<Communication />} />
+              <Route path="/conocimiento" element={<Communication />} />
+              <Route path="/contacto" element={<Contact />} />
+
+              {/* ─── RUTA DEL ADMINISTRADOR CMS ─── */}
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/articulos" element={<Admin />} />
+            </Routes>
+          </div>
+
+          {/* ─── FLOATING WHATSAPP BUTTON ─── */}
+          <WhatsAppButton />
+        </div>
+      </ArticlesProvider>
+    </SiteSettingsProvider>
   );
 }

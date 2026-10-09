@@ -48,9 +48,12 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
     triggerRef.current?.focus();
   };
 
-  // tone="solid" para superficies oscuras (menú móvil, footer)
+  // tone="solid" para superficies oscuras simples, tone="dark" para navbar oscura/inmersiva
   const isSolid = tone === 'solid';
-  const triggerClass = isSolid
+  const isDark = tone === 'dark';
+  const triggerClass = isDark
+    ? 'border-white/20 bg-black/45 text-[#f5efe3] hover:text-white hover:border-white/40 hover:bg-black/65 shadow-sm'
+    : isSolid
     ? 'border-[#6b6048]/25 bg-[#f5efe3]/70 text-[#3a4a18] hover:bg-[#f5efe3]'
     : 'border-[#d8ceb6]/70 bg-[#f5efe3]/60 text-[#5c523e] hover:text-[#2d2618] hover:border-[#4a5a22]/40 hover:bg-[#f5efe3]';
 
@@ -64,7 +67,7 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
         aria-expanded={open}
         aria-label={`${t('a11y.selectLanguage')}: ${current.label}`}
         className={`group inline-flex h-9 items-center gap-1.5 rounded-full border pl-2.5 pr-2.5 font-sans text-[11px] font-semibold tracking-[0.14em] uppercase backdrop-blur-md transition-all duration-300 active:scale-[0.97] ${triggerClass} ${
-          open ? (isSolid ? 'border-[#4a5a22]/50 text-[#2d2618]' : 'border-[#4a5a22]/50 text-[#2d2618]') : ''
+          open ? (isDark ? 'border-white/50 text-white' : 'border-[#4a5a22]/50 text-[#2d2618]') : ''
         }`}
       >
         <GlobeIcon className="h-[15px] w-[15px] opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
@@ -91,7 +94,11 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: 0.25, ease: EASE_LUX }}
             style={{ transformOrigin: align === 'right' ? 'top right' : 'top left' }}
-            className={`absolute top-full mt-2 z-50 min-w-[168px] overflow-hidden rounded-2xl border border-[#d8ceb6] bg-[#f5efe3] p-1.5 shadow-[0_24px_50px_-24px_rgba(45,38,24,0.45)] backdrop-blur-xl ${
+            className={`absolute top-full mt-2 z-50 min-w-[168px] overflow-hidden rounded-2xl border p-1.5 backdrop-blur-xl ${
+              isDark
+                ? 'border-white/15 bg-[#141811]/95 text-[#f5efe3] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.8)]'
+                : 'border-[#d8ceb6] bg-[#f5efe3] text-[#2d2618] shadow-[0_24px_50px_-24px_rgba(45,38,24,0.45)]'
+            } ${
               align === 'right' ? 'right-0' : 'left-0'
             }`}
           >
@@ -109,20 +116,26 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.24, delay: 0.04 * i, ease: EASE_LUX }}
                   className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left font-sans transition-colors duration-200 ${
-                    active ? 'bg-[#4a5a22]/10' : 'hover:bg-[#4a5a22]/8'
+                    active
+                      ? isDark
+                        ? 'bg-[#a8bc65]/20 text-[#d8eb96]'
+                        : 'bg-[#4a5a22]/10'
+                      : isDark
+                      ? 'hover:bg-white/10 text-[#d8ceb6] hover:text-white'
+                      : 'hover:bg-[#4a5a22]/8'
                   }`}
                 >
                   <span className="flex items-baseline gap-2.5 min-w-0">
                     <span
                       className={`text-[11px] font-bold tracking-[0.14em] tabular-nums ${
-                        active ? 'text-[#4a5a22]' : 'text-[#8a7e68]'
+                        active ? (isDark ? 'text-[#d8eb96]' : 'text-[#4a5a22]') : (isDark ? 'text-[#a8bc65]' : 'text-[#8a7e68]')
                       }`}
                     >
                       {l.short}
                     </span>
                     <span
                       className={`text-[13px] font-medium truncate ${
-                        active ? 'text-[#2d2618]' : 'text-[#4a5340]'
+                        active ? (isDark ? 'text-white' : 'text-[#2d2618]') : (isDark ? 'text-[#e0d8c7]' : 'text-[#4a5340]')
                       }`}
                     >
                       {l.label}
@@ -135,7 +148,7 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.7 }}
                         transition={{ duration: 0.2, ease: EASE_LUX }}
-                        className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#4a5a22]"
+                        className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDark ? 'bg-[#a8bc65]' : 'bg-[#4a5a22]'}`}
                       />
                     )}
                   </AnimatePresence>

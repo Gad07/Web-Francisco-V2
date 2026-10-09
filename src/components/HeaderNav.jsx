@@ -45,7 +45,7 @@ const ACTIVE_ROUTES_ACCION = ['/lineas-estrategicas', '/ejes-de-accion', '/proye
 const ACTIVE_ROUTES_CAPACITACION = ['/capacitacion'];
 const ACTIVE_ROUTES_COMUNICACION = ['/comunicacion', '/conocimiento'];
 
-function Dropdown({ open, children }) {
+function Dropdown({ open, isDark = false, children }) {
   return (
     <AnimatePresence>
       {open && (
@@ -54,7 +54,11 @@ function Dropdown({ open, children }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
           transition={{ duration: 0.25, ease: EASE_LUX }}
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[250px] overflow-hidden rounded-2xl border border-[#d8ceb6] bg-[#f5efe3] p-2 shadow-[0_24px_50px_-24px_rgba(45,38,24,0.4)] z-50 origin-top"
+          className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[250px] overflow-hidden rounded-2xl border p-2 backdrop-blur-2xl z-50 origin-top ${
+            isDark
+              ? 'border-white/15 bg-[#141811]/95 text-[#f5efe3] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.8)]'
+              : 'border-[#d8ceb6] bg-[#f5efe3] text-[#2d2618] shadow-[0_24px_50px_-24px_rgba(45,38,24,0.4)]'
+          }`}
         >
           {children}
         </motion.div>
@@ -63,7 +67,7 @@ function Dropdown({ open, children }) {
   );
 }
 
-function DropdownItem({ to, label, sub, delay }) {
+function DropdownItem({ to, label, sub, delay, isDark = false }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -73,24 +77,45 @@ function DropdownItem({ to, label, sub, delay }) {
     >
       <Link
         to={to}
-        className="group flex items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors duration-200 hover:bg-[#4a5a22]/8"
+        className={`group flex items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors duration-200 ${
+          isDark
+            ? 'hover:bg-white/10 text-[#e0d8c7]'
+            : 'hover:bg-[#4a5a22]/8 text-[#4a5340]'
+        }`}
       >
         <span>
-          <span className="block text-[13px] font-medium text-[#4a5340] group-hover:text-[#2d2618] transition-colors duration-200">{label}</span>
-          {sub && <span className="mt-0.5 block text-[11px] font-light text-[#8a7e68]">{sub}</span>}
+          <span className={`block text-[13px] font-medium transition-colors duration-200 ${
+            isDark ? 'text-[#f5efe3] group-hover:text-white' : 'text-[#4a5340] group-hover:text-[#2d2618]'
+          }`}>
+            {label}
+          </span>
+          {sub && (
+            <span className={`mt-0.5 block text-[11px] font-light ${
+              isDark ? 'text-[#a8a090]' : 'text-[#8a7e68]'
+            }`}>
+              {sub}
+            </span>
+          )}
         </span>
-        <span className="translate-x-[-4px] text-[#4a5a22] opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">&rarr;</span>
+        <span className={`translate-x-[-4px] opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 ${
+          isDark ? 'text-[#d8eb96]' : 'text-[#4a5a22]'
+        }`}>
+          &rarr;
+        </span>
       </Link>
     </motion.div>
   );
 }
 
-function NavLink({ to, label, active }) {
+function NavLink({ to, label, active, isDark = false }) {
+  const activeClass = isDark ? 'text-[#d8eb96] font-semibold drop-shadow-[0_1px_8px_rgba(216,235,150,0.4)]' : 'text-[#3a4a18] font-semibold';
+  const idleClass = isDark ? 'text-[#f5efe3]/85 hover:text-white drop-shadow-sm' : 'text-[#5c523e] hover:text-[#2d2618]';
+
   return (
     <Link
       to={to}
       className={`group relative inline-flex h-9 shrink-0 items-center px-1.5 xl:px-2.5 font-sans text-[12.5px] xl:text-[13px] font-medium tracking-[0.03em] whitespace-nowrap transition-colors duration-300 ${
-        active ? 'text-[#3a4a18] font-semibold' : 'text-[#5c523e] hover:text-[#2d2618]'
+        active ? activeClass : idleClass
       }`}
     >
       <span>{label}</span>
@@ -98,19 +123,22 @@ function NavLink({ to, label, active }) {
   );
 }
 
-function DropdownTrigger({ label, open, onClick, active = false }) {
+function DropdownTrigger({ label, open, onClick, active = false, isDark = false }) {
+  const activeClass = isDark ? 'text-[#d8eb96] font-semibold drop-shadow-[0_1px_8px_rgba(216,235,150,0.4)]' : 'text-[#3a4a18] font-semibold';
+  const idleClass = isDark ? 'text-[#f5efe3]/85 hover:text-white drop-shadow-sm' : 'text-[#5c523e] hover:text-[#2d2618]';
+
   return (
     <button
       onClick={onClick}
       className={`group relative inline-flex h-9 shrink-0 items-center gap-1 xl:gap-1.5 px-1.5 xl:px-2.5 whitespace-nowrap font-sans text-[12.5px] xl:text-[13px] font-medium tracking-[0.03em] transition-colors duration-300 active:scale-[0.98] ${
-        open || active ? 'text-[#3a4a18] font-semibold' : 'text-[#5c523e] hover:text-[#2d2618]'
+        open || active ? activeClass : idleClass
       }`}
     >
       <span>{label}</span>
       <motion.span
         animate={{ rotate: open ? 180 : 0 }}
         transition={{ duration: 0.3, ease: EASE_LUX }}
-        className="text-[10px] opacity-60"
+        className={`text-[10px] ${isDark ? 'text-[#d8eb96]' : 'opacity-60'}`}
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -134,6 +162,7 @@ export default function HeaderNav({
   const scrollY = useMotionValue(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
 
   useEffect(() => {
     const handleModal = (e) => {
@@ -157,6 +186,50 @@ export default function HeaderNav({
       window.removeEventListener('resize', handleScroll);
     };
   }, [scrollY]);
+
+  // ─── DETECCIÓN DINÁMICA DE FONDO OSCURO BAJO LA NAVBAR ───
+  useEffect(() => {
+    const checkDarkTheme = () => {
+      // 1. Elementos explícitamente marcados con data-nav-theme="dark" o data-theme="dark"
+      const darkElements = document.querySelectorAll('[data-nav-theme="dark"], [data-theme="dark"]');
+      const headerThreshold = 75; // px desde el tope del viewport
+      let overDark = false;
+
+      for (const el of darkElements) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= headerThreshold && rect.bottom >= 25) {
+          overDark = true;
+          break;
+        }
+      }
+
+      // 2. Verificación secundaria por secciones con fondo oscuro (#0a0d08, black)
+      if (!overDark) {
+        const darkSection = document.querySelector('section.bg-\\[\\#0a0d08\\], [data-template="immersive"]');
+        if (darkSection) {
+          const rect = darkSection.getBoundingClientRect();
+          if (rect.top <= headerThreshold && rect.bottom >= 25) {
+            overDark = true;
+          }
+        }
+      }
+
+      setIsDarkTheme(overDark);
+    };
+
+    checkDarkTheme();
+    window.addEventListener('scroll', checkDarkTheme, { passive: true });
+    window.addEventListener('resize', checkDarkTheme, { passive: true });
+
+    const observer = new MutationObserver(checkDarkTheme);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+    return () => {
+      window.removeEventListener('scroll', checkDarkTheme);
+      window.removeEventListener('resize', checkDarkTheme);
+      observer.disconnect();
+    };
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -197,16 +270,22 @@ export default function HeaderNav({
           duration: isModalOpen ? 0.35 : 0.45,
           ease: EASE_LUX,
         }}
-        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-[top,width,height,border-radius,padding,background-color,border-color,box-shadow] duration-500 ease-out text-[#2d2618] ${
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-[top,width,height,border-radius,padding,background-color,border-color,box-shadow,color] duration-500 ease-out ${
           isModalOpen ? 'pointer-events-none' : ''
         } ${
+          isDarkTheme ? 'text-[#f5efe3]' : 'text-[#2d2618]'
+        } ${
           isScrolled
-            ? 'top-3 md:top-4 w-[94%] max-w-6xl h-[60px] md:h-[64px] rounded-full px-4 sm:px-6 md:px-8 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
-            : 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-[#f5efe3]/95 via-[#f5efe3]/75 to-transparent border-0 border-transparent shadow-none'
+            ? isDarkTheme
+              ? 'top-3 md:top-4 w-[94%] max-w-6xl h-[60px] md:h-[64px] rounded-full px-4 sm:px-6 md:px-8 bg-black/65 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_18px_45px_-16px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10'
+              : 'top-3 md:top-4 w-[94%] max-w-6xl h-[60px] md:h-[64px] rounded-full px-4 sm:px-6 md:px-8 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
+            : isDarkTheme
+              ? 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-black/85 via-black/45 to-transparent border-0 border-transparent shadow-none'
+              : 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-[#f5efe3]/95 via-[#f5efe3]/75 to-transparent border-0 border-transparent shadow-none'
         } ${!isLoaded ? 'pointer-events-none' : ''}`}
       >
         <div className="mx-auto flex w-full h-full items-center justify-between gap-3 sm:gap-6">
-          {/* Cluster izquierdo: logo */}
+          {/* Cluster izquierdo: logo que se adapta a fondo claro u oscuro */}
           <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
             <Link
               to="/"
@@ -214,9 +293,11 @@ export default function HeaderNav({
               aria-label={t('a11y.home')}
             >
               <img
-                src="/logos/logo-cga-header.webp"
+                src={isDarkTheme ? '/logos/logo-cga-footer.webp' : '/logos/logo-cga-header.webp'}
                 alt={t('brand.name') || 'Consejo Global Ambiental'}
-                className={`w-auto object-contain drop-shadow-none transition-all duration-500 ease-out group-hover:scale-[1.04] ${
+                className={`w-auto object-contain transition-all duration-500 ease-out group-hover:scale-[1.04] ${
+                  isDarkTheme ? 'drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]' : 'drop-shadow-none'
+                } ${
                   isScrolled ? 'h-[38px] md:h-[42px]' : 'h-[50px] md:h-[56px] lg:h-[58px]'
                 }`}
               />
@@ -234,9 +315,10 @@ export default function HeaderNav({
                 label={t('nav.consejo')}
                 open={openDropdown === 'consejo'}
                 active={isConsejoActive}
+                isDark={isDarkTheme}
                 onClick={() => setOpenDropdown(openDropdown === 'consejo' ? null : 'consejo')}
               />
-              <Dropdown open={openDropdown === 'consejo'}>
+              <Dropdown open={openDropdown === 'consejo'} isDark={isDarkTheme}>
                 {CONSEJO_LINKS.map((l, i) => (
                   <DropdownItem
                     key={l.to}
@@ -244,6 +326,7 @@ export default function HeaderNav({
                     label={t(l.labelKey)}
                     sub={t(l.subKey)}
                     delay={0.03 * i}
+                    isDark={isDarkTheme}
                   />
                 ))}
               </Dropdown>
@@ -255,9 +338,10 @@ export default function HeaderNav({
                 label={t('nav.nuestraAccion')}
                 open={openDropdown === 'accion'}
                 active={isAccionActive}
+                isDark={isDarkTheme}
                 onClick={() => setOpenDropdown(openDropdown === 'accion' ? null : 'accion')}
               />
-              <Dropdown open={openDropdown === 'accion'}>
+              <Dropdown open={openDropdown === 'accion'} isDark={isDarkTheme}>
                 {ACCION_LINKS.map((l, i) => (
                   <DropdownItem
                     key={l.to}
@@ -265,6 +349,7 @@ export default function HeaderNav({
                     label={t(l.labelKey)}
                     sub={t(l.subKey)}
                     delay={0.03 * i}
+                    isDark={isDarkTheme}
                   />
                 ))}
               </Dropdown>
@@ -272,30 +357,34 @@ export default function HeaderNav({
 
             {/* 3. PRESENCIA GLOBAL */}
             <div onMouseEnter={() => openMenu(null)}>
-              <NavLink to="/presencia-global" label={t('nav.presenciaGlobal')} active={location.pathname === '/presencia-global'} />
+              <NavLink to="/presencia-global" label={t('nav.presenciaGlobal')} active={location.pathname === '/presencia-global'} isDark={isDarkTheme} />
             </div>
 
             {/* 4. CAPACITACIÓN */}
             <div onMouseEnter={() => openMenu(null)}>
-              <NavLink to="/capacitacion" label={t('nav.capacitacion')} active={isCapacitacionActive} />
+              <NavLink to="/capacitacion" label={t('nav.capacitacion')} active={isCapacitacionActive} isDark={isDarkTheme} />
             </div>
 
             {/* 5. COMUNICACIÓN */}
             <div onMouseEnter={() => openMenu(null)}>
-              <NavLink to="/comunicacion" label={t('nav.comunicacion')} active={isComunicacionActive} />
+              <NavLink to="/comunicacion" label={t('nav.comunicacion')} active={isComunicacionActive} isDark={isDarkTheme} />
             </div>
           </nav>
 
           {/* Acciones derecha */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <LanguageSwitch />
+            <LanguageSwitch tone={isDarkTheme ? 'dark' : 'default'} />
 
             <Link
               to="/contacto"
               className={`group hidden sm:inline-flex h-9 items-center gap-2.5 rounded-full px-4 xl:px-5 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.12em] uppercase transition-all duration-500 ease-out active:scale-[0.97] ring-1 ring-inset ${
-                isScrolled
-                  ? 'bg-[#4a5a22] text-[#f5efe3] ring-[#f5efe3]/15 shadow-[0_8px_24px_-10px_rgba(74,90,34,0.5)] hover:bg-[#5a6b2a]'
-                  : 'bg-[#2d2618] text-[#f5efe3] ring-transparent shadow-[0_4px_16px_-6px_rgba(45,38,24,0.4)] hover:bg-[#3a3423]'
+                isDarkTheme
+                  ? isScrolled
+                    ? 'bg-[#4a5a22] text-[#f5efe3] ring-white/15 shadow-[0_8px_24px_-10px_rgba(74,90,34,0.6)] hover:bg-[#5a6b2a]'
+                    : 'bg-[#a8bc65]/20 text-[#f5efe3] ring-1 ring-white/20 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.5)] hover:bg-[#a8bc65]/35 backdrop-blur-md'
+                  : isScrolled
+                    ? 'bg-[#4a5a22] text-[#f5efe3] ring-[#f5efe3]/15 shadow-[0_8px_24px_-10px_rgba(74,90,34,0.5)] hover:bg-[#5a6b2a]'
+                    : 'bg-[#2d2618] text-[#f5efe3] ring-transparent shadow-[0_4px_16px_-6px_rgba(45,38,24,0.4)] hover:bg-[#3a3423]'
               }`}
             >
               <span>{t('nav.contacto')}</span>
@@ -313,7 +402,11 @@ export default function HeaderNav({
             {/* Mobile menu trigger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[#d8ceb6]/70 bg-[#f5efe3]/80 text-[#2d2618] backdrop-blur-md active:scale-90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a5a22]/50"
+              className={`lg:hidden flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border backdrop-blur-md active:scale-90 transition-all duration-200 focus:outline-none ${
+                isDarkTheme
+                  ? 'border-white/20 bg-black/45 text-white hover:bg-black/60'
+                  : 'border-[#d8ceb6]/70 bg-[#f5efe3]/80 text-[#2d2618] hover:bg-[#f5efe3]'
+              }`}
               aria-label={mobileMenuOpen ? t('a11y.closeMenu') : t('a11y.openMenu')}
               aria-expanded={mobileMenuOpen}
             >

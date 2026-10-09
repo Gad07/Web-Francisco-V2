@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useTransform, useMotionValue, useMotionValueEvent } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { ArrowRight, X } from 'lucide-react';
 import FooterNav from './FooterNav.jsx';
 import CanvasFrameSequence from './CanvasFrameSequence.jsx';
 import FpsMeter from './FpsMeter.jsx';
 import Reveal, { RevealItem } from './Reveal.jsx';
 import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
 import { useI18n } from '../i18n/index.jsx';
+import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 
 const EASE_SPRING = { type: 'spring', stiffness: 340, damping: 30 };
 
@@ -15,6 +17,8 @@ export default function EditorialOverlay({
   scrollProgress
 }) {
   const { t } = useI18n();
+  const { siteSettings } = useSiteSettings();
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [pledgeSubmitted, setPledgeSubmitted] = useState(false);
   const [pledgeName, setPledgeName] = useState('');
   const [activeTabWess, setActiveTabWess] = useState(0);
@@ -457,7 +461,7 @@ export default function EditorialOverlay({
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
         onDoubleClick={handleBranchDoubleClick}
-        className="min-h-[100dvh] h-[100dvh] w-full relative flex flex-col justify-between px-5 sm:px-10 md:px-16 lg:px-20 pt-20 sm:pt-28 pb-6 sm:pb-8 md:pb-10 overflow-hidden bg-[#f5efe3]"
+        className="h-[100dvh] w-full relative flex items-center px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden bg-[#f5efe3]"
       >
         {/* Atmósfera ambiental — orbes difuminados que respiran */}
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -465,9 +469,6 @@ export default function EditorialOverlay({
           <div className="orb orb-ocean orb-drift-slow w-[40vw] sm:w-[34vw] h-[40vw] sm:h-[34vw] max-w-[520px] max-h-[520px] bottom-[-18%] left-[-8%]" />
           <div className="orb orb-bone orb-drift w-[30vw] sm:w-[26vw] h-[30vw] sm:h-[26vw] max-w-[400px] max-h-[400px] top-[32%] left-[26%] opacity-70" />
         </div>
-
-        {/* Fade inferior sutil (detrás de la rama para no empañarla ni cortarla) */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-16 sm:h-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, #f5efe3 0%, rgba(245,239,227,0.4) 50%, transparent 100%)' }} />
 
         {/* Rama fotográfica — interactiva con doble clic y hover reveal (Cubre 100% la altura de la pantalla) */}
         <motion.div
@@ -524,7 +525,7 @@ export default function EditorialOverlay({
         </motion.div>
 
         {/* Fila Principal: Columna Izquierda con el Titular Centrado Verticalmente */}
-        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center my-auto select-none">
+        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none">
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
@@ -544,10 +545,9 @@ export default function EditorialOverlay({
         {activeBaseLayer === 2 && (
           <div
             aria-hidden="true"
-            className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex flex-col justify-between px-5 sm:px-10 md:px-16 lg:px-20 pt-20 sm:pt-28 pb-6 sm:pb-8 md:pb-10 overflow-hidden"
+            className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex items-center px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden"
           >
-            <div className="w-full max-w-[1440px] mx-auto opacity-0" />
-            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center my-auto select-none">
+            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none">
               <div className="font-serif text-left tracking-[-0.025em] leading-[0.93] max-w-2xl lg:max-w-[50%]">
                 <span className="block font-light text-white text-[clamp(2.75rem,7.8vw,6.2rem)] leading-[0.95] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {t('hero.line1')}
@@ -557,32 +557,251 @@ export default function EditorialOverlay({
                 </span>
               </div>
             </div>
-            <div className="relative w-full max-w-[1440px] mx-auto flex items-center justify-start pb-2 opacity-0 select-none">
-              <div className="inline-flex items-center gap-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8" />
-                <span className="text-[10px] sm:text-xs">Scroll</span>
-              </div>
-            </div>
           </div>
         )}
 
-        {/* Fila Inferior: Solo Scroll down pill a la izquierda (Sin línea divisoria ni 20-26) */}
-        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex items-center justify-start pb-1 sm:pb-2 select-none">
-          <Reveal y={15} delay={0.4}>
-            <a
-              href="#interdependencia"
-              className="inline-flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-[#4a3f2d] hover:text-[#140f08] transition-colors duration-300"
-            >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#2d2618]/25 text-[#2d2618] flex items-center justify-center text-[10px] sm:text-xs font-sans group-hover:border-[#2d2618] transition-colors">
-                ↓
-              </div>
-              <span className="text-[10px] sm:text-xs uppercase tracking-[0.22em] font-sans font-medium">
-                {t({ es: 'Scroll para explorar', en: 'Scroll down for more' })}
-              </span>
-            </a>
-          </Reveal>
+        {/* Fila Inferior: Solo Scroll down pill flotante en la base sin empujar el flujo */}
+        <div className="absolute bottom-6 sm:bottom-8 md:bottom-10 left-5 sm:left-10 md:left-16 lg:left-20 right-5 sm:right-10 md:right-16 lg:right-20 z-30 pointer-events-none select-none">
+          <div className="w-full max-w-[1440px] mx-auto">
+            <Reveal y={15} delay={0.4}>
+              <a
+                href="#interdependencia"
+                className="inline-flex items-center gap-2.5 sm:gap-3 group cursor-pointer pointer-events-auto text-[#4a3f2d] hover:text-[#140f08] transition-colors duration-300"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#2d2618]/25 text-[#2d2618] flex items-center justify-center text-[10px] sm:text-xs font-sans group-hover:border-[#2d2618] transition-colors">
+                  ↓
+                </div>
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.22em] font-sans font-medium">
+                  {t({ es: 'Scroll para explorar', en: 'Scroll down for more' })}
+                </span>
+              </a>
+            </Reveal>
+          </div>
         </div>
       </section>
+
+      {/* ─── CINTA DE ANUNCIOS INSTITUCIONAL (3 ESTILOS + COLOR/DEGRADADO + BOTÓN OPCIONAL) ─── */}
+      <AnimatePresence>
+        {siteSettings?.banner?.enabled && !bannerDismissed && (() => {
+          const b = siteSettings.banner;
+          const bannerStyle = b.bannerStyle || 'static';
+          const showCta = b.showCta !== false && Boolean(b.ctaLink);
+
+          // Background styling
+          let bgStyle = {};
+          if (b.gradientEnabled) {
+            const dirMap = {
+              'to-r': 'to right',
+              'to-b': 'to bottom',
+              'to-br': 'to bottom right',
+              'radial': 'radial',
+            };
+            const from = b.gradientFrom || '#4a5a22';
+            const to = b.gradientTo || '#2d3813';
+            bgStyle = {
+              background: b.gradientDirection === 'radial'
+                ? `radial-gradient(circle at center, ${from}, ${to})`
+                : `linear-gradient(${dirMap[b.gradientDirection] || 'to right'}, ${from}, ${to})`,
+              color: b.textColor || '#f5efe3',
+              borderColor: `${to}60`,
+            };
+          } else if (b.theme === 'custom') {
+            bgStyle = {
+              backgroundColor: b.bgColor || '#4a5a22',
+              color: b.textColor || '#f5efe3',
+              borderColor: `${b.bgColor || '#4a5a22'}60`,
+            };
+          } else if (b.theme === 'terracotta') {
+            bgStyle = { backgroundColor: '#8c4a2f', color: '#f5efe3', borderColor: '#6d3924' };
+          } else if (b.theme === 'beige') {
+            bgStyle = { backgroundColor: '#eae4d2', color: '#2d2618', borderColor: '#d8ceb6' };
+          } else {
+            // default moss
+            bgStyle = { backgroundColor: '#4a5a22', color: '#f5efe3', borderColor: '#384519' };
+          }
+
+          const texts = b.marqueeTexts && b.marqueeTexts.length > 0
+            ? b.marqueeTexts
+            : [b.message || 'Inscripciones abiertas para diplomados internacionales 2026'];
+
+          const images = b.marqueeImages && b.marqueeImages.length > 0
+            ? b.marqueeImages
+            : [];
+
+          const marqueeDuration = `${b.marqueeSpeed || 28}s`;
+
+          const fixedHeight = b.imageHeight || 76;
+
+          return (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                ...bgStyle,
+                ...(bannerStyle === 'image-marquee' ? { height: `${fixedHeight}px` } : {}),
+              }}
+              className={`w-full relative z-20 overflow-hidden border-y transition-colors text-xs ${
+                bannerStyle === 'image-marquee' ? 'py-0 px-0' : 'py-3 px-4 sm:px-8 md:px-12'
+              }`}
+            >
+              {/* ESTILO 1: ESTÁTICO / EDITORIAL */}
+              {bannerStyle === 'static' && (
+                <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start text-center sm:text-left">
+                    <span className="font-medium text-xs sm:text-sm leading-relaxed">
+                      {b.message}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    {showCta && (
+                      <Link
+                        to={b.ctaLink}
+                        className="inline-flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider underline hover:opacity-80 transition-opacity whitespace-nowrap"
+                      >
+                        <span>{b.ctaText || 'Ver más'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setBannerDismissed(true)}
+                      className="p-1 rounded-lg hover:bg-black/10 transition-colors"
+                      title={t({ es: 'Ocultar aviso', en: 'Dismiss announcement' })}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ESTILO 2: CARRUSEL DE TEXTO CONTINUO (MARQUEE) */}
+              {bannerStyle === 'text-marquee' && (
+                <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+                  <div className="flex-1 overflow-hidden relative [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+                    <div
+                      className="cga-marquee-track flex items-center gap-8 py-0.5"
+                      style={{ '--marquee-duration': marqueeDuration }}
+                    >
+                      {[...texts, ...texts, ...texts, ...texts].map((txt, idx) => (
+                        <div key={idx} className="flex items-center gap-6 shrink-0 whitespace-nowrap">
+                          <span className="font-medium text-xs sm:text-sm tracking-wide">
+                            {txt}
+                          </span>
+                          <span className="opacity-40 text-xs">◆</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 pl-2">
+                    {showCta && (
+                      <Link
+                        to={b.ctaLink}
+                        className="inline-flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider underline hover:opacity-80 transition-opacity whitespace-nowrap"
+                      >
+                        <span>{b.ctaText || 'Ver más'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setBannerDismissed(true)}
+                      className="p-1 rounded-lg hover:bg-black/10 transition-colors"
+                      title={t({ es: 'Ocultar aviso', en: 'Dismiss announcement' })}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ESTILO 3: CARRUSEL DE IMÁGENES (SIN TEXTO, ALTO FIJO Y ENLACES INDIVIDUALES) */}
+              {bannerStyle === 'image-marquee' && (
+                <div className="w-full h-full flex items-center justify-between relative select-none">
+                  <div className="w-full h-full overflow-hidden relative">
+                    <div
+                      className="cga-marquee-track h-full flex items-center gap-0"
+                      style={{ '--marquee-duration': marqueeDuration }}
+                    >
+                      {[...images, ...images, ...images, ...images].map((img, idx) => {
+                        const hasLink = Boolean(img.link && img.link.trim());
+                        const isExternal = hasLink && (img.link.startsWith('http://') || img.link.startsWith('https://'));
+
+                        const content = (
+                          <div className="h-full relative overflow-hidden group/img shrink-0" style={{ height: `${fixedHeight}px` }}>
+                            <img
+                              src={img.url}
+                              alt="Banner visual"
+                              className="h-full w-auto min-w-[140px] sm:min-w-[190px] md:min-w-[240px] object-cover transition-all duration-500 group-hover/img:scale-105 group-hover/img:brightness-110 select-none block"
+                              style={{ height: `${fixedHeight}px`, objectPosition: img.position || 'center' }}
+                            />
+                            <div className="absolute inset-y-0 right-0 w-[1px] bg-white/20 pointer-events-none" />
+                            {hasLink && (
+                              <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                <span className="p-1.5 rounded-full bg-white/30 backdrop-blur-xs text-white shadow-sm">
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+
+                        if (hasLink) {
+                          if (isExternal) {
+                            return (
+                              <a
+                                key={idx}
+                                href={img.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="h-full shrink-0 relative block cursor-pointer"
+                                title={`Abrir enlace: ${img.link}`}
+                              >
+                                {content}
+                              </a>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={idx}
+                              to={img.link}
+                              className="h-full shrink-0 relative block cursor-pointer"
+                              title={`Ir a: ${img.link}`}
+                            >
+                              {content}
+                            </Link>
+                          );
+                        }
+
+                        return (
+                          <div key={idx} className="h-full shrink-0 relative">
+                            {content}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Botón discreto de cerrar en esquina */}
+                  <div className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20">
+                    <button
+                      type="button"
+                      onClick={() => setBannerDismissed(true)}
+                      className="p-1.5 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md transition-colors text-white/90 hover:text-white border border-white/20 shadow-md cursor-pointer"
+                      title={t({ es: 'Ocultar aviso', en: 'Dismiss announcement' })}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* CAPÍTULO 2 */}
       <section

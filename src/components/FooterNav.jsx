@@ -195,7 +195,12 @@ export default function FooterNav() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#5a6b2a] inline-block" />
             <span>{t('footer.developer')}</span>
           </span>
-          <span className="uppercase tracking-[0.2em] font-medium">{t('footer.cities')}</span>
+          <div className="flex items-center gap-4">
+            <Link to="/admin" className="text-[#a89e88] hover:text-[#f5efe3] transition-colors">
+              ⚙️ Admin CMS
+            </Link>
+            <span className="uppercase tracking-[0.2em] font-medium">{t('footer.cities')}</span>
+          </div>
         </div>
       </div>
     </footer>
