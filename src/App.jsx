@@ -19,6 +19,7 @@ import GlobalPresence from './pages/GlobalPresence.jsx';
 import Knowledge from './pages/Knowledge.jsx';
 import AnnualAssembly from './pages/AnnualAssembly.jsx';
 import Contact from './pages/Contact.jsx';
+import SupportCGA from './pages/SupportCGA.jsx';
 import InstitutionalAlliances from './pages/InstitutionalAlliances.jsx';
 import Training from './pages/Training.jsx';
 import Communication from './pages/Communication.jsx';
@@ -180,10 +181,15 @@ export default function App() {
             />
           )}
 
-          {/* ─── 3D CANVAS (Visible on Home Page) ─── */}
+          {/* ─── 3D CANVAS (Activo durante el loader inicial, entra en reposo absoluto al terminar) ─── */}
           {isHomePage && (
-            <div className="fixed inset-0 z-0">
+            <div
+              className={`fixed inset-0 z-0 transition-opacity duration-700 ${
+                loaderVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}
+            >
               <Canvas
+                frameloop={!isLoaded ? 'always' : 'never'}
                 onCreated={() => setWorldReady(true)}
                 gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
                 camera={{ position: [0, 0, 12], fov: 45, near: 0.1, far: 200 }}
@@ -198,7 +204,7 @@ export default function App() {
                   zoomProgress={zoomProgress}
                   isLoaded={isLoaded}
                 />
-                <OceanAbyss3D />
+                <OceanAbyss3D isLoaded={isLoaded} />
               </Canvas>
             </div>
           )}
@@ -257,6 +263,7 @@ export default function App() {
                   />
                 }
               />
+              <Route path="/el-consejo" element={<About />} />
               <Route path="/nosotros" element={<About />} />
               <Route path="/quienes-somos" element={<About />} />
               <Route path="/gobernanza" element={<Governance />} />
@@ -265,20 +272,25 @@ export default function App() {
               <Route path="/informes-anuales" element={<AnnualAssembly />} />
               <Route path="/asamblea-anual" element={<AnnualAssembly />} />
 
+              <Route path="/nuestra-accion" element={<StrategicLines />} />
               <Route path="/lineas-estrategicas" element={<StrategicLines />} />
               <Route path="/ejes-de-accion" element={<StrategicLines />} />
               <Route path="/proyectos" element={<Projects />} />
               <Route path="/programas-proyectos" element={<Projects />} />
               <Route path="/agenda-2030" element={<Agenda2030 />} />
+              <Route path="/resultados-impacto" element={<Agenda2030 />} />
 
               <Route path="/presencia-global" element={<GlobalPresence />} />
               <Route path="/capacitacion" element={<Training />} />
+              <Route path="/cga-academy" element={<Training />} />
               <Route path="/comunicacion" element={<Communication />} />
               <Route path="/comunicacion/:id" element={<Communication />} />
               <Route path="/noticias/:id" element={<Communication />} />
               <Route path="/articulo/:id" element={<Communication />} />
               <Route path="/conocimiento" element={<Communication />} />
               <Route path="/contacto" element={<Contact />} />
+              <Route path="/apoya" element={<SupportCGA />} />
+              <Route path="/apoya-al-cga" element={<SupportCGA />} />
 
               {/* ─── RUTA DEL ADMINISTRADOR CMS ─── */}
               <Route path="/admin" element={<Admin />} />

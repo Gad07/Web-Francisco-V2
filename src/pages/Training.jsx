@@ -103,30 +103,11 @@ export default function Training() {
   return (
     <div className="w-full min-h-screen bg-[#f5efe3] text-[#2d2618]">
       <PageHero
-        titleWhite={{ es: 'Capacitación &', en: 'Training &' }}
-        titleGreen={{ es: 'Academia de Liderazgo', en: 'Leadership Academy' }}
-        description={{
-          es: 'Programas de posgrado, diplomados internacionales, talleres técnicos y conferencias de alto nivel que fusionan el rigor científico con los saberes bioculturales del territorio.',
-          en: 'Postgraduate diplomas, technical workshops and high-level keynotes fusing scientific rigor with biocultural territorial wisdom.',
-        }}
+        titleWhite="CGA Academy"
+        titleGreen="formación especializada"
+        description="CGA Academy es el espacio de formación especializada del Consejo Global Ambiental. Desarrolla propuestas de aprendizaje relacionadas con gobernanza ambiental, cambio climático, biodiversidad, economía circular, educación y sostenibilidad institucional."
         bgImage="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1600&h=900&fit=crop&auto=format"
       />
-
-      {/* BARRA DE ESTADÍSTICAS / KPI */}
-      <section className="border-b border-[#d8ceb6]/80 bg-[#eae4d2]/50 py-8 px-6 sm:px-12 md:px-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {stats.map((s, idx) => (
-            <div key={idx} className="space-y-1">
-              <span className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#4a5a22]">
-                {s.value}
-              </span>
-              <p className="text-xs sm:text-sm text-[#6b6048] font-light max-w-[220px] mx-auto">
-                {t(s.label)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* PESTAÑAS INTERACTIVAS (GRID PERFECTO SIN DESBORDAMIENTOS) */}
       <section className="py-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
@@ -1036,19 +1017,16 @@ export default function Training() {
                   ✓
                 </div>
                 <h4 className="font-serif text-3xl text-[#2d2618] font-light">
-                  {t({ es: '¡Postulación Recibida!', en: 'Application Submitted!' })}
+                  Solicitud Recibida
                 </h4>
-                <p className="text-sm text-[#6b6048] font-light max-w-md mx-auto leading-relaxed">
-                  {t({
-                    es: 'Tu solicitud ha sido registrada en el Comité de Admisiones del CGA. Recibirás un correo con el expediente de admisión y las instrucciones en las próximas 48 horas.',
-                    en: 'Your application has been logged by the CGA Admissions Committee. You will receive an email with admission files and next steps within 48 hours.',
-                  })}
+                <p className="text-sm text-[#5c523e] font-light max-w-lg mx-auto leading-relaxed">
+                  Tu solicitud de inscripción fue recibida. El equipo académico dará seguimiento conforme al calendario y condiciones de la convocatoria.
                 </p>
                 <button
                   onClick={() => setFormSubmitted(false)}
-                  className="mt-4 px-6 py-2.5 rounded-full bg-[#2d2618] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider"
+                  className="mt-4 px-6 py-2.5 rounded-full bg-[#2d2618] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider hover:bg-[#3a4a18] transition-colors"
                 >
-                  {t({ es: 'Enviar otra postulación', en: 'Submit another application' })}
+                  Registrar otra solicitud
                 </button>
               </div>
             )}

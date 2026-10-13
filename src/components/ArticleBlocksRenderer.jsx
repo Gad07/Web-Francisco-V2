@@ -1,6 +1,7 @@
 import React from 'react';
 import { useI18n } from '../i18n/index.jsx';
 import { Quote, Sparkles, CheckCircle2, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { formatDriveUrl } from '../utils/imageUtils.js';
 
 /**
  * Renderizador de bloques modulares para las 4 plantillas de lectura del CGA.
@@ -101,7 +102,7 @@ export default function ArticleBlocksRenderer({ blocks = [], template = 'classic
 
                         {colType === 'image' && col.image && (
                           <div className="rounded-2xl overflow-hidden border border-white/15 bg-black/40 space-y-1">
-                            <img src={col.image} alt={colCaption || ''} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={formatDriveUrl(col.image)} alt={colCaption || ''} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
                             {colCaption && (
                               <p className="text-[11px] text-[#cdd2a6] italic p-2.5 text-center font-light">
                                 {colCaption}
@@ -259,7 +260,7 @@ export default function ArticleBlocksRenderer({ blocks = [], template = 'classic
 
                         {colType === 'image' && col.image && (
                           <div className="rounded-2xl overflow-hidden border border-[#d8ceb6] shadow-2xs">
-                            <img src={col.image} alt={colCaption || ''} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={formatDriveUrl(col.image)} alt={colCaption || ''} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" />
                             {colCaption && (
                               <p className="text-[11px] text-[#7a6e58] italic p-2 text-center bg-[#eae4d2]/50">
                                 {colCaption}
@@ -334,7 +335,7 @@ export default function ArticleBlocksRenderer({ blocks = [], template = 'classic
 
                       {colType === 'image' && col.image && (
                         <div className="rounded-xl overflow-hidden border border-[#d8ceb6] bg-[#2d2618] shadow-xs">
-                          <img src={col.image} alt={colCaption || ''} className="w-full h-40 object-cover" />
+                          <img src={formatDriveUrl(col.image)} alt={colCaption || ''} className="w-full h-40 object-cover" />
                           {colCaption && (
                             <p className="text-[11px] text-[#7a6e58] italic p-2 text-center font-light">
                               {colCaption}
@@ -482,8 +483,9 @@ export default function ArticleBlocksRenderer({ blocks = [], template = 'classic
             <figure key={key} className="my-8 sm:my-10 space-y-2.5">
               <div className="rounded-3xl overflow-hidden bg-[#2d2618] border border-[#d8ceb6] shadow-md">
                 <img
-                  src={block.url}
+                  src={formatDriveUrl(block.url)}
                   alt={caption || ''}
+                  referrerPolicy="no-referrer"
                   className="w-full max-h-[520px] object-cover"
                   loading="lazy"
                 />

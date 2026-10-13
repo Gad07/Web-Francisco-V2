@@ -30,7 +30,7 @@ function createCausticTexture() {
   return texture;
 }
 
-export default function OceanAbyss3D() {
+export default function OceanAbyss3D({ isLoaded = false }) {
   const groupRef = useRef();
   const planktonRef = useRef();
   const causticTexture = useMemo(() => createCausticTexture(), []);
@@ -94,6 +94,7 @@ export default function OceanAbyss3D() {
   }, []);
 
   useFrame((state) => {
+    if (isLoaded) return;
     const time = state.clock.getElapsedTime();
 
     // Caustics drift
@@ -112,6 +113,8 @@ export default function OceanAbyss3D() {
       planktonRef.current.geometry.attributes.position.needsUpdate = true;
     }
   });
+
+  if (isLoaded) return null;
 
   return (
     <group ref={groupRef} position={[0, -22, 0]}>

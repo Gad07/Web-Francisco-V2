@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useI18n } from '../i18n/index.jsx';
-import LanguageSwitch from '../i18n/LanguageSwitch.jsx';
 
 const EASE_LUX = [0.16, 1, 0.3, 1];
 const EASE_SPRING = { type: 'spring', stiffness: 340, damping: 30 };
@@ -19,6 +18,7 @@ const CONSEJO_LINKS = [
 const ACCION_LINKS = [
   { to: '/lineas-estrategicas', labelKey: 'nav.ejesAccion', subKey: 'navSub.ejesAccion' },
   { to: '/proyectos', labelKey: 'nav.programasProyectos', subKey: 'navSub.programasProyectos' },
+  { to: '/agenda-2030', labelKey: 'nav.resultadosImpacto', subKey: 'navSub.resultadosImpacto' },
 ];
 
 const CAPACITACION_LINKS = [
@@ -371,9 +371,18 @@ export default function HeaderNav({
             </div>
           </nav>
 
-          {/* Acciones derecha */}
+          {/* Acciones derecha: Apoya al CGA · Contacto */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <LanguageSwitch tone={isDarkTheme ? 'dark' : 'default'} />
+            <Link
+              to="/apoya"
+              className={`group hidden md:inline-flex h-9 items-center px-4 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.08em] uppercase rounded-full transition-all duration-300 ring-1 ring-inset ${
+                isDarkTheme
+                  ? 'text-[#f5efe3] ring-white/20 hover:bg-white/10'
+                  : 'text-[#4a5a22] ring-[#4a5a22]/30 hover:bg-[#4a5a22]/10'
+              }`}
+            >
+              <span>{t('nav.apoyaCGA')}</span>
+            </Link>
 
             <Link
               to="/contacto"
@@ -512,7 +521,15 @@ export default function HeaderNav({
                 </Link>
               </div>
 
-              <div className="mt-6 pt-3">
+              <div className="mt-6 pt-3 flex flex-col gap-3">
+                <Link
+                  to="/apoya"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center gap-3 rounded-full border border-[#4a5a22] text-[#4a5a22] py-3 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#4a5a22]/10 active:scale-[0.98] transition-all"
+                >
+                  <span>{t('nav.apoyaCGA')}</span>
+                </Link>
+
                 <Link
                   to="/contacto"
                   onClick={() => setMobileMenuOpen(false)}
@@ -521,7 +538,7 @@ export default function HeaderNav({
                   <span>{t('nav.contacto')}</span>
                   <span>&rarr;</span>
                 </Link>
-                <p className="mt-4 text-center text-[10px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
+                <p className="mt-2 text-center text-[10px] uppercase tracking-[0.2em] text-[#7a6e58] font-sans">
                   {t('brand.name')} &middot; 2026
                 </p>
               </div>

@@ -8,6 +8,7 @@ import PopUpRenderer from '../components/PopUpRenderer.jsx';
 import ArticleBlockBuilder from '../components/ArticleBlockBuilder.jsx';
 import { normalizeArticleBlocks, createBlock } from '../utils/articleBlocks.js';
 import { getUnifiedAcademicCalendar, parseDateToISO } from '../utils/calendarSync.js';
+import { formatDriveUrl } from '../utils/imageUtils.js';
 import {
   Lock,
   User,
@@ -153,6 +154,14 @@ export default function Admin() {
     applications,
     updateApplicationStatus,
     deleteApplication,
+    alliances = [],
+    saveAlliance,
+    deleteAlliance,
+    resetAlliancesToDefaults,
+    governanceMembers = [],
+    saveGovernanceMember,
+    deleteGovernanceMember,
+    resetGovernanceToDefaults,
   } = useSiteSettings();
 
   // Estado de autenticación
@@ -209,6 +218,14 @@ export default function Admin() {
   const [previewingPopupItem, setPreviewingPopupItem] = useState(null);
   const [popupFilterRoute, setPopupFilterRoute] = useState('all-filters');
   const [popupSearch, setPopupSearch] = useState('');
+
+  // Estados de Aliados Institucionales
+  const [editingAlliance, setEditingAlliance] = useState(null);
+  const [allianceSearch, setAllianceSearch] = useState('');
+
+  // Estados de Cuerpo de Gobernanza
+  const [editingGovMember, setEditingGovMember] = useState(null);
+  const [govSearch, setGovSearch] = useState('');
 
   // Estados de Pop-up & Banner
   const [previewPopupOpen, setPreviewPopupOpen] = useState(false);
@@ -781,6 +798,86 @@ export default function Admin() {
     return true;
   });
 
+  // ─────────────────────────────────────────────────────────────
+  // MANEJADORES DE ALIADOS INSTITUCIONALES (LOGOTIPOS)
+  const handleStartCreateAlliance = () => {
+    setEditingAlliance({
+      id: `alliance-${Date.now()}`,
+      logo: '',
+      website: '',
+    });
+  };
+
+  const handleSaveAllianceForm = (e) => {
+    if (e) e.preventDefault();
+    if (!editingAlliance) return;
+    if (!editingAlliance.logo?.trim()) {
+      alert('Por favor especifica la URL del logotipo.');
+      return;
+    }
+    saveAlliance(editingAlliance);
+    setEditingAlliance(null);
+    showToast('Logotipo de aliado guardado exitosamente');
+  };
+
+  const handleDeleteAllianceItem = (id) => {
+    if (window.confirm('¿Confirmas eliminar este logotipo de aliado?')) {
+      deleteAlliance(id);
+      showToast('Logotipo eliminado');
+    }
+  };
+
+  const handleResetAlliances = () => {
+    if (window.confirm('¿Deseas restablecer los aliados institucionales a la lista por defecto?')) {
+      resetAlliancesToDefaults();
+      showToast('Aliados restablecidos por defecto');
+    }
+  };
+
+  // ─── GESTIÓN DE CUERPO DE GOBERNANZA (ADMIN HANDLERS) ───
+  const handleStartCreateGovMember = () => {
+    setEditingGovMember({
+      id: `gov-${Date.now()}`,
+      num: String(governanceMembers.length + 1).padStart(2, '0'),
+      name: '',
+      role: { es: '', en: '' },
+      displayRole: { es: '', en: '' },
+      tag: { es: 'Cuerpo Directivo & Estrategia', en: 'Board & Strategic Leadership' },
+      area: { es: '', en: '' },
+      country: { es: 'México / Internacional', en: 'Mexico / International' },
+      bio: { es: '', en: '' },
+      img: '',
+      social: { email: '', linkedin: '', twitter: '' },
+      responsibilities: [],
+    });
+  };
+
+  const handleSaveGovMemberForm = (e) => {
+    if (e) e.preventDefault();
+    if (!editingGovMember) return;
+    if (!editingGovMember.name?.trim()) {
+      alert('Por favor especifica el nombre del miembro de gobernanza.');
+      return;
+    }
+    saveGovernanceMember(editingGovMember);
+    setEditingGovMember(null);
+    showToast(`Miembro "${editingGovMember.name}" guardado exitosamente`);
+  };
+
+  const handleDeleteGovMemberItem = (id, name) => {
+    if (window.confirm(`¿Confirmas eliminar a "${name || id}" del cuerpo de gobernanza?`)) {
+      deleteGovernanceMember(id);
+      showToast('Miembro eliminado');
+    }
+  };
+
+  const handleResetGovMembers = () => {
+    if (window.confirm('¿Deseas restablecer el cuerpo de gobernanza a la lista por defecto?')) {
+      resetGovernanceToDefaults();
+      showToast('Cuerpo de gobernanza restablecido por defecto');
+    }
+  };
+
   // ══════════════════════════════════════════════════════════════════
   // PANTALLA 1: INICIO DE SESIÓN INSTITUCIONAL (FONDO BEIGE)
   // ══════════════════════════════════════════════════════════════════
@@ -931,6 +1028,8 @@ export default function Admin() {
               { id: 'capacitaciones', label: 'Capacitaciones & Academia' },
               { id: 'comunicaciones', label: 'Comunicaciones & Medios' },
               { id: 'popups', label: 'Pop-ups & Avisos' },
+              { id: 'alianzas', label: 'Aliados & Logotipos' },
+              { id: 'gobernanza', label: 'Cuerpo de Gobernanza' },
             ].map((mod) => {
               const isActive = adminModule === mod.id;
               return (
@@ -5872,7 +5971,794 @@ export default function Admin() {
             })()}
           </div>
         )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            MÓDULO 4: GESTIÓN DE ALIADOS INSTITUCIONALES & LOGOTIPOS
+           ───────────────────────────────────────────────────────────── */}
+        {adminModule === 'alianzas' && (
+          <div className="space-y-6">
+            {/* Header del Módulo */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="max-w-2xl space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#4a5a22]">
+                  Directorio Institucional
+                </span>
+                <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  Gestión de Aliados y Logotipos
+                </h2>
+                <p className="text-xs sm:text-sm text-[#6b6048] font-light leading-relaxed">
+                  Configura los logotipos oficiales y sus enlaces directos que se muestran en la sección pública (/alianzas-institucionales). Soporta enlaces directos de Google Drive, imágenes web o archivos locales.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetAlliances}
+                  className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Restablecer</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStartCreateAlliance}
+                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Nuevo Logotipo</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Barra de búsqueda y conteo */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-96">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a7e68]" />
+                <input
+                  type="text"
+                  value={allianceSearch}
+                  onChange={(e) => setAllianceSearch(e.target.value)}
+                  placeholder="Buscar por sitio web o URL de logotipo..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] placeholder-[#9a8e78] focus:outline-none focus:border-[#4a5a22] shadow-2xs"
+                />
+              </div>
+              <span className="text-xs text-[#8a7e68] font-mono">
+                Total Aliados: <strong className="text-[#4a5a22]">{alliances.length}</strong>
+              </span>
+            </div>
+
+            {/* Grilla de Tarjetas de Aliados (Únicamente Logotipo y Sitio Web, sin nombres) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {alliances
+                .filter((a) => {
+                  if (!allianceSearch.trim()) return true;
+                  const q = allianceSearch.toLowerCase();
+                  return (
+                    a.website?.toLowerCase().includes(q) ||
+                    a.logo?.toLowerCase().includes(q)
+                  );
+                })
+                .map((item, idx) => (
+                  <div
+                    key={item.id || idx}
+                    className="p-5 rounded-2xl bg-white border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+                  >
+                    <div className="space-y-3">
+                      {/* Visualizador del Logo a tamaño completo */}
+                      <div className="w-full h-44 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden relative">
+                        {item.logo ? (
+                          <img
+                            src={formatDriveUrl(item.logo)}
+                            alt="Logotipo de Aliado"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-center space-y-2">
+                            <div className="w-12 h-12 rounded-xl bg-[#4a5a22]/15 border border-[#4a5a22]/30 flex items-center justify-center text-[#4a5a22]">
+                              <ImageIcon className="w-6 h-6 opacity-60" />
+                            </div>
+                            <span className="text-xs font-sans text-[#8a7e68]">
+                              Sin logotipo asignado
+                            </span>
+                          </div>
+                        )}
+
+                        {item.logo?.includes('drive.google.com') && (
+                          <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#4a5a22] text-[#f5efe3] text-[9px] font-mono font-bold tracking-wider">
+                            Google Drive
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Sitio Web Oficial */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a7e68] block">
+                          Sitio Web Oficial
+                        </span>
+                        {item.website ? (
+                          <a
+                            href={item.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-[#4a5a22] font-semibold hover:underline truncate max-w-full"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{item.website}</span>
+                          </a>
+                        ) : (
+                          <span className="text-xs text-[#8a7e68] italic">
+                            Sin sitio web asignado
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botones de Acción */}
+                    <div className="pt-3 border-t border-[#eae4d2] flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingAlliance(JSON.parse(JSON.stringify(item)))}
+                        className="px-3.5 py-1.5 rounded-lg bg-[#eae4d2] hover:bg-[#4a5a22] hover:text-[#f5efe3] text-[#2d2618] text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Editar</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAllianceItem(item.id)}
+                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-all cursor-pointer"
+                        title="Eliminar aliado"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            MÓDULO: CUERPO DE GOBERNANZA E INVESTIGADORES
+            ══════════════════════════════════════════════════════════════════ */}
+        {adminModule === 'gobernanza' && (
+          <div className="space-y-6">
+            {/* Header del Módulo */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="max-w-2xl space-y-1">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#4a5a22]">
+                  Estructura Directiva & Investigación
+                </span>
+                <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  Cuerpo de Gobernanza e Investigadores
+                </h2>
+                <p className="text-xs sm:text-sm text-[#6b6048] font-light leading-relaxed">
+                  Configura a los consejeros, directores y científicos colegiados mostrados en la sección pública (/gobernanza). Soporta enlaces directos de Google Drive (convertidos automáticamente con previsualización en vivo), semblanzas institucionales y atribuciones.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleResetGovMembers}
+                  className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Restablecer</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStartCreateGovMember}
+                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Nuevo Miembro</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Barra de búsqueda y conteo */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-96">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a7e68]" />
+                <input
+                  type="text"
+                  value={govSearch}
+                  onChange={(e) => setGovSearch(e.target.value)}
+                  placeholder="Buscar miembro por nombre, cargo o área..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] placeholder-[#9a8e78] focus:outline-none focus:border-[#4a5a22] shadow-2xs"
+                />
+              </div>
+              <span className="text-xs text-[#8a7e68] font-mono">
+                Total Miembros: <strong className="text-[#4a5a22]">{governanceMembers.length}</strong>
+              </span>
+            </div>
+
+            {/* Grilla de Tarjetas de Miembros de Gobernanza */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {governanceMembers
+                .filter((m) => {
+                  if (!govSearch.trim()) return true;
+                  const q = govSearch.toLowerCase();
+                  const name = m.name?.toLowerCase() || '';
+                  const displayRole = (typeof m.displayRole === 'object' ? `${m.displayRole?.es} ${m.displayRole?.en}` : m.displayRole || '').toLowerCase();
+                  const role = (typeof m.role === 'object' ? `${m.role?.es} ${m.role?.en}` : m.role || '').toLowerCase();
+                  const area = (typeof m.area === 'object' ? `${m.area?.es} ${m.area?.en}` : m.area || '').toLowerCase();
+                  const country = (typeof m.country === 'object' ? `${m.country?.es} ${m.country?.en}` : m.country || '').toLowerCase();
+                  return name.includes(q) || displayRole.includes(q) || role.includes(q) || area.includes(q) || country.includes(q);
+                })
+                .map((member) => (
+                  <div
+                    key={member.id}
+                    className="p-5 rounded-2xl bg-white border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+                  >
+                    <div className="space-y-3">
+                      {/* Fotografía del Miembro con Soporte Drive */}
+                      <div className="w-full h-56 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] overflow-hidden relative">
+                        {member.img ? (
+                          <img
+                            src={formatDriveUrl(member.img)}
+                            alt={member.name}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover object-top"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 text-[#8a7e68]">
+                            <User className="w-10 h-10 opacity-30 text-[#4a5a22] mb-1" />
+                            <span className="text-xs">Sin fotografía asignada</span>
+                          </div>
+                        )}
+
+                        {member.num && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#1f1a12]/80 text-[#f5efe3] text-[10px] font-mono font-semibold">
+                            #{member.num}
+                          </span>
+                        )}
+
+                        {typeof member.img === 'string' && member.img.includes('drive.google.com') && (
+                          <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#4a5a22] text-[#f5efe3] text-[9px] font-mono font-bold tracking-wider">
+                            Google Drive
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Metadatos */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#4a5a22]">
+                            {typeof member.area === 'object' ? member.area.es : member.area || 'Gobernanza'}
+                          </span>
+                          <span className="text-[10px] text-[#8a7e68]">
+                            &bull; {typeof member.country === 'object' ? member.country.es : member.country || 'Internacional'}
+                          </span>
+                        </div>
+
+                        <h4 className="font-serif text-base text-[#2d2618] font-bold leading-snug line-clamp-1" title={member.name}>
+                          {member.name}
+                        </h4>
+
+                        <p className="text-xs font-semibold text-[#5a6b2a] line-clamp-1">
+                          {typeof member.displayRole === 'object' ? member.displayRole.es : (typeof member.role === 'object' ? member.role.es : member.displayRole || member.role || 'Miembro')}
+                        </p>
+
+                        <p className="text-[11px] text-[#6b6048] font-light line-clamp-2 leading-relaxed pt-1">
+                          {typeof member.bio === 'object' ? member.bio.es : member.bio}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Botones de Acción */}
+                    <div className="pt-3 border-t border-[#eae4d2] flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 text-[11px] text-[#7a6e58]">
+                        {member.social?.email && (
+                          <span className="p-1 rounded-md bg-[#eae4d2]/70 text-[#4a5a22]" title={member.social.email}>
+                            <Mail className="w-3 h-3" />
+                          </span>
+                        )}
+                        {member.responsibilities && (
+                          <span className="text-[10px] font-mono text-[#8a7e68]">
+                            {member.responsibilities.length} atribuciones
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setEditingGovMember(JSON.parse(JSON.stringify(member)))}
+                          className="px-3 py-1.5 rounded-lg bg-[#eae4d2] hover:bg-[#4a5a22] hover:text-[#f5efe3] text-[#2d2618] text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Editar</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteGovMemberItem(member.id, member.name)}
+                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-all cursor-pointer"
+                          title="Eliminar miembro"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* ─── MODAL DE EDICIÓN / REGISTRO DE ALIADO ─── */}
+      <AnimatePresence>
+        {editingAlliance && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-[#eae4d2] border-2 border-[#4a5a22] shadow-2xl overflow-hidden text-[#2d2618]"
+            >
+              {/* Header Modal */}
+              <div className="p-5 bg-[#1f1a12] text-[#f5efe3] flex items-center justify-between border-b border-[#3d3422]">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-[#4a5a22] text-[#f5efe3] flex items-center justify-center text-xs font-bold">
+                    ✓
+                  </span>
+                  <span className="font-serif text-lg font-light text-white">
+                    {editingAlliance.id?.startsWith('alliance-')
+                      ? 'Registrar Nuevo Logotipo'
+                      : 'Editar Logotipo de Aliado'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingAlliance(null)}
+                  className="p-1.5 rounded-full hover:bg-white/10 text-white/80 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Formulario (Únicamente URL de imagen/logo y Sitio Web) */}
+              <form onSubmit={handleSaveAllianceForm} className="p-6 overflow-y-auto space-y-5 flex-1 bg-[#eae4d2]">
+                {/* URL del Logotipo con Helper Google Drive */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    URL del Logotipo (Google Drive, Imagen Web o Local) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingAlliance.logo || ''}
+                    onChange={(e) => setEditingAlliance({ ...editingAlliance, logo: e.target.value })}
+                    placeholder="Pega enlace de Google Drive (https://drive.google.com/file/d/.../view) o URL de imagen"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                  />
+                  <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
+                    <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
+                    <span>
+                      <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el enlace compartido normal. El sistema detecta y convierte el ID automáticamente. (Asegúrate que el archivo esté compartido como "Cualquier persona con el enlace").
+                    </span>
+                  </div>
+                </div>
+
+                {/* Previsualización en Vivo del Logotipo */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b6048]">
+                    Previsualización en Vivo de la Tarjeta
+                  </label>
+                  <div className="w-full h-40 rounded-2xl bg-white border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden shadow-inner">
+                    {editingAlliance.logo ? (
+                      <img
+                        src={formatDriveUrl(editingAlliance.logo)}
+                        alt="Vista previa"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-center space-y-1 text-xs text-[#8a7e68]">
+                        <ImageIcon className="w-6 h-6 mx-auto opacity-40 text-[#4a5a22]" />
+                        <span>Escribe o pega una URL para ver la previsualización</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sitio Web Oficial */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Sitio Web Oficial (Opcional)
+                  </label>
+                  <input
+                    type="url"
+                    value={editingAlliance.website || ''}
+                    onChange={(e) => setEditingAlliance({ ...editingAlliance, website: e.target.value })}
+                    placeholder="https://ejemplo.org"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                  />
+                </div>
+
+                {/* Botones */}
+                <div className="pt-4 border-t border-[#d8ceb6] flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingAlliance(null)}
+                    className="px-5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] transition-all cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Guardar Logotipo</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* ─── MODAL DE EDICIÓN / REGISTRO DE CUERPO DE GOBERNANZA ─── */}
+        {editingGovMember && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl bg-[#eae4d2] border-2 border-[#4a5a22] shadow-2xl overflow-hidden text-[#2d2618]"
+            >
+              {/* Header Modal */}
+              <div className="p-5 bg-[#1f1a12] text-[#f5efe3] flex items-center justify-between border-b border-[#3d3422]">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-[#4a5a22] text-[#f5efe3] flex items-center justify-center text-xs font-bold">
+                    <User className="w-4 h-4" />
+                  </span>
+                  <span className="font-serif text-lg font-light text-white">
+                    {editingGovMember.id?.startsWith('gov-')
+                      ? 'Registrar Nuevo Miembro de Gobernanza'
+                      : 'Editar Miembro de Gobernanza'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingGovMember(null)}
+                  className="p-1.5 rounded-full hover:bg-white/10 text-white/80 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Formulario */}
+              <form onSubmit={handleSaveGovMemberForm} className="p-6 overflow-y-auto space-y-5 flex-1 bg-[#eae4d2]">
+                {/* Nombre Oficial & Número */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="sm:col-span-3 space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Nombre Completo y Grado Académico *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editingGovMember.name || ''}
+                      onChange={(e) => setEditingGovMember({ ...editingGovMember, name: e.target.value })}
+                      placeholder="Ej. MTRO. LUIS GARCÍA GONZÁLEZ"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] font-bold focus:outline-none focus:border-[#4a5a22]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      N° Posición
+                    </label>
+                    <input
+                      type="text"
+                      value={editingGovMember.num || ''}
+                      onChange={(e) => setEditingGovMember({ ...editingGovMember, num: e.target.value })}
+                      placeholder="01"
+                      className="w-full px-3 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-center font-mono font-bold text-[#2d2618]"
+                    />
+                  </div>
+                </div>
+
+                {/* Cargo / Rol Principal */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Cargo Principal (Español) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={
+                        typeof editingGovMember.displayRole === 'object'
+                          ? editingGovMember.displayRole?.es || ''
+                          : editingGovMember.displayRole || ''
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          displayRole: typeof editingGovMember.displayRole === 'object'
+                            ? { ...editingGovMember.displayRole, es: val }
+                            : { es: val, en: '' },
+                          role: typeof editingGovMember.role === 'object'
+                            ? { ...editingGovMember.role, es: val.toUpperCase() }
+                            : { es: val.toUpperCase(), en: '' },
+                        });
+                      }}
+                      placeholder="Ej. Consejero Presidente y Fundador"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Cargo Principal (Inglés)
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        typeof editingGovMember.displayRole === 'object'
+                          ? editingGovMember.displayRole?.en || ''
+                          : ''
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          displayRole: typeof editingGovMember.displayRole === 'object'
+                            ? { ...editingGovMember.displayRole, en: val }
+                            : { es: editingGovMember.displayRole || '', en: val },
+                          role: typeof editingGovMember.role === 'object'
+                            ? { ...editingGovMember.role, en: val.toUpperCase() }
+                            : { es: editingGovMember.role || '', en: val.toUpperCase() },
+                        });
+                      }}
+                      placeholder="Ej. President and Founder Councillor"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                </div>
+
+                {/* Colegiado / Tag Superior & Área */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Colegiado / Tag Superior (ES)
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        typeof editingGovMember.tag === 'object'
+                          ? editingGovMember.tag?.es || ''
+                          : editingGovMember.tag || ''
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          tag: typeof editingGovMember.tag === 'object'
+                            ? { ...editingGovMember.tag, es: val }
+                            : { es: val, en: '' },
+                        });
+                      }}
+                      placeholder="Ej. Presidencia & Estrategia Multilateral"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Área / Especialidad (ES)
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        typeof editingGovMember.area === 'object'
+                          ? editingGovMember.area?.es || ''
+                          : editingGovMember.area || ''
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          area: typeof editingGovMember.area === 'object'
+                            ? { ...editingGovMember.area, es: val }
+                            : { es: val, en: '' },
+                        });
+                      }}
+                      placeholder="Ej. Gobernanza Institucional"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                </div>
+
+                {/* País / Cobertura Territorial */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    País o Región Territorial
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      typeof editingGovMember.country === 'object'
+                        ? editingGovMember.country?.es || ''
+                        : editingGovMember.country || ''
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingGovMember({
+                        ...editingGovMember,
+                        country: typeof editingGovMember.country === 'object'
+                          ? { ...editingGovMember.country, es: val }
+                          : { es: val, en: '' },
+                      });
+                    }}
+                    placeholder="Ej. México / Internacional"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                  />
+                </div>
+
+                {/* URL de Fotografía con Helper Google Drive */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Fotografía del Miembro (Google Drive, Web URL o Local)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingGovMember.img || ''}
+                    onChange={(e) => setEditingGovMember({ ...editingGovMember, img: e.target.value })}
+                    placeholder="Pega enlace de Google Drive (https://drive.google.com/file/d/.../view) o enlace de imagen"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                  />
+                  <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
+                    <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
+                    <span>
+                      <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el link compartido de Drive. El sistema lo transforma al servidor de alta disponibilidad de Google sin filtros.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Previsualización en Vivo de la Fotografía */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b6048]">
+                    Previsualización en Vivo de la Foto
+                  </label>
+                  <div className="w-full h-44 rounded-2xl bg-white border border-[#d8ceb6] p-2 flex items-center justify-center overflow-hidden shadow-inner">
+                    {editingGovMember.img ? (
+                      <img
+                        src={formatDriveUrl(editingGovMember.img)}
+                        alt="Vista previa de perfil"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-auto object-cover rounded-xl"
+                      />
+                    ) : (
+                      <div className="text-center space-y-1 text-xs text-[#8a7e68]">
+                        <ImageIcon className="w-6 h-6 mx-auto opacity-40 text-[#4a5a22]" />
+                        <span>Pega un enlace de foto para ver la previsualización</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Semblanza Institucional (Biografía) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Semblanza Institucional / Biografía (Español) *
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={
+                      typeof editingGovMember.bio === 'object'
+                        ? editingGovMember.bio?.es || ''
+                        : editingGovMember.bio || ''
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingGovMember({
+                        ...editingGovMember,
+                        bio: typeof editingGovMember.bio === 'object'
+                          ? { ...editingGovMember.bio, es: val }
+                          : { es: val, en: '' },
+                      });
+                    }}
+                    placeholder="Describe la trayectoria profesional y rol en el Consejo..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] leading-relaxed"
+                  />
+                </div>
+
+                {/* Atribuciones y Responsabilidades Directivas (Línea por línea) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Atribuciones y Responsabilidades Directivas
+                    </label>
+                    <span className="text-[11px] text-[#8a7e68] font-mono">1 atribución por línea</span>
+                  </div>
+                  <textarea
+                    rows={3}
+                    value={
+                      Array.isArray(editingGovMember.responsibilities)
+                        ? editingGovMember.responsibilities
+                            .map((r) => (typeof r === 'object' ? r.es || r.en : r))
+                            .join('\n')
+                        : ''
+                    }
+                    onChange={(e) => {
+                      const lines = e.target.value.split('\n');
+                      setEditingGovMember({
+                        ...editingGovMember,
+                        responsibilities: lines.map((line) => ({ es: line, en: line })),
+                      });
+                    }}
+                    placeholder="Conducción institucional y representación...&#10;Orientación estratégica de la agenda..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] font-sans leading-relaxed"
+                  />
+                </div>
+
+                {/* Contacto & Redes Sociales */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Correo Electrónico Institucional
+                    </label>
+                    <input
+                      type="email"
+                      value={editingGovMember.social?.email || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), email: e.target.value },
+                        })
+                      }
+                      placeholder="nombre@consejocga.org"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Perfil de LinkedIn (URL)
+                    </label>
+                    <input
+                      type="url"
+                      value={editingGovMember.social?.linkedin || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), linkedin: e.target.value },
+                        })
+                      }
+                      placeholder="https://linkedin.com/in/usuario"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                </div>
+
+                {/* Botones de Acción */}
+                <div className="pt-4 border-t border-[#d8ceb6] flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingGovMember(null)}
+                    className="px-5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] transition-all cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Guardar Miembro</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ─── MODAL DE PREVISUALIZACIÓN DEL POP-UP (TEST CON CUALQUIERA DE LOS 4 DISEÑOS EN EL ADMIN) ─── */}
       <AnimatePresence>

@@ -23,7 +23,9 @@ const en = {
 
     nuestraAccion: 'Our Action',
     ejesAccion: 'Action Lines & Impact',
+    lineasEstrategicas: 'Strategic Lines',
     programasProyectos: 'Programs & Projects',
+    agenda2030: '2030 Agenda',
 
     presenciaGlobal: 'Global Presence',
 

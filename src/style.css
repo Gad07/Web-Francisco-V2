@@ -6,8 +6,8 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  --font-serif: 'Cormorant Garamond', 'Cinzel', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Lora', 'Merriweather', Georgia, serif;
+  --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Editorial warm palette — brand line */
   --bone: #f5efe3;
@@ -34,6 +34,9 @@ body {
   background-color: #000000;
   color: #f1f5f9;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html { scroll-behavior: smooth; }

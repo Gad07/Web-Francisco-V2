@@ -186,6 +186,7 @@ export default function EditorialOverlay({
   const maskRef = useRef(null);
   const interdependenciaRef = useRef(null);
   const videoLoopRef = useRef(null);
+  const canvasFrameRef = useRef(null);
 
   // ✅ NUEVO: MotionValues creados manualmente, actualizados en el rAF loop
   // de la sección `interdependencia`. Sin `useScroll` de Framer Motion.
@@ -218,9 +219,8 @@ export default function EditorialOverlay({
   const stoneTextOpacity = useTransform(interScrollMV, [0, 0.02, 0.10], [1, 1, 0]);
   const reefTextOpacity = useTransform(interScrollMV, [0, 0.64, 0.70, 0.95, 1], [0, 0, 1, 1, 0]);
 
-  const [showFrames, setShowFrames] = useState(false);
+  const [showFrames, setShowFrames] = useState(true);
   const [showLoopVideo, setShowLoopVideo] = useState(false);
-  const [currentFrame, setCurrentFrame] = useState(1);
   const [reefVisible, setReefVisible] = useState(false);
   const [stoneVisible, setStoneVisible] = useState(false);
 
@@ -235,10 +235,7 @@ export default function EditorialOverlay({
   const setPhase = (next) => {
     if (phaseRef.current === next) return;
     phaseRef.current = next;
-    if (next === 0) {
-      setShowFrames(false);
-      setShowLoopVideo(false);
-    } else if (next === 1) {
+    if (next === 0 || next === 1) {
       setShowFrames(true);
       setShowLoopVideo(false);
     } else {
@@ -247,8 +244,8 @@ export default function EditorialOverlay({
     }
   };
 
-  // ✅ NUEVO: rAF loop que lee el progreso de la sección directamente
-  // del DOM y actualiza interScrollMV + scrubTargetRef + fase.
+  // ✅ rAF loop de alta precisión que actualiza scrubTarget y notifica
+  // directamente a CanvasFrameSequence sin disparar re-renders de React.
   useEffect(() => {
     let raf = 0;
 
@@ -260,6 +257,10 @@ export default function EditorialOverlay({
 
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
+
+      // Optimización offscreen: si la sección no está en el viewport, omitir cómputos
+      if (rect.bottom < -100 || rect.top > vh + 100) return;
+
       const scrollableHeight = rect.height - vh;
       if (scrollableHeight <= 0) return;
 
@@ -270,7 +271,7 @@ export default function EditorialOverlay({
       // Actualizar el MotionValue (alimenta useTransform para las opacidades)
       interScrollMV.set(progress);
 
-      // Actualizar scrubTargetRef directamente (sin pasar por useMotionValueEvent)
+      // Actualizar scrubTargetRef directamente
       if (progress <= PHASE_2_START) {
         scrubTargetRef.current = 0;
       } else if (progress < PHASE_3_START) {
@@ -280,19 +281,28 @@ export default function EditorialOverlay({
         scrubTargetRef.current = 1;
       }
 
-      // Suavizado del playhead y cómputo de frame entero (1..153)
-      const dr = 0.20;
-      framePosRef.current += (scrubTargetRef.current - framePosRef.current) * dr;
+      // Suavizado del playhead con lerp (0.14) adaptado a ratón y trackpad con inercia cinemática pura
+      const dr = 0.14;
+      const diff = scrubTargetRef.current - framePosRef.current;
+      if (Math.abs(diff) < 0.0006) {
+        framePosRef.current = scrubTargetRef.current;
+      } else {
+        framePosRef.current += diff * dr;
+      }
+
       if (progress <= PHASE_2_START) framePosRef.current = 0;
       else if (progress >= PHASE_3_START) framePosRef.current = 1;
 
       let frame = 1 + Math.round(framePosRef.current * (TOTAL_VIDEO_FRAMES - 1));
       frame = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, frame));
-      setCurrentFrame((prev) => (prev === frame ? prev : frame));
+
+      // Notificar directamente al CanvasFrameSequence de forma imperativa (CERO re-renders de React)
+      if (canvasFrameRef.current) {
+        canvasFrameRef.current.setFrame(frame);
+      }
 
       if (window.__videoScrubDebug) {
         window.__videoScrubDebug.playhead = scrubTargetRef.current;
-        window.__videoScrubDebug.frame = frame;
         window.__videoScrubDebug.state = 'frames';
         window.__videoScrubDebug.frames = TOTAL_VIDEO_FRAMES;
       }
@@ -525,17 +535,17 @@ export default function EditorialOverlay({
         </motion.div>
 
         {/* Fila Principal: Columna Izquierda con el Titular Centrado Verticalmente */}
-        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none">
+        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none -translate-y-3 sm:-translate-y-4">
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-left tracking-[-0.025em] leading-[0.93] max-w-2xl lg:max-w-[50%]"
+            className="font-serif text-left tracking-[-0.02em] max-w-2xl lg:max-w-[660px]"
           >
-            <span className="block font-light text-[#2d2618] text-[clamp(2.75rem,7.8vw,6.2rem)] leading-[0.95]">
+            <span className="block font-light text-[#2d2618] text-[clamp(2.55rem,5.2vw,4.55rem)] leading-[1.02]">
               {t('hero.line1')}
             </span>
-            <span className="block font-serif italic font-normal text-[#4a5a22] text-[clamp(2.5rem,7.2vw,5.8rem)] leading-[0.98] mt-1.5 sm:mt-2.5">
+            <span className="block font-serif italic font-normal text-[#4a5a22] text-[clamp(2.45rem,4.9vw,4.35rem)] leading-[1.05] mt-1.5 sm:mt-2.5">
               {t('hero.line2')}
             </span>
           </motion.h1>
@@ -547,12 +557,12 @@ export default function EditorialOverlay({
             aria-hidden="true"
             className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex items-center px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden"
           >
-            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none">
-              <div className="font-serif text-left tracking-[-0.025em] leading-[0.93] max-w-2xl lg:max-w-[50%]">
-                <span className="block font-light text-white text-[clamp(2.75rem,7.8vw,6.2rem)] leading-[0.95] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none -translate-y-3 sm:-translate-y-4">
+              <div className="font-serif text-left tracking-[-0.02em] max-w-2xl lg:max-w-[660px]">
+                <span className="block font-light text-white text-[clamp(2.55rem,5.2vw,4.55rem)] leading-[1.02] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {t('hero.line1')}
                 </span>
-                <span className="block font-serif italic font-normal text-white text-[clamp(2.5rem,7.2vw,5.8rem)] leading-[0.98] mt-1.5 sm:mt-2.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                <span className="block font-serif italic font-normal text-white text-[clamp(2.45rem,4.9vw,4.35rem)] leading-[1.05] mt-1.5 sm:mt-2.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {t('hero.line2')}
                 </span>
               </div>
@@ -642,9 +652,8 @@ export default function EditorialOverlay({
                 ...bgStyle,
                 ...(bannerStyle === 'image-marquee' ? { height: `${fixedHeight}px` } : {}),
               }}
-              className={`w-full relative z-20 overflow-hidden border-y transition-colors text-xs ${
-                bannerStyle === 'image-marquee' ? 'py-0 px-0' : 'py-3 px-4 sm:px-8 md:px-12'
-              }`}
+              className={`w-full relative z-20 overflow-hidden border-y transition-colors text-xs ${bannerStyle === 'image-marquee' ? 'py-0 px-0' : 'py-3 px-4 sm:px-8 md:px-12'
+                }`}
             >
               {/* ESTILO 1: ESTÁTICO / EDITORIAL */}
               {bannerStyle === 'static' && (
@@ -807,6 +816,7 @@ export default function EditorialOverlay({
       <section
         id="interdependencia"
         ref={interdependenciaRef}
+        style={{ height: '420vh' }}
         className="h-[420vh] relative bg-[#f5efe3]"
       >
         <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-visible">
@@ -832,17 +842,16 @@ export default function EditorialOverlay({
                 inset: 0,
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain',
+                objectFit: 'cover',
                 objectPosition: 'center',
-                opacity: showFrames ? 0 : 1,
-                visibility: showFrames ? 'hidden' : 'visible',
+                zIndex: 4,
               }}
             />
 
             <CanvasFrameSequence
-              currentFrame={currentFrame}
+              ref={canvasFrameRef}
               totalFrames={TOTAL_VIDEO_FRAMES}
-              showFrames={showFrames && !showLoopVideo}
+              showFrames={!showLoopVideo}
               showLoopVideo={false}
             />
 
@@ -1167,10 +1176,6 @@ export default function EditorialOverlay({
                 <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light tracking-tight">
                   {t({ es: 'Líneas Estratégicas Institucionales', en: 'Institutional Strategic Lines' })}
                 </h2>
-                <div className="mt-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-[#7a6e58] font-sans font-semibold">
-                  <span className="h-px w-10 bg-[#4a5a22]/40" />
-                  {t({ es: 'Seis frentes de actuación', en: 'Six areas of action' })}
-                </div>
               </div>
               <Link to="/lineas-estrategicas" className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#4a5a22] hover:text-[#2d2618] transition-colors group">
                 <div>{t({ es: 'Ver todas las líneas de acción', en: 'See all lines of action' })}</div>
@@ -1271,18 +1276,16 @@ export default function EditorialOverlay({
         <div className="orb orb-ocean orb-drift w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] -top-[16%] -left-[10%] opacity-50" aria-hidden />
         <div className="max-w-7xl mx-auto relative">
           <Reveal>
-            <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-              <div>
-                <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light tracking-tight">{t({ es: 'Cada bioma cuenta', en: 'Every biome has a story' })}</h2>
-              </div>
-              <div className="max-w-md">
-                <p className="text-sm leading-relaxed text-[#6b6048] font-light">
-                  {t({
-                    es: 'Intervención estratégica en los biomas más amenazados del planeta mediante ciencia aplicada, gobernanza territorial y monitoreo continuo.',
-                    en: 'Strategic intervention in the most threatened biomes on the planet through applied science, territorial governance and continuous monitoring.',
-                  })}
-                </p>
-              </div>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light tracking-tight">
+                {t({ es: 'Cada bioma cuenta', en: 'Every biome has a story' })}
+              </h2>
+              <p className="mt-4 text-sm sm:text-base leading-relaxed text-[#6b6048] font-light max-w-2xl mx-auto font-sans">
+                {t({
+                  es: 'Intervención estratégica en los biomas más amenazados del planeta mediante ciencia aplicada, gobernanza territorial y monitoreo continuo.',
+                  en: 'Strategic intervention in the most threatened biomes on the planet through applied science, territorial governance and continuous monitoring.',
+                })}
+              </p>
             </div>
           </Reveal>
 
@@ -1304,14 +1307,10 @@ export default function EditorialOverlay({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5 transition-opacity duration-500 group-hover:via-black/45" />
 
                     <div className="relative z-10">
-                      <div className="text-[11px] uppercase tracking-[0.25em] text-[#d8ceb6] font-semibold mb-2">{t(eco.tag)}</div>
-                      <h3 className={`font-serif text-[#f5efe3] font-light mb-3 leading-tight ${idx === 0 ? 'text-4xl sm:text-5xl' : 'text-2xl'
+                      <h3 className={`font-serif text-[#f5efe3] font-light mb-4 sm:mb-5 leading-tight ${idx === 0 ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-3xl'
                         }`}>
-                        {idx === 0 ? ecoTitle.split(' ')[0] : ''}
-                        <span>{idx === 0 ? ' ' + ecoTitle.split(' ').slice(1).join(' ') : ecoTitle}</span>
+                        {ecoTitle}
                       </h3>
-                      <p className={`text-xs text-slate-300 font-light leading-relaxed mb-6 ${idx === 0 ? 'max-w-md line-clamp-3' : 'hidden sm:line-clamp-1'
-                        }`}>{t(eco.alert)}</p>
                       <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#f5efe3] group-hover:text-[#cde48e] transition-colors">
                         <span>{t({ es: 'Explorar Inmersión', en: 'Explore Immersion' })}</span>
                         <span className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</span>
@@ -1453,8 +1452,16 @@ export default function EditorialOverlay({
         <div className="orb orb-ocean orb-drift-slow w-[26vw] h-[26vw] max-w-[400px] max-h-[400px] bottom-[-14%] left-[-6%] opacity-25" aria-hidden />
         <div className="max-w-7xl mx-auto w-full relative">
           <Reveal>
-            <div className="mb-14 md:mb-20">
-              <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light tracking-tight">{t({ es: 'Cifras que transforman el territorio', en: 'Figures that transform the territory' })}</h2>
+            <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#4a5a22] font-normal tracking-tight">
+                {t({ es: 'Cifras que transforman el territorio', en: 'Figures that transform the territory' })}
+              </h2>
+              <p className="mt-4 text-sm sm:text-base text-[#6b6048] font-light leading-relaxed font-sans max-w-2xl mx-auto">
+                {t({
+                  es: 'Resultados medibles y presencia activa en campo que respaldan nuestra labor con las comunidades y la regeneración de ecosistemas prioritarios.',
+                  en: 'Measurable results and active field presence supporting our work with communities and the regeneration of priority ecosystems.'
+                })}
+              </p>
             </div>
           </Reveal>
 
@@ -1474,10 +1481,6 @@ export default function EditorialOverlay({
                   />
                   <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(45,38,24,0.82) 0%, rgba(45,38,24,0.22) 42%, transparent 70%)' }} />
                   <div className="absolute inset-x-0 bottom-0 px-[10%] md:px-[11%] pb-[17%]">
-                    <div className="mb-4 flex items-center gap-3">
-                      <span className="h-px w-9 bg-[#f5efe3]/90" />
-                      <span className="text-[10px] uppercase tracking-[0.25em] text-[#f5efe3] font-sans font-semibold">{t({ es: 'En campo · Cuenca del Lerma', en: 'In the field · Lerma Basin' })}</span>
-                    </div>
                     <p className="font-serif text-xl md:text-2xl lg:text-[26px] text-[#f5efe3] font-light leading-snug max-w-md" style={{ textShadow: '0 1px 14px rgba(45,38,24,0.45)' }}>
                       {t({ es: '«El territorio se mide con recorridos, semillas y manos que siembran.»', en: '“A territory is measured in walks, in seeds and in hands that sow.”' })}
                     </p>
@@ -1486,38 +1489,62 @@ export default function EditorialOverlay({
               </div>
             </Reveal>
 
-            {/* Cifras orgánicas */}
+            {/* Cifras orgánicas sin tarjetas */}
             <div className="max-w-xl">
-              <Reveal delay={0.06}>
-                <p className="text-sm text-[#6b6048] font-light leading-loose font-sans">
-                  {t({ es: 'La huella del Consejo, medida en terreno.', en: 'The Council’s footprint, measured on the ground.' })}
-                </p>
-              </Reveal>
-
-              <div className="mt-9 space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-10 sm:gap-y-12">
                 {[
-                  { num: '16,890+', label: { es: 'Personas beneficiarias', en: 'Beneficiaries' } },
-                  { num: '1,500+', label: { es: 'Semillas nativas conservadas', en: 'Native seeds conserved' } },
-                  { num: '44', label: { es: 'Recorridos territoriales', en: 'Territorial field visits' } },
-                  { num: '31k+', label: { es: 'Alcance en divulgación', en: 'Outreach reach' } },
+                  {
+                    num: '16,890+',
+                    label: { es: 'Personas beneficiarias', en: 'Beneficiaries' },
+                    desc: { es: 'Familias campesinas y comunidades vinculadas a proyectos activos.', en: 'Rural families and communities engaged in active projects.' },
+                  },
+                  {
+                    num: '1,500+',
+                    label: { es: 'Semillas nativas', en: 'Native seeds' },
+                    desc: { es: 'Variedades criollas conservadas en bancos comunitarios.', en: 'Heirloom varieties preserved in community seed banks.' },
+                  },
+                  {
+                    num: '44',
+                    label: { es: 'Recorridos en campo', en: 'Field expeditions' },
+                    desc: { es: 'Inspecciones técnicas directas en cuencas prioritarias.', en: 'Direct technical inspections across key hydrological basins.' },
+                  },
+                  {
+                    num: '31k+',
+                    label: { es: 'Alcance territorial', en: 'Outreach reach' },
+                    desc: { es: 'Impacto en jornadas de divulgación y educación ambiental.', en: 'People reached via outreach and environmental education.' },
+                  },
                 ].map((s, idx) => (
-                  <RevealItem key={idx} index={idx} step={0.07}>
-                    <Link to="/proyectos" className="group flex items-baseline gap-5 active:scale-[0.99] transition-transform duration-200">
-                      <span className="font-serif text-[2.6rem] sm:text-6xl text-[#3a4a18] font-light leading-none tracking-tight tabular">{s.num}</span>
-                      <span className="h-1 w-1 rounded-full bg-[#4a5a22]/45 self-center flex-shrink-0 transition-colors duration-300 group-hover:bg-[#4a5a22]" />
-                      <span className="font-sans text-sm sm:text-base font-medium text-[#2d2618] leading-snug transition-colors duration-300 group-hover:text-[#3a4a18]">{t(s.label)}</span>
+                  <RevealItem key={idx} index={idx} step={0.06}>
+                    <Link
+                      to="/proyectos"
+                      className="group block active:scale-[0.99] transition-transform"
+                    >
+                      <div className="font-serif text-4xl sm:text-5xl lg:text-[50px] text-[#2d2618] font-light leading-none tracking-tight tabular group-hover:text-[#4a5a22] transition-colors">
+                        {s.num}
+                      </div>
+                      <div className="h-0.5 w-8 bg-[#4a5a22]/35 my-3 transition-all duration-300 group-hover:w-12 group-hover:bg-[#4a5a22]" />
+                      <h3 className="font-sans text-sm sm:text-base font-semibold text-[#2d2618] leading-snug">
+                        {t(s.label)}
+                      </h3>
+                      <p className="font-sans text-xs text-[#7a6e58] font-light leading-relaxed mt-1.5">
+                        {t(s.desc)}
+                      </p>
                     </Link>
                   </RevealItem>
                 ))}
               </div>
 
-              <Reveal delay={0.18}>
-                <div className="mt-12 flex flex-wrap items-center gap-6">
-                  <Link to="/proyectos" className="group inline-flex items-center gap-2.5 rounded-full bg-[#4a5a22] py-2.5 pl-6 pr-2 text-[11px] uppercase tracking-[0.16em] font-semibold text-[#f5efe3] transition-all duration-300 hover:bg-[#3a4a18] active:scale-[0.97] shadow-[0_8px_24px_-8px_rgba(51,66,21,0.55)]">
-                    <span>{t({ es: 'Ver resultados', en: 'View results' })}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f5efe3]/12 ring-1 ring-[#f5efe3]/20 transition-transform duration-300 group-hover:translate-x-0.5">&rarr;</span>
+              <Reveal delay={0.2}>
+                <div className="mt-12 pt-2">
+                  <Link
+                    to="/proyectos"
+                    className="group inline-flex items-center gap-3 rounded-full bg-[#4a5a22] py-3 pl-7 pr-2.5 text-xs uppercase tracking-[0.16em] font-semibold text-[#f5efe3] transition-all duration-300 hover:bg-[#384519] active:scale-[0.98] shadow-[0_12px_28px_-10px_rgba(51,66,21,0.5)] cursor-pointer"
+                  >
+                    <span>{t({ es: 'Ver proyectos y resultados', en: 'View projects & results' })}</span>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f5efe3]/12 ring-1 ring-[#f5efe3]/20 transition-transform duration-300 group-hover:translate-x-1">
+                      &rarr;
+                    </span>
                   </Link>
-                  <span className="text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-sans font-semibold">ODS 2 · 11 · 13 · 15</span>
                 </div>
               </Reveal>
             </div>
@@ -1526,128 +1553,123 @@ export default function EditorialOverlay({
       </section>
 
       {/* CAPÍTULO 8: MANIFIESTO */}
-      <section id="manifiesto" className="py-24 sm:py-32 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba]">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            <div className="lg:col-span-5 space-y-8">
-              <div className="space-y-4">
-                <div className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#5a6b2a]">{t({ es: 'Manifiesto Institucional', en: 'Institutional Manifesto' })}</div>
-                <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] text-[#2d2618] font-light leading-[1.18]">
-                  {t({ es: 'El planeta no es un recurso.', en: 'The planet is not a resource.' })}<br />
-                  <span className="italic text-[#4a5a22] font-normal">{t({ es: 'Es nuestra relación más sagrada.', en: 'It is our most sacred relationship.' })}</span>
-                </h2>
-              </div>
-              <p className="text-sm sm:text-[15px] text-[#5c523e] font-light leading-relaxed font-sans">
-                {t({ es: 'Súmate a la red de personas, especialistas e instituciones que impulsan la gobernanza ambiental.', en: 'Join the network of people, specialists and institutions driving environmental governance.' })}
+      <section id="manifiesto" className="py-24 sm:py-32 md:py-36 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba] overflow-hidden">
+        <div className="orb orb-moss orb-drift w-[42vw] h-[42vw] max-w-[560px] max-h-[560px] -top-[14%] -right-[10%] opacity-30" aria-hidden />
+        <div className="orb orb-bone orb-drift-slow w-[32vw] h-[32vw] max-w-[440px] max-h-[440px] bottom-[-16%] -left-[8%] opacity-35" aria-hidden />
+
+        <div className="max-w-3xl mx-auto w-full relative z-10">
+          {/* TÍTULO Y PEQUEÑA DESCRIPCIÓN */}
+          <Reveal>
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="font-serif text-3xl sm:text-5xl lg:text-[54px] text-[#2d2618] font-light tracking-tight leading-[1.08]">
+                {t({ es: 'Firmemos el Manifiesto ', en: 'Let us sign the Manifesto ' })}
+                <span className="italic font-normal text-[#4a5a22]">
+                  {t({ es: 'por la Tierra.', en: 'for the Earth.' })}
+                </span>
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-[#5a4f3b] font-light leading-relaxed font-sans max-w-xl mx-auto">
+                {t({
+                  es: 'Súmate a la red de personas, especialistas e instituciones que impulsan la gobernanza y protección de nuestra biosfera.',
+                  en: 'Join the network of people, specialists and institutions driving the governance and protection of our biosphere.'
+                })}
               </p>
-              <ul className="space-y-3.5 font-sans">
-                {[
-                  { es: 'Reportes técnicos trimestrales', en: 'Quarterly technical reports' },
-                  { es: 'Guías de acción territorial', en: 'Territorial action guides' },
-                  { es: 'Red internacional de especialistas', en: 'International network of specialists' },
-                ].map((benefit) => (
-                  <li key={t(benefit)} className="flex items-center gap-3 text-[13px] text-[#5c523e] font-light">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[#4a5a22]/30 text-[#4a5a22] flex-shrink-0">
-                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                    </span>
-                    {t(benefit)}
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-6 border-t border-[#d8ceb6]/60 flex items-center gap-4">
-                <div className="w-8 h-[1px] bg-[#4a5a22]/40" />
-                <div className="text-xs uppercase tracking-[0.2em] text-[#7a6e58] font-sans font-medium">Consejo Global Ambiental &bull; 2026</div>
-              </div>
             </div>
+          </Reveal>
 
-            <div className="lg:col-span-7 w-full">
-              <Reveal y={28} delay={0.1}>
-                <div className="rounded-[2rem] bg-[#f5efe3] border border-[#d8ceb6]/80 shadow-[0_30px_80px_-42px_rgba(45,38,24,0.4)] overflow-hidden">
-                  <div aria-hidden className="h-[3px] bg-gradient-to-r from-[#4a5a22] via-[#5a6b2a] to-transparent" />
-                  <div className="p-8 sm:p-11">
-                    <div className="mb-8 flex flex-wrap items-baseline justify-between gap-3 pb-6 border-b border-[#d8ceb6]/70">
-                      <div>
-                        <div className="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#5a6b2a] mb-1.5">{t({ es: 'Acta de Adhesión', en: 'Statement of Accession' })}</div>
-                        <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-tight">{t({ es: 'Firmemos el Manifiesto por la Tierra', en: 'Let us sign the Manifesto for the Earth' })}</h3>
-                      </div>
-                      <span className="font-serif italic text-sm text-[#8a7e68] hidden sm:block">{t({ es: 'Adhesión N.º 01', en: 'Accession No. 01' })}</span>
-                    </div>
-
-                    <form onSubmit={handlePledge} className="space-y-9 font-sans">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-9">
-                        <div className="group border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                          <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Nombre o Institución', en: 'Name or Institution' })}</label>
-                          <input
-                            type="text"
-                            required
-                            value={pledgeName}
-                            onChange={(e) => setPledgeName(e.target.value)}
-                            placeholder={t({ es: 'Tu nombre', en: 'Your name' })}
-                            className="peer w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] py-1 transition-all duration-300 placeholder:font-sans placeholder:text-sm"
-                          />
-                          <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                        </div>
-                        <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                          <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Correo Electrónico', en: 'Email Address' })}</label>
-                          <input
-                            type="email"
-                            required
-                            placeholder="email@example.com"
-                            className="w-full bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] placeholder-[#b3a688] placeholder:font-sans placeholder:text-sm py-1"
-                          />
-                          <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                        </div>
-                      </div>
-
-                      <div className="group relative border-b border-[#d8ceb6]/90 pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]/30">
-                        <label className="block mb-2 text-[10px] uppercase tracking-[0.22em] text-[#8a7e68] font-semibold transition-colors duration-300 group-focus-within:text-[#4a5a22]">{t({ es: 'Tu Compromiso Principal', en: 'Your Main Commitment' })}</label>
-                        <select className="w-full cursor-pointer appearance-none bg-transparent border-none outline-none font-serif text-lg sm:text-xl font-light text-[#2d2618] pr-8 py-1" defaultValue="forest">
-                          <option value="forest">{t({ es: 'Protección y Reforestación de Bosques Nativos', en: 'Protection and Reforestation of Native Forests' })}</option>
-                          <option value="ocean">{t({ es: 'Conservación de Océanos y Arrecifes Marinos', en: 'Conservation of Oceans and Marine Reefs' })}</option>
-                          <option value="soil">{t({ es: 'Regeneración y Salud del Suelo de Conservación', en: 'Regeneration and Health of Conservation Land' })}</option>
-                          <option value="education">{t({ es: 'Conciencia, Investigación y Educación Ambiental', en: 'Awareness, Research and Environmental Education' })}</option>
-                        </select>
-                        <span className="pointer-events-none absolute left-0 -bottom-px h-[1.5px] w-full origin-left scale-x-0 bg-[#4a5a22] transition-transform duration-500 ease-out group-focus-within:scale-x-100" />
-                        <svg className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a6e58]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-
-                      <div className="pt-2">
-                        <button
-                          type="submit"
-                          className="group relative w-full overflow-hidden rounded-full bg-[#4a5a22] py-3 sm:py-3.5 pl-8 pr-3 flex items-center justify-between gap-4 text-[#f5efe3] font-sans text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_14px_36px_-14px_rgba(51,66,21,0.55)] transition-all duration-300 hover:bg-[#3a4a18] active:scale-[0.98] cursor-pointer"
-                        >
-                          <span className="pl-1 text-left">{t({ es: 'Firmar el Manifiesto por la Tierra', en: 'Sign the Manifesto for the Earth' })}</span>
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f5efe3]/14 ring-1 ring-[#f5efe3]/25 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-px">
-                            <span className="text-base leading-none">&rarr;</span>
-                          </span>
-                        </button>
-                      </div>
-                    </form>
-
-                    <AnimatePresence>
-                      {pledgeSubmitted && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          className="mt-6 rounded-2xl border border-[#4a5a22]/25 bg-[#4a5a22]/10 py-6 px-6 text-center font-sans"
-                        >
-                          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#4a5a22] text-[#f5efe3] shadow-[0_8px_20px_-8px_rgba(51,66,21,0.6)]">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
-                          </div>
-                          <h4 className="font-serif text-xl text-[#2d2618] mb-1 font-light">{t({ es: 'Compromiso registrado', en: 'Commitment registered' })}</h4>
-                          <p className="text-xs text-[#4a5a22] font-medium">{t({ es: 'Gracias', en: 'Thank you' })}{pledgeName ? `, ${pledgeName}` : ''}. {t({ es: 'Tu adhesión institucional ha sido registrada.', en: 'Your institutional accession has been recorded.' })}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+          {/* FORMULARIO EDITORIAL INTEGRADO */}
+          <Reveal y={24} delay={0.08}>
+            <form onSubmit={handlePledge} className="max-w-2xl mx-auto space-y-10 sm:space-y-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-9">
+                <div className="group border-b border-[#cfc3a9] hover:border-[#b8a98b] pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]">
+                  <label className="block text-[11px] uppercase tracking-[0.22em] font-sans font-semibold text-[#5a6b2a] group-focus-within:text-[#384519] transition-colors mb-2">
+                    {t({ es: 'Nombre o Institución', en: 'Name or Institution' })}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={pledgeName}
+                    onChange={(e) => setPledgeName(e.target.value)}
+                    placeholder={t({ es: 'Tu nombre completo o entidad', en: 'Your full name or organization' })}
+                    className="w-full bg-transparent font-serif text-lg sm:text-xl text-[#221c12] placeholder-[#a6997f]/65 outline-none"
+                  />
                 </div>
-              </Reveal>
-            </div>
-          </div>
+
+                <div className="group border-b border-[#cfc3a9] hover:border-[#b8a98b] pb-3 transition-colors duration-300 focus-within:border-[#4a5a22]">
+                  <label className="block text-[11px] uppercase tracking-[0.22em] font-sans font-semibold text-[#5a6b2a] group-focus-within:text-[#384519] transition-colors mb-2">
+                    {t({ es: 'Correo Electrónico', en: 'Email Address' })}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="contacto@organizacion.org"
+                    className="w-full bg-transparent font-serif text-lg sm:text-xl text-[#221c12] placeholder-[#a6997f]/65 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="group border-b border-[#cfc3a9] hover:border-[#b8a98b] pb-3 transition-colors duration-300 focus-within:border-[#4a5a22] relative">
+                <label className="block text-[11px] uppercase tracking-[0.22em] font-sans font-semibold text-[#5a6b2a] group-focus-within:text-[#384519] transition-colors mb-2">
+                  {t({ es: 'Tu Compromiso Principal', en: 'Your Main Commitment' })}
+                </label>
+                <select
+                  className="w-full cursor-pointer appearance-none bg-transparent font-serif text-base sm:text-lg text-[#221c12] pr-10 outline-none"
+                  defaultValue="forest"
+                >
+                  <option value="forest" className="bg-[#f5efe3] text-[#2d2618]">{t({ es: 'Protección y Reforestación de Bosques Nativos', en: 'Protection and Reforestation of Native Forests' })}</option>
+                  <option value="ocean" className="bg-[#f5efe3] text-[#2d2618]">{t({ es: 'Conservación de Océanos y Arrecifes Marinos', en: 'Conservation of Oceans and Marine Reefs' })}</option>
+                  <option value="soil" className="bg-[#f5efe3] text-[#2d2618]">{t({ es: 'Regeneración y Salud del Suelo de Conservación', en: 'Regeneration and Health of Conservation Land' })}</option>
+                  <option value="education" className="bg-[#f5efe3] text-[#2d2618]">{t({ es: 'Conciencia, Investigación y Educación Ambiental', en: 'Awareness, Research and Environmental Education' })}</option>
+                </select>
+                <div className="pointer-events-none absolute right-0 bottom-4 text-[#4a5a22]">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="pt-4 text-center">
+                <button
+                  type="submit"
+                  className="group inline-flex items-center justify-center gap-4 rounded-full bg-gradient-to-r from-[#44531f] via-[#4d5f24] to-[#3a471a] hover:from-[#364218] hover:via-[#42521e] hover:to-[#2d3813] border border-[#6b7e36]/30 py-4 px-10 text-[#fbf9f4] font-sans text-xs uppercase tracking-[0.2em] font-semibold shadow-[0_16px_38px_-12px_rgba(55,70,22,0.5)] hover:shadow-[0_20px_45px_-12px_rgba(55,70,22,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
+                >
+                  <span>{t({ es: 'Firmar el Manifiesto por la Tierra', en: 'Sign the Manifesto for the Earth' })}</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/30 transition-transform duration-300 group-hover:translate-x-1">
+                    &rarr;
+                  </span>
+                </button>
+                <p className="mt-4 text-center text-xs text-[#7a6e58] font-sans font-light">
+                  {t({
+                    es: 'Tu adhesión respalda las metas de restauración y gobernanza territorial 2026.',
+                    en: 'Your accession supports the 2026 territorial restoration and governance goals.'
+                  })}
+                </p>
+              </div>
+            </form>
+
+            <AnimatePresence>
+              {pledgeSubmitted && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="mt-10 py-6 px-6 text-center font-sans max-w-xl mx-auto"
+                >
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#4a5a22] text-[#f5efe3] shadow-[0_8px_20px_-6px_rgba(51,66,21,0.6)]">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="font-serif text-2xl text-[#2d2618] mb-1 font-light">
+                    {t({ es: 'Compromiso registrado', en: 'Commitment registered' })}
+                  </h4>
+                  <p className="text-sm text-[#4a5a22] font-medium">
+                    {t({ es: 'Gracias', en: 'Thank you' })}{pledgeName ? `, ${pledgeName}` : ''}. {t({ es: 'Tu adhesión institucional ha sido formalizada.', en: 'Your institutional accession has been formalized.' })}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Reveal>
         </div>
       </section>
 

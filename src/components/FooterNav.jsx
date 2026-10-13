@@ -15,6 +15,7 @@ const GROUP_CONSEJO = [
 const GROUP_ACCION = [
   { to: '/lineas-estrategicas', labelKey: 'nav.ejesAccion' },
   { to: '/proyectos', labelKey: 'nav.programasProyectos' },
+  { to: '/agenda-2030', labelKey: 'nav.resultadosImpacto' },
   { to: '/presencia-global', labelKey: 'nav.presenciaGlobal' },
 ];
 
@@ -76,12 +77,12 @@ export default function FooterNav() {
 
       {/* Contenido único del footer */}
       <div className="relative max-w-7xl mx-auto px-6 sm:px-12 md:px-20">
-        {/* Cabecera de cierre */}
+        {/* Cabecera de cierre: Titular arriba y Botón abajo unificados */}
         <div className="pt-36 sm:pt-48 md:pt-56 pb-16 md:pb-24 border-b border-[#f5efe3]/15">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-10">
+          <div className="flex flex-col items-start gap-8 sm:gap-10 max-w-4xl">
             <Reveal delay={0.08}>
               <h2
-                className="font-serif text-2xl sm:text-4xl lg:text-5xl xl:text-[60px] text-[#f5efe3] font-light leading-[1.14] max-w-3xl text-balance"
+                className="font-serif text-2xl sm:text-4xl lg:text-5xl xl:text-[60px] text-[#f5efe3] font-light leading-[1.14] text-balance"
                 style={{ textShadow: '0 2px 24px rgba(0,0,0,0.45)' }}
               >
                 {t('footer.futurePrefix')}
@@ -90,27 +91,15 @@ export default function FooterNav() {
               </h2>
             </Reveal>
 
-            <Reveal delay={0.16} className="flex-shrink-0 lg:pb-2">
+            <Reveal delay={0.16} className="pt-2">
               <Link
                 to="/contacto"
-                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full py-2 pl-5 pr-2 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f5efe3] bg-white/10 ring-1 ring-inset ring-white/20 backdrop-blur-xl backdrop-saturate-150 shadow-[0_12px_32px_-14px_rgba(0,0,0,0.6),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:bg-white/15 hover:ring-white/30 hover:shadow-[0_16px_40px_-14px_rgba(0,0,0,0.65),inset_0_1px_0_0_rgba(255,255,255,0.42)] active:scale-[0.98]"
+                className="group relative inline-flex items-center gap-3.5 sm:gap-4 rounded-full bg-[#fbf9f4] hover:bg-white text-[#222c10] py-3 pl-7 pr-3 sm:py-3.5 sm:pl-8 sm:pr-3.5 font-sans text-xs sm:text-[13px] font-semibold uppercase tracking-[0.18em] shadow-[0_16px_38px_-10px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.25)] hover:shadow-[0_22px_45px_-8px_rgba(0,0,0,0.65)] ring-1 ring-white/80 transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-full bg-[#5a6b2a]/25"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/30 via-white/5 to-transparent"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 -translate-x-[130%] bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[130%]"
-                />
-                <span className="relative z-10 pl-1">{t('footer.join')}</span>
-                <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-inset ring-white/25 backdrop-blur-md transition-all duration-300 group-hover:bg-white/25 group-hover:rotate-45">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 17L17 7M9 7h8v8" />
+                <span>{t('footer.join')}</span>
+                <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#3d4a1b] text-[#fbf9f4] transition-all duration-300 group-hover:bg-[#2c3613] group-hover:rotate-45 shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M9 7h8v8" />
                   </svg>
                 </span>
               </Link>
@@ -119,19 +108,16 @@ export default function FooterNav() {
         </div>
 
         {/* Columnas unificadas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 py-12 md:py-16">
-          <div className="sm:col-span-2 lg:col-span-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 py-12 md:py-16 items-center">
+          <div className="sm:col-span-2 lg:col-span-4 flex items-center">
             <Reveal>
-              <Link to="/" className="group inline-block mb-6" aria-label={t('a11y.home')}>
+              <Link to="/" className="group inline-flex items-center" aria-label={t('a11y.home')}>
                 <img
                   src="/logos/logo-cga-footer.webp"
                   alt={t('brand.name')}
-                  className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_2px_14px_rgba(0,0,0,0.35)] transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 w-auto object-contain drop-shadow-[0_4px_24px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </Link>
-              <p className="text-[#d8d2c2]/80 text-[13px] font-light leading-relaxed max-w-xs">
-                {t('footer.about')}
-              </p>
             </Reveal>
           </div>
 
@@ -190,16 +176,22 @@ export default function FooterNav() {
 
         {/* Barra final */}
         <div className="py-6 sm:py-8 border-t border-[#f5efe3]/15 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light text-center md:text-left">
-          <span>{t('footer.rights')}</span>
-          <span className="inline-flex items-center gap-1.5 text-[#d8d2c2]/90">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#5a6b2a] inline-block" />
-            <span>{t('footer.developer')}</span>
-          </span>
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <span>{t('footer.rights')}</span>
+            <span className="text-[#d8d2c2]/80 text-[10px]">
+              {t({ es: 'Desarrollado por', en: 'Developed by' })}{' '}
+              <a
+                href="https://gadielpalma.dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#f5efe3] hover:text-[#cdd2a6] underline underline-offset-2 transition-colors duration-200 font-medium"
+              >
+                Gadiel Palma
+              </a>
+            </span>
+          </div>
           <div className="flex items-center gap-4">
-            <Link to="/admin" className="text-[#a89e88] hover:text-[#f5efe3] transition-colors">
-              ⚙️ Admin CMS
-            </Link>
-            <span className="uppercase tracking-[0.2em] font-medium">{t('footer.cities')}</span>
+            <span className="uppercase tracking-[0.2em] font-medium text-[10px] sm:text-[11px]">{t('footer.cities')}</span>
           </div>
         </div>
       </div>

@@ -1,9 +1,63 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { DEFAULT_GOVERNANCE_MEMBERS } from '../data/governanceData.js';
 
 const SETTINGS_STORAGE_KEY = 'cga_site_settings';
 const POPUPS_STORAGE_KEY = 'cga_popups_list';
 const TRAINING_STORAGE_KEY = 'cga_training_data';
 const APPLICATIONS_STORAGE_KEY = 'cga_training_applications';
+const ALLIANCES_STORAGE_KEY = 'cga_alliances_list';
+const GOVERNANCE_STORAGE_KEY = 'cga_governance_members';
+
+export const DEFAULT_ALLIANCES_LIST = [
+  {
+    id: 'wess',
+    name: 'World Environmental Sustainability Summit (WESS)',
+    shortName: 'WESS Geneva',
+    acronym: 'WESS',
+    logo: 'https://drive.google.com/file/d/1pqWnNbrLJF28urgaAFDw4rz6m9oVT8PN/view?usp=drive_link',
+    website: 'https://wess.org',
+  },
+  {
+    id: 'rirb',
+    name: 'Red Iberoamericana de Restauración Biocultural',
+    shortName: 'RIRB Iberoamérica',
+    acronym: 'RIRB',
+    logo: '',
+    website: '',
+  },
+  {
+    id: 'iies',
+    name: 'Instituto de Investigaciones en Ecosistemas y Sustentabilidad',
+    shortName: 'IIES UNAM',
+    acronym: 'IIES',
+    logo: '',
+    website: '',
+  },
+  {
+    id: 'cecgb',
+    name: 'Centro de Estudios del Cambio Global y la Biosfera',
+    shortName: 'CECG Biosfera',
+    acronym: 'CECG',
+    logo: '',
+    website: '',
+  },
+  {
+    id: 'uceps',
+    name: 'Unión de Comunidades y Ejidos Protectores de la Selva',
+    shortName: 'UCEPS Selva',
+    acronym: 'UCEPS',
+    logo: '',
+    website: '',
+  },
+  {
+    id: 'fgpb',
+    name: 'Fondo Global para el Patrimonio Biocultural',
+    shortName: 'Fondo Biocultural',
+    acronym: 'FGPB',
+    logo: '',
+    website: '',
+  },
+];
 
 export const POPUP_TARGET_ROUTES = [
   { id: 'all', label: 'Todas las páginas (Global)' },
@@ -522,6 +576,24 @@ export function SiteSettingsProvider({ children }) {
     }
   });
 
+  const [alliances, setAlliances] = useState(() => {
+    try {
+      const stored = localStorage.getItem(ALLIANCES_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : DEFAULT_ALLIANCES_LIST;
+    } catch {
+      return DEFAULT_ALLIANCES_LIST;
+    }
+  });
+
+  const [governanceMembers, setGovernanceMembers] = useState(() => {
+    try {
+      const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : DEFAULT_GOVERNANCE_MEMBERS;
+    } catch {
+      return DEFAULT_GOVERNANCE_MEMBERS;
+    }
+  });
+
   // Guardar en localStorage ante cambios
   useEffect(() => {
     localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(popups));
@@ -538,6 +610,14 @@ export function SiteSettingsProvider({ children }) {
   useEffect(() => {
     localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(applications));
   }, [applications]);
+
+  useEffect(() => {
+    localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(alliances));
+  }, [alliances]);
+
+  useEffect(() => {
+    localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(governanceMembers));
+  }, [governanceMembers]);
 
   // ─── GESTIÓN DE POP-UPS (CRUD + TOGGLE + DUPLICAR) ───
   const savePopup = (popupData) => {
@@ -638,6 +718,54 @@ export function SiteSettingsProvider({ children }) {
     setApplications((prev) => prev.filter((a) => a.id !== id));
   };
 
+  // ─── GESTIÓN DE ALIADOS INSTITUCIONALES ───
+  const saveAlliance = (allianceData) => {
+    setAlliances((prev) => {
+      const idx = prev.findIndex((a) => a.id === allianceData.id);
+      let updated;
+      if (idx >= 0) {
+        updated = [...prev];
+        updated[idx] = { ...updated[idx], ...allianceData };
+      } else {
+        updated = [...prev, allianceData];
+      }
+      return updated;
+    });
+  };
+
+  const deleteAlliance = (id) => {
+    setAlliances((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const resetAlliancesToDefaults = () => {
+    setAlliances(DEFAULT_ALLIANCES_LIST);
+    localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(DEFAULT_ALLIANCES_LIST));
+  };
+
+  // ─── GESTIÓN DE CUERPO DE GOBERNANZA ───
+  const saveGovernanceMember = (memberData) => {
+    setGovernanceMembers((prev) => {
+      const idx = prev.findIndex((m) => m.id === memberData.id);
+      let updated;
+      if (idx >= 0) {
+        updated = [...prev];
+        updated[idx] = { ...updated[idx], ...memberData };
+      } else {
+        updated = [...prev, memberData];
+      }
+      return updated;
+    });
+  };
+
+  const deleteGovernanceMember = (id) => {
+    setGovernanceMembers((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const resetGovernanceToDefaults = () => {
+    setGovernanceMembers(DEFAULT_GOVERNANCE_MEMBERS);
+    localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(DEFAULT_GOVERNANCE_MEMBERS));
+  };
+
   return (
     <SiteSettingsContext.Provider
       value={{
@@ -656,6 +784,14 @@ export function SiteSettingsProvider({ children }) {
         addApplication,
         updateApplicationStatus,
         deleteApplication,
+        alliances,
+        saveAlliance,
+        deleteAlliance,
+        resetAlliancesToDefaults,
+        governanceMembers,
+        saveGovernanceMember,
+        deleteGovernanceMember,
+        resetGovernanceToDefaults,
       }}
     >
       {children}

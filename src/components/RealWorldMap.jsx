@@ -107,7 +107,7 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
         ];
 
         const polyline = L.polyline(latlngs, {
-          color: isActive ? '#4a5a22' : '#8fa84f',
+          color: isActive ? '#4a5a22' : '#8a7e68',
           weight: isActive ? 2.5 : 1.5,
           opacity: isActive ? 0.9 : 0.45,
           dashArray: isActive ? null : '5, 8',
@@ -128,8 +128,8 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
         className: 'custom-sede-pin',
         html: `
           <div style="position:relative;width:${size}px;height:${size}px;cursor:pointer;">
-            ${isSelected ? `<div class="animate-ping" style="position:absolute;inset:-6px;border-radius:9999px;background:rgba(163,230,53,0.35);"></div>` : ''}
-            <div style="position:relative;width:100%;height:100%;border-radius:9999px;overflow:hidden;border:${isSelected ? '3px solid #a3e635' : '2px solid #f5efe3'};box-shadow:0 6px 18px rgba(0,0,0,0.45);transition:all .3s;">
+            ${isSelected ? `<div class="animate-ping" style="position:absolute;inset:-4px;border-radius:9999px;background:rgba(255,255,255,0.45);"></div>` : ''}
+            <div style="position:relative;width:100%;height:100%;border-radius:9999px;overflow:hidden;border:${isSelected ? '3px solid #ffffff' : '2px solid rgba(255,255,255,0.85)'};box-shadow:${isSelected ? '0 0 0 3px #4a5a22, 0 8px 24px rgba(0,0,0,0.55)' : '0 4px 14px rgba(0,0,0,0.45)'};transition:all .3s;">
               <img src="${flagUrl}" alt="${sede.country.es}" style="width:100%;height:100%;object-fit:cover;display:block;" />
             </div>
           </div>
@@ -148,45 +148,46 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
     });
   }, [sedes, activeSedeId, currentLayerKey]);
 
-  // Enfocar y auto-centrar perfectamente en ambas dimensiones (X y Y) cuando cambia la sede o el tamaño
+  // Enfocar suavemente y volar a la sede activa
   useEffect(() => {
     if (!mapInstanceRef.current || !activeSedeId) return;
     const activeSede = sedes.find((s) => s.id === activeSedeId);
     if (activeSede) {
       const { map } = mapInstanceRef.current;
       const targetZoom = isCompact ? 3.8 : 4.2;
-      map.flyTo([activeSede.lat, activeSede.lon], targetZoom, {
-        animate: true,
-        duration: 1.1,
-        easeLinearity: 0.25,
-      });
+
+      const timer = setTimeout(() => {
+        map.invalidateSize({ pan: false });
+        map.flyTo([activeSede.lat, activeSede.lon], targetZoom, {
+          animate: true,
+          duration: 0.9,
+          easeLinearity: 0.2,
+        });
+      }, 60);
+
+      return () => clearTimeout(timer);
     }
   }, [activeSedeId, sedes, isCompact]);
 
-  // Mantener el país centrado en ambas dimensiones de forma continua durante la transición de ancho
+  // Actualizar tamaño de Leaflet cuando el contenedor cambie de dimensión sin interrumpir el vuelo
   useEffect(() => {
     if (!mapContainerRef.current || !mapInstanceRef.current) return;
     const { map } = mapInstanceRef.current;
 
-    let rafId;
+    let resizeTimer;
     const resizeObserver = new ResizeObserver(() => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
         map.invalidateSize({ pan: false });
-        const s = sedes.find((x) => x.id === activeSedeId);
-        if (s) {
-          // Centrado matemático exacto en ambas dimensiones (latitud y longitud) en cada frame
-          map.panTo([s.lat, s.lon], { animate: false });
-        }
-      });
+      }, 120);
     });
 
     resizeObserver.observe(mapContainerRef.current);
     return () => {
-      cancelAnimationFrame(rafId);
+      clearTimeout(resizeTimer);
       resizeObserver.disconnect();
     };
-  }, [activeSedeId, sedes]);
+  }, []);
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden border border-[#d8ceb6] bg-[#0c120b] shadow-2xl">
