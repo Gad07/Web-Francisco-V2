@@ -80,21 +80,18 @@ export default function Governance() {
         {/* ─── SECCIÓN PRINCIPAL: GOBERNANZA COLEGIADA Y CARRUSEL ─── */}
         <section className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full min-h-[750px]">
           
-          {/* Cabecera Editorial Unificada (Sin Filtros) */}
-          <div className="pb-6 border-b border-[#d8ceb6]/70 mb-8 max-w-4xl space-y-3">
-            <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[#5a6b2a]">
-              {t({ es: 'Estructura Colegiada & Directiva', en: 'Collegial & Board Structure' })}
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-light text-[#2d2618] leading-[1.12]">
+          {/* Cabecera Editorial Unificada Centrada */}
+          <div className="mb-12 sm:mb-14 max-w-5xl mx-auto text-center space-y-5">
+            <h2 className="font-serif text-4xl sm:text-5xl lg:text-[52px] xl:text-[58px] font-light text-[#2d2618] leading-[1.08] tracking-tight">
               {t({ es: 'Cuerpo de Gobernanza', en: 'Governance Body' })}{' '}
               <span className="italic text-[#4a5a22] font-normal">
                 {t({ es: 'e Investigadores.', en: 'and Researchers.' })}
               </span>
             </h2>
-            <p className="text-[#6b6048] font-sans text-sm sm:text-base font-light leading-relaxed">
+            <p className="text-[#6b6048] font-sans text-sm sm:text-base font-light leading-relaxed max-w-3xl mx-auto">
               {t({
-                es: 'El Consejo Global Ambiental integra conducción estratégica, coordinación ejecutiva, dirección nacional de proyectos y participación honorífica especializada para la gobernanza ambiental.',
-                en: 'The Global Environmental Council integrates strategic leadership, executive coordination, national project direction, and specialized honorary governance for environmental stewardship.'
+                es: 'El Consejo Global Ambiental integra conducción estratégica, coordinación ejecutiva, dirección nacional de proyectos y participación honorífica especializada. La Presidencia define prioridades y representa a la institución; la Secretaría Ejecutiva articula su gestión y cooperación; la Dirección Nacional de Proyectos desarrolla y da seguimiento a iniciativas; y el Consejo Honorífico incorpora perspectivas técnicas en las materias del CGA.',
+                en: 'The Global Environmental Council integrates strategic leadership, executive coordination, national project direction, and specialized honorary governance. The Presidency defines priorities and represents the institution; the Executive Secretariat coordinates management and cooperation; the National Directorate of Projects develops and monitors initiatives; and the Honorary Council incorporates technical expertise across CGA domains.'
               })}
             </p>
           </div>
