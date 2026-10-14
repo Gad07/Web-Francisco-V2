@@ -1,79 +1,57 @@
-import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
-
 export const DEFAULT_GOVERNANCE_MEMBERS = [
   {
     id: 'luis-garcia',
-    category: 'presidencia',
+    category: 'founders',
     num: '01',
-    name: 'MTRO. LUIS D. GARCÍA GONZÁLEZ',
-    role: { es: 'PRESIDENTE Y FUNDADOR', en: 'PRESIDENT AND FOUNDER' },
-    displayRole: { es: 'Presidente y Fundador', en: 'President and Founder' },
-    tag: { es: 'Presidencia & Conducción Estratégica', en: 'Presidency & Strategic Leadership' },
-    area: { es: 'Conducción Estratégica y Representación Institucional', en: 'Strategic Leadership & Institutional Representation' },
-    country: { es: 'México', en: 'Mexico' },
+    name: 'MTRO. LUIS GARCÍA GONZÁLEZ',
+    role: { es: 'CONSEJERO PRESIDENTE', en: 'PRESIDENT COUNCILLOR' },
+    displayRole: { es: 'Consejero Presidente y Fundador', en: 'President and Founder Councillor' },
+    tag: { es: 'Presidencia & Estrategia Multilateral', en: 'Presidency & Multilateral Strategy' },
+    area: { es: 'Gobernanza Institucional', en: 'Institutional Governance' },
+    country: { es: 'México / Internacional', en: 'Mexico / International' },
     bio: {
-      es: 'Biólogo por la Universidad Autónoma Metropolitana y Maestro en Cambio Climático y Biodiversidad por la Universidad Nacional Rosario Castellanos. Su trayectoria integra investigación, conservación, educación ambiental y gestión de áreas naturales protegidas. Ha dirigido procesos académicos y de investigación en Áreas Naturales Protegidas a nivel nacional e internacional, así como acciones de prevención de conflictos y seguridad en suelo de conservación de la Ciudad de México. Es autor y coautor de publicaciones científicas en The Southwestern Naturalist y Therya ixmana. Ha participado como ponente en congresos nacionales e internacionales sobre biodiversidad, conservación y cambio climático. Desde la Presidencia orienta la agenda ambiental y la representación estratégica del Consejo.',
-      en: 'Biologist from Universidad Autónoma Metropolitana and Master in Climate Change and Biodiversity from Universidad Nacional Rosario Castellanos. His career encompasses research, conservation, environmental education, and protected natural area management.',
+      es: 'Con amplia experiencia en liderazgo institucional y gobernanza ambiental estratégica. Ha impulsado diálogos de alto nivel, articulación con organismos multilaterales y la consolidación de marcos normativos y territoriales en favor de la sostenibilidad y la regeneración ecosistémica.',
+      en: 'With extensive experience in institutional leadership and strategic environmental governance. He has driven high-level dialogues, coordination with multilateral bodies and the consolidation of regulatory and territorial frameworks in favour of sustainability and ecosystem regeneration.'
     },
     responsibilities: [
-      {
-        es: 'Conducción estratégica y definición de prioridades de la institución.',
-        en: 'Strategic leadership and setting institutional priorities.',
-      },
-      {
-        es: 'Representación institucional del Consejo Global Ambiental a nivel nacional e internacional.',
-        en: 'Institutional representation of the Global Environmental Council.',
-      },
-      {
-        es: 'Articulación de agendas ambientales, científicas y territoriales de alto impacto.',
-        en: 'Coordination of environmental, scientific, and territorial agendas.',
-      },
-      {
-        es: 'Supervisión del cumplimiento de los principios y resoluciones del Consejo.',
-        en: 'Oversight of compliance with the Council’s principles and resolutions.',
-      },
+      { es: 'Conducción institucional y representación de alto nivel ante organismos internacionales.', en: 'Institutional leadership and high-level representation before international bodies.' },
+      { es: 'Orientación estratégica de la agenda ambiental, científica y territorial.', en: 'Strategic guidance of the environmental, scientific and territorial agenda.' },
+      { es: 'Presidencia de la Asamblea Anual y articulación de acuerdos multilaterales.', en: 'Presidency of the Annual Assembly and coordination of multilateral agreements.' },
+      { es: 'Supervisión del cumplimiento de los principios y estatutos del Consejo.', en: 'Oversight of compliance with the principles and statutes of the Council.' }
     ],
     social: {
-      email: 'presidencia@consejoglobalambiental.com',
+      email: 'presidencia@consejocga.org',
+      linkedin: 'https://linkedin.com',
+      twitter: 'https://x.com'
     },
-    img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&auto=format',
+    img: '/imports/Perfiles/LuisGarcia.png'
   },
   {
     id: 'francisco-solorio',
-    category: 'secretaria',
+    category: 'founders',
     num: '02',
     name: 'MTRO. FRANCISCO SOLORIO',
     role: { es: 'SECRETARIO EJECUTIVO', en: 'EXECUTIVE SECRETARY' },
-    displayRole: { es: 'Secretario Ejecutivo', en: 'Executive Secretary' },
-    tag: { es: 'Secretaría Ejecutiva & Cooperación', en: 'Executive Secretariat & Cooperation' },
-    area: { es: 'Coordinación Institucional y Alianzas Estratégicas', en: 'Institutional Coordination & Strategic Alliances' },
-    country: { es: 'México', en: 'Mexico' },
+    displayRole: { es: 'Secretario Ejecutivo y Fundador', en: 'Executive Secretary and Founder' },
+    tag: { es: 'Dirección Ejecutiva & Alianzas Territoriales', en: 'Executive Leadership & Territorial Alliances' },
+    area: { es: 'Operación y Despliegue en Campo', en: 'Operations and Field Deployment' },
+    country: { es: 'México / Internacional', en: 'Mexico / International' },
     bio: {
-      es: 'Jurista mexicano, licenciado en Derecho por la Universidad Nacional Autónoma de México y Maestro en Justicia Penal y Seguridad Pública. Cuenta con experiencia en cooperación internacional, derechos humanos, formación ejecutiva y relaciones institucionales. Ha desempeñado responsabilidades directivas en Emeritus, Charles International School, Universidad Humanitas y Grupo LET; participó en un comité técnico del CENEVAL. Es Director General de Expo México Mujer. Desde la Secretaría Ejecutiva coordina la gestión institucional, las alianzas estratégicas y el seguimiento de las iniciativas del CGA.',
-      en: 'Mexican jurist with a Law degree from UNAM and a Master in Criminal Justice and Public Security. Experienced in international cooperation, human rights, executive training, and institutional relations.',
+      es: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas para la acción ambiental. Encabeza el despliegue operativo en campo, la articulación con ejidos y comunidades, y la implementación rigurosa de proyectos socioambientales.',
+      en: 'Specialist in technical management, territorial cooperation and public-private alliances for environmental action. He leads field operations, coordination with communal landholdings and communities, and the rigorous implementation of socio-environmental projects.'
     },
     responsibilities: [
-      {
-        es: 'Coordinación de la gestión institucional y seguimiento de acuerdos.',
-        en: 'Institutional management coordination and agreement tracking.',
-      },
-      {
-        es: 'Articulación de alianzas estratégicas y relaciones de cooperación internacional.',
-        en: 'Strategic alliance coordination and international cooperation.',
-      },
-      {
-        es: 'Seguimiento integral a proyectos e iniciativas del Consejo Global Ambiental.',
-        en: 'Monitoring and tracking of projects and initiatives.',
-      },
-      {
-        es: 'Enlace ejecutivo y vinculación multisectorial entre territorios y actores clave.',
-        en: 'Executive liaison and multisectoral territorial engagement.',
-      },
+      { es: 'Dirección ejecutiva, gestión técnica y coordinación operativa general.', en: 'Executive leadership, technical management and general operational coordination.' },
+      { es: 'Cooperación institucional e internacional con aliados estratégicos.', en: 'Institutional and international cooperation with strategic partners.' },
+      { es: 'Acompañamiento en territorio y desarrollo de proyectos sostenibles.', en: 'Field support and development of sustainable projects.' },
+      { es: 'Seguimiento a resoluciones y vinculación interinstitucional.', en: 'Follow-up on resolutions and interinstitutional coordination.' }
     ],
     social: {
-      email: 'secretaria@consejoglobalambiental.com',
+      email: 'secretaria@consejocga.org',
+      linkedin: 'https://linkedin.com',
+      twitter: 'https://x.com'
     },
-    img: '/imports/Perfiles/FranciscoSolorio.png',
+    img: '/imports/Perfiles/FranciscoSolorio.png'
   },
   {
     id: 'veronica-gonzalez',
@@ -87,59 +65,42 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
     country: { es: 'México', en: 'Mexico' },
     bio: {
       es: 'Licenciada en Gobierno y Administración Pública, con experiencia en prevención del delito, derechos humanos, reinserción social, protección animal y atención a problemáticas socioambientales. Dirige KabPrison Project, iniciativa con actividades en distintos países de América. Su trayectoria incorpora educación, reciclaje y acciones de sensibilización en centros de reinserción y espacios educativos. En el CGA coordina el desarrollo, la articulación y el seguimiento de proyectos en México.',
-      en: 'BA in Government and Public Administration with expertise in crime prevention, human rights, social reintegration, animal protection, and socio-environmental interventions.',
+      en: 'BA in Government and Public Administration with expertise in crime prevention, human rights, social reintegration, animal protection, and socio-environmental interventions.'
     },
     responsibilities: [
-      {
-        es: 'Diseño, coordinación y seguimiento de proyectos territoriales en México.',
-        en: 'Design, coordination, and monitoring of territorial projects in Mexico.',
-      },
-      {
-        es: 'Articulación con actores territoriales, comunidades y organizaciones locales.',
-        en: 'Coordination with territorial actors and community organizations.',
-      },
-      {
-        es: 'Evaluación técnica y documental de iniciativas socioambientales en ejecución.',
-        en: 'Technical and documentary evaluation of ongoing socio-environmental initiatives.',
-      },
+      { es: 'Diseño, coordinación y seguimiento de proyectos territoriales en México.', en: 'Design, coordination, and monitoring of territorial projects in Mexico.' },
+      { es: 'Articulación con actores territoriales, comunidades y organizaciones locales.', en: 'Coordination with territorial actors and community organizations.' },
+      { es: 'Evaluación técnica y documental de iniciativas socioambientales en ejecución.', en: 'Technical and documentary evaluation of ongoing socio-environmental initiatives.' }
     ],
     social: {
-      email: 'proyectos@consejoglobalambiental.com',
+      email: 'proyectos@consejoglobalambiental.com'
     },
-    img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=800&fit=crop&auto=format',
+    img: '/imports/Perfiles/VeronicaGonzalez.png'
   },
   {
     id: 'carlos-esquivel',
-    category: 'honorifico',
+    category: 'council',
     num: '04',
     name: 'DR. CARLOS ESQUIVEL LACROIX',
-    role: { es: 'CONSEJO HONORÍFICO', en: 'HONORARY COUNCIL' },
-    displayRole: { es: 'Consejo Honorífico — Bienestar Animal', en: 'Honorary Council — Animal Welfare' },
-    tag: { es: 'Consejo Honorífico Especializado', en: 'Specialized Honorary Council' },
-    area: { es: 'Bienestar Animal y Protección de Especies', en: 'Animal Welfare & Species Protection' },
-    country: { es: 'México', en: 'Mexico' },
+    role: { es: 'CONSEJERO HONORÍFICO', en: 'HONORARY COUNCILLOR' },
+    displayRole: { es: 'Consejero Honorífico en Bienestar Animal', en: 'Honorary Councillor for Animal Welfare' },
+    tag: { es: 'Cuerpo Académico y Científico', en: 'Academic and Scientific Body' },
+    area: { es: 'Bienestar Animal y Una Salud', en: 'Animal Welfare and One Health' },
+    country: { es: 'México / Internacional', en: 'Mexico / International' },
     bio: {
-      es: 'Médico veterinario y académico con 33 años de trayectoria en la Facultad de Medicina Veterinaria y Zootecnia de la UNAM. Especialista en reproducción animal, bienestar y protección de especies, ha ocupado cargos directivos en el ámbito académico y fue Director General de la Agencia de Atención Animal de la Ciudad de México. Ha participado en iniciativas de conservación de fauna silvestre, incluido el lobo mexicano, y brindado asesoría especializada a instituciones públicas y órganos legislativos en políticas de protección y bienestar animal.',
-      en: 'Veterinarian and academic with 33 years of experience at the Faculty of Veterinary Medicine and Animal Husbandry of UNAM. Specialist in animal reproduction, welfare, and species protection.',
+      es: 'Especialista en bienestar animal y medicina veterinaria con amplia trayectoria internacional. Orienta las iniciativas que vinculan el trato digno a los animales con la protección ecosistémica y la salud humana.',
+      en: 'Specialist in animal welfare and veterinary medicine with extensive international experience. He guides initiatives linking dignified treatment of animals with ecosystem protection and human health.'
     },
     responsibilities: [
-      {
-        es: 'Análisis técnico y consultivo de iniciativas en materia de bienestar animal.',
-        en: 'Technical and advisory analysis of animal welfare initiatives.',
-      },
-      {
-        es: 'Asesoría especializada en conservación de fauna y políticas de protección.',
-        en: 'Specialized advisory on wildlife conservation and protection policies.',
-      },
-      {
-        es: 'Articulación entre conocimiento científico y formulación de propuestas públicas.',
-        en: 'Connecting scientific knowledge with public policy proposals.',
-      },
+      { es: 'Dictamen científico en proyectos de bioseguridad y bienestar animal.', en: 'Scientific opinion on biosafety and animal welfare projects.' },
+      { es: 'Integración del enfoque Una Salud (One Health) en políticas públicas.', en: 'Integration of the One Health approach into public policy.' },
+      { es: 'Vinculación académica con facultades e institutos de investigación.', en: 'Academic engagement with faculties and research institutes.' }
     ],
     social: {
-      email: 'contacto@consejoglobalambiental.com',
+      email: 'c.esquivel@consejocga.org',
+      linkedin: 'https://linkedin.com'
     },
-    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&auto=format',
+    img: '/imports/Perfiles/CarlosEsquivel.png'
   },
   {
     id: 'erika-sanchez',
@@ -153,25 +114,16 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
     country: { es: 'México', en: 'Mexico' },
     bio: {
       es: 'Doctora en Educación, Maestra en Ciencias de la Educación Familiar y Licenciada en Pedagogía por la UNAM. Cuenta con 20 años de trayectoria en el sector educativo público del Estado de México, con experiencia en investigación pedagógica, docencia universitaria, inclusión y gestión directiva. Actualmente dirige una Unidad de Servicios de Apoyo a la Educación Regular (USAER). Su labor integra la educación ambiental, la equidad social y el desarrollo sostenible, promoviendo la participación de las juventudes y el fortalecimiento de comunidades inclusivas y resilientes.',
-      en: 'PhD in Education, Master in Family Education Sciences and BA in Pedagogy from UNAM, with 20 years of experience in the public education sector.',
+      en: 'PhD in Education, Master in Family Education Sciences and BA in Pedagogy from UNAM, with 20 years of experience in the public education sector.'
     },
     responsibilities: [
-      {
-        es: 'Orientación pedagógica y técnica para programas de educación ambiental.',
-        en: 'Pedagogical and technical guidance for environmental education programmes.',
-      },
-      {
-        es: 'Promoción de la participación de juventudes y comunidades inclusivas.',
-        en: 'Promotion of youth participation and inclusive resilient communities.',
-      },
-      {
-        es: 'Análisis consultivo sobre equidad social, inclusión y desarrollo sostenible.',
-        en: 'Advisory analysis on social equity, inclusion, and sustainable development.',
-      },
+      { es: 'Orientación pedagógica y técnica para programas de educación ambiental.', en: 'Pedagogical and technical guidance for environmental education programmes.' },
+      { es: 'Promoción de la participación de juventudes y comunidades inclusivas.', en: 'Promotion of youth participation and inclusive resilient communities.' },
+      { es: 'Análisis consultivo sobre equidad social, inclusión y desarrollo sostenible.', en: 'Advisory analysis on social equity, inclusion, and sustainable development.' }
     ],
     social: {
-      email: 'contacto@consejoglobalambiental.com',
+      email: 'contacto@consejoglobalambiental.com'
     },
-    img: 'https://images.unsplash.com/photo-1580894732483-3c99a0d8e87d?w=800&h=800&fit=crop&auto=format',
-  },
+    img: '/imports/Perfiles/ErikaSanchez.png'
+  }
 ];

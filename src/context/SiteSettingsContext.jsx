@@ -21,23 +21,23 @@ export const DEFAULT_ALLIANCES_LIST = [
       en: 'Global governance partner and bioculture initiatives awarding body.',
     },
     tag: 'Ginebra 2026',
-    logo: 'https://drive.google.com/file/d/1pqWnNbrLJF28urgaAFDw4rz6m9oVT8PN/view?usp=drive_link',
-    website: 'https://wess.org',
+    logo: '/imports/Logos/wess.png',
+    website: 'https://mexicoporelclima.com/',
   },
   {
     id: 'rirb',
-    name: 'Red Iberoamericana de Restauración Biocultural',
-    shortName: 'RIRB Iberoamérica',
-    acronym: 'RIRB',
+    name: 'Decenio de las Naciones Unidas sobre la Restauración de los ecosistemas',
+    shortName: 'Restauración de los ecosistemas',
+    acronym: 'DNUSRE',
     type: 'multilateral',
-    scope: { es: 'Iberoamérica', en: 'Ibero-America' },
+    scope: { es: 'Global · ONU', en: 'Global · UN' },
     role: {
-      es: 'Cooperación técnica para la soberanía alimentaria y bancos de germoplasma.',
-      en: 'Technical cooperation for food sovereignty and germplasm banks.',
+      es: 'Prevención, detención y reversión de la degradación de ecosistemas en todo el mundo.',
+      en: 'Preventing, halting and reversing the degradation of ecosystems worldwide.',
     },
-    tag: 'Cooperación Técnica',
-    logo: '',
-    website: '',
+    tag: 'Restauración Global',
+    logo: '/imports/Logos/rirb.png',
+    website: 'https://www.unesco.org/es/ecosystems-restoration-decade',
   },
   {
     id: 'iies',
@@ -51,8 +51,8 @@ export const DEFAULT_ALLIANCES_LIST = [
       en: 'Joint satellite monitoring, climate modeling and scientific validation.',
     },
     tag: 'Investigación Aplicada',
-    logo: '',
-    website: '',
+    logo: '/imports/Logos/iies.png',
+    website: 'https://www.cbd.int/',
   },
   {
     id: 'cecgb',
@@ -66,8 +66,8 @@ export const DEFAULT_ALLIANCES_LIST = [
       en: 'Peer-reviewed publications and environmental leadership training.',
     },
     tag: 'Docencia & Ciencia',
-    logo: '',
-    website: '',
+    logo: '/imports/Logos/cecgb.jpg',
+    website: 'https://earthcharter.org/',
   },
   {
     id: 'uceps',
@@ -81,8 +81,8 @@ export const DEFAULT_ALLIANCES_LIST = [
       en: 'Territorial custody of 450,000 hectares of cloud and tropical rainforest.',
     },
     tag: 'Custodia Territorial',
-    logo: '',
-    website: '',
+    logo: '/imports/Logos/uceps.jpg',
+    website: 'https://www.earthhour.org/',
   },
   {
     id: 'fgpb',
@@ -96,8 +96,38 @@ export const DEFAULT_ALLIANCES_LIST = [
       en: 'Direct funding for community projects and anti-deforestation brigades.',
     },
     tag: 'Financiamiento Verde',
-    logo: '',
-    website: '',
+    logo: '/imports/Logos/fgpb.png',
+    website: 'https://www.expomexico.ca/',
+  },
+  {
+    id: 'alliance-1791929073252',
+    name: 'KabPrison Project México',
+    shortName: 'KabPrison Project',
+    acronym: 'KABPRISON',
+    type: 'territorial',
+    scope: { es: 'México · Social', en: 'Mexico · Social' },
+    role: {
+      es: 'Reinserción social a través de proyectos ambientales, huertos y sustentabilidad comunitaria.',
+      en: 'Social reintegration through environmental projects, community gardens and sustainability.',
+    },
+    tag: 'Reinserción & Ecología',
+    logo: '/imports/Logos/kabprison.png',
+    website: 'https://www.instagram.com/kabprison_project_mexico/',
+  },
+  {
+    id: 'alliance-1791929142382',
+    name: 'Mares No Muros',
+    shortName: 'Mares No Muros',
+    acronym: 'MNM',
+    type: 'multilateral',
+    scope: { es: 'Costero & Marino', en: 'Coastal & Marine' },
+    role: {
+      es: 'Protección de corredores marinos y diplomacia ambiental para la conservación oceánica.',
+      en: 'Protection of marine corridors and environmental diplomacy for ocean conservation.',
+    },
+    tag: 'Conservación Marina',
+    logo: '/imports/Logos/maresnomuros.png',
+    website: 'https://maresnomuros.org/',
   },
 ];
 
@@ -461,7 +491,19 @@ export function SiteSettingsProvider({ children }) {
   const [alliances, setAlliances] = useState(() => {
     try {
       const stored = localStorage.getItem(ALLIANCES_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : DEFAULT_ALLIANCES_LIST;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const synced = DEFAULT_ALLIANCES_LIST.map((def) => {
+            const match = parsed.find((p) => p.id === def.id);
+            return match ? { ...def, ...match, logo: def.logo } : def;
+          });
+          localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(synced));
+          return synced;
+        }
+      }
+      localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(DEFAULT_ALLIANCES_LIST));
+      return DEFAULT_ALLIANCES_LIST;
     } catch {
       return DEFAULT_ALLIANCES_LIST;
     }
@@ -500,8 +542,8 @@ export function SiteSettingsProvider({ children }) {
             if (typeof imgUrl === 'string' && imgUrl.startsWith('/src/imports/')) {
               imgUrl = imgUrl.replace('/src/imports/', '/imports/');
             }
-            if (m.id === 'francisco-solorio' && (!imgUrl || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
-              imgUrl = '/imports/Perfiles/FranciscoSolorio.png';
+            if (officialMatch && (!imgUrl || imgUrl.includes('drive.google.com') || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
+              imgUrl = officialMatch.img;
             }
             if (officialMatch) {
               return {
@@ -568,6 +610,20 @@ export function SiteSettingsProvider({ children }) {
     } catch (err) {
       console.warn('Error sanitizing governance storage:', err);
     }
+  }, []);
+
+  // Sincronizar automáticamente datos de gobernanza de localStorage con el proyecto
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
+      if (stored) {
+        fetch('/__api/sync-governance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: stored,
+        }).catch(() => {});
+      }
+    } catch (e) {}
   }, []);
 
   // Limpieza reactiva de pop-ups residuales en caso de persistir en localStorage
