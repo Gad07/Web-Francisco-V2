@@ -14,6 +14,13 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'World Environmental Sustainability Summit (WESS)',
     shortName: 'WESS Geneva',
     acronym: 'WESS',
+    type: 'multilateral',
+    scope: { es: 'Global · Ginebra', en: 'Global · Geneva' },
+    role: {
+      es: 'Socio de gobernanza global y premiación de iniciativas de biocultura.',
+      en: 'Global governance partner and bioculture initiatives awarding body.',
+    },
+    tag: 'Ginebra 2026',
     logo: 'https://drive.google.com/file/d/1pqWnNbrLJF28urgaAFDw4rz6m9oVT8PN/view?usp=drive_link',
     website: 'https://wess.org',
   },
@@ -22,6 +29,13 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'Red Iberoamericana de Restauración Biocultural',
     shortName: 'RIRB Iberoamérica',
     acronym: 'RIRB',
+    type: 'multilateral',
+    scope: { es: 'Iberoamérica', en: 'Ibero-America' },
+    role: {
+      es: 'Cooperación técnica para la soberanía alimentaria y bancos de germoplasma.',
+      en: 'Technical cooperation for food sovereignty and germplasm banks.',
+    },
+    tag: 'Cooperación Técnica',
     logo: '',
     website: '',
   },
@@ -30,6 +44,13 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'Instituto de Investigaciones en Ecosistemas y Sustentabilidad',
     shortName: 'IIES UNAM',
     acronym: 'IIES',
+    type: 'academic',
+    scope: { es: 'América Latina', en: 'Latin America' },
+    role: {
+      es: 'Monitoreo satelital conjunto, modelación climática y validación científica.',
+      en: 'Joint satellite monitoring, climate modeling and scientific validation.',
+    },
+    tag: 'Investigación Aplicada',
     logo: '',
     website: '',
   },
@@ -38,6 +59,13 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'Centro de Estudios del Cambio Global y la Biosfera',
     shortName: 'CECG Biosfera',
     acronym: 'CECG',
+    type: 'academic',
+    scope: { es: 'Internacional', en: 'International' },
+    role: {
+      es: 'Publicaciones arbitradas y capacitación de cuadros directivos ambientales.',
+      en: 'Peer-reviewed publications and environmental leadership training.',
+    },
+    tag: 'Docencia & Ciencia',
     logo: '',
     website: '',
   },
@@ -46,6 +74,13 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'Unión de Comunidades y Ejidos Protectores de la Selva',
     shortName: 'UCEPS Selva',
     acronym: 'UCEPS',
+    type: 'territorial',
+    scope: { es: 'Territorial · Corredor Biológico', en: 'Territorial · Biological Corridor' },
+    role: {
+      es: 'Custodia territorial de 450,000 hectáreas de bosque de niebla y selva alta.',
+      en: 'Territorial custody of 450,000 hectares of cloud and tropical rainforest.',
+    },
+    tag: 'Custodia Territorial',
     logo: '',
     website: '',
   },
@@ -54,10 +89,18 @@ export const DEFAULT_ALLIANCES_LIST = [
     name: 'Fondo Global para el Patrimonio Biocultural',
     shortName: 'Fondo Biocultural',
     acronym: 'FGPB',
+    type: 'philanthropic',
+    scope: { es: 'Multilateral', en: 'Multilateral' },
+    role: {
+      es: 'Financiamiento directo a proyectos comunitarios y brigadas contra la deforestación.',
+      en: 'Direct funding for community projects and anti-deforestation brigades.',
+    },
+    tag: 'Financiamiento Verde',
     logo: '',
     website: '',
   },
 ];
+
 
 export const POPUP_TARGET_ROUTES = [
   { id: 'all', label: 'Todas las páginas (Global)' },
@@ -74,94 +117,25 @@ export const POPUP_TARGET_ROUTES = [
 
 export const INITIAL_POPUPS_LIST = [
   {
-    id: 'popup-001',
-    name: 'Convocatoria Diplomados & Posgrados 2026',
+    id: 'popup-home-welcome',
+    name: 'Pop-up de Bienvenida Institucional (Exclusivo Home)',
     enabled: true,
     designType: 'split-modal', // 'classic-hero' | 'split-modal' | 'botanical-solid' | 'floating-corner'
-    targetRoute: '/capacitacion',
+    targetRoute: '/',
     triggerType: 'time', // 'time' | 'scroll' | 'exit'
-    triggerDelaySeconds: 3,
-    triggerScrollPercent: 30,
+    triggerDelaySeconds: 2,
+    triggerScrollPercent: 25,
     hasCtaButton: true,
-    title: 'Convocatoria Abierta · Posgrados & Diplomados 2026',
-    subtitle: 'Consejo Global Ambiental · Academia de Liderazgo',
-    message: 'Se encuentra abierta la recepción de postulaciones y solicitudes de becas para el Diplomado Internacional en Gobernanza Socioambiental y Monitoreo Satelital con IA.',
+    title: 'Bienvenido al Consejo Global Ambiental',
+    subtitle: 'Preservación Biocultural, Gobernanza & Ciencia Aplicada',
+    message: 'Conoce nuestras iniciativas internacionales de custodia biocultural, diplomacia ambiental y formación de liderazgos territoriales.',
     image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&fit=crop&auto=format',
     pngElement: '/imagenes/Rama 2.svg',
-    highlightBadge: 'Inscripciones Abiertas',
-    ctaText: 'Ver Convocatoria & Registrarse',
-    ctaLink: '/capacitacion',
-    secondaryCtaText: 'Conocer Más',
-    secondaryCtaLink: '/contacto',
-    cornerPosition: 'bottom-right',
-    oncePerSession: false,
-  },
-  {
-    id: 'popup-002',
-    name: 'Alerta Rápida · Boletín Quincenal y Prensa',
-    enabled: true,
-    designType: 'floating-corner',
-    targetRoute: '/comunicacion',
-    triggerType: 'scroll',
-    triggerDelaySeconds: 4,
-    triggerScrollPercent: 35,
-    hasCtaButton: true,
-    title: 'Boletín Oficial de Clima y Biodiversidad',
-    subtitle: 'Sala de Prensa CGA',
-    message: 'Suscríbete al despacho quincenal con análisis satelital y acuerdos internacionales.',
-    image: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?w=800&fit=crop&auto=format',
-    pngElement: '/imagenes/Rama 1.svg',
-    highlightBadge: 'Boletín Quincenal',
-    ctaText: 'Leer Última Edición',
-    ctaLink: '/comunicacion',
-    secondaryCtaText: 'Cerrar',
-    secondaryCtaLink: '',
-    cornerPosition: 'bottom-right',
-    oncePerSession: false,
-  },
-  {
-    id: 'popup-003',
-    name: 'Aviso Solemne · Declaratoria de Gobernanza',
-    enabled: true,
-    designType: 'botanical-solid',
-    targetRoute: '/gobernanza',
-    triggerType: 'time',
-    triggerDelaySeconds: 4,
-    triggerScrollPercent: 40,
-    hasCtaButton: false, // Sin botón de CTA, solo comunicado solemne
-    title: 'Declaratoria Marco de Gobernanza Socioambiental 2026-2030',
-    subtitle: 'Ginebra · Ciudad de México',
-    message: 'El Consejo Directivo ha formalizado los lineamientos rectores para la mediación de controversias ecológicas y la custodia comunitaria de biomas críticos.',
-    image: '',
-    pngElement: '/imagenes/Rama 2.svg',
-    highlightBadge: 'Resolución Institucional',
-    ctaText: '',
-    ctaLink: '',
-    secondaryCtaText: '',
-    secondaryCtaLink: '',
-    cornerPosition: 'bottom-right',
-    oncePerSession: false,
-  },
-  {
-    id: 'popup-004',
-    name: 'Asesoría Territorial e Infraestructura Verde',
-    enabled: false,
-    designType: 'classic-hero',
-    targetRoute: 'all',
-    triggerType: 'scroll',
-    triggerDelaySeconds: 5,
-    triggerScrollPercent: 50,
-    hasCtaButton: true,
-    title: 'Consultoría Especializada en Cuencas y Restauración',
-    subtitle: 'Programas Territoriales CGA',
-    message: 'Acompañamos a gobiernos, ejidos y organizaciones en la formulación de proyectos de restauración ecológica e infraestructura basada en la naturaleza.',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&fit=crop&auto=format',
-    pngElement: '/imagenes/Liana.png',
-    highlightBadge: 'Servicios Técnicos',
-    ctaText: 'Solicitar Asesoría',
-    ctaLink: '/contacto',
-    secondaryCtaText: 'Ver Portafolio',
-    secondaryCtaLink: '/proyectos',
+    highlightBadge: 'Mensaje Institucional',
+    ctaText: 'Conocer Iniciativas',
+    ctaLink: '/proyectos',
+    secondaryCtaText: 'Sobre el Consejo',
+    secondaryCtaLink: '/nosotros',
     cornerPosition: 'bottom-right',
     oncePerSession: false,
   },
@@ -233,78 +207,6 @@ const DEFAULT_TRAINING_DATA = {
         'Módulo V: Proyecto Integrador de Aplicación Territorial In-Situ',
       ],
     },
-    {
-      id: 'dip-satelital',
-      title: {
-        es: 'Diplomado en Monitoreo Satelital, IA y Tecnologías para la Conservación',
-        en: 'Diploma in Satellite Monitoring, AI and Conservation Technologies',
-      },
-      duration: '120 horas lectivas · 4 meses · Modalidad 100% Virtual con Laboratorios GIS',
-      dates: 'Inicio: 1 de Junio de 2026',
-      badge: 'Acreditación Científica & GIS Lab',
-      desc: {
-        es: 'Capacitación técnica avanzada en teledetección multiespectral (Sentinel, Landsat, Planet), algoritmos de inteligencia artificial para detección temprana de deforestación e inventarios de carbono forestal.',
-        en: 'Advanced technical training in multispectral remote sensing (Sentinel, Landsat, Planet), AI algorithms for early deforestation detection and forest carbon inventories.',
-      },
-      target: {
-        es: 'Biólogos, ingenieros ambientales, analistas geoespaciales y brigadas de vigilancia forestal.',
-        en: 'Biologists, environmental engineers, geospatial analysts and forest rangers.',
-      },
-      modules: [
-        'Módulo I: Fundamentos de Teledetección y Sensores Ópticos / Radar (SAR)',
-        'Módulo II: Procesamiento Digital de Imágenes en Google Earth Engine y QGIS',
-        'Módulo III: Modelos de Inteligencia Artificial aplicados a Biomas Críticos',
-        'Módulo IV: Sistemas de Alerta Temprana y Reportes para Guardabosques',
-      ],
-    },
-    {
-      id: 'dip-agua',
-      title: {
-        es: 'Diplomado en Gestión Integral del Agua y Resiliencia Hídrica Urbana',
-        en: 'Diploma in Integrated Water Management and Urban Water Resilience',
-      },
-      duration: '110 horas lectivas · 4 meses · Modalidad Híbrida',
-      dates: 'Inicio: 15 de Agosto de 2026',
-      badge: 'Especialidad de Cuenca Hidrográfica',
-      desc: {
-        es: 'Metodologías de vanguardia para la regeneración de acuíferos, cosecha pluvial a gran escala, diseño de infraestructura verde y gobernanza democrática de cuencas frente a la crisis climática.',
-        en: 'Cutting-edge methodologies for aquifer regeneration, large-scale rainwater harvesting, green infrastructure design and democratic watershed governance.',
-      },
-      target: {
-        es: 'Operadores de organismos de agua, urbanistas, consultores ambientales y líderes civiles.',
-        en: 'Water utility operators, urban planners, environmental consultants and civil leaders.',
-      },
-      modules: [
-        'Módulo I: Hidrología de Cuencas y Dinámica de Acuíferos Sobreexplotados',
-        'Módulo II: Infraestructura Verde y Soluciones Basadas en la Naturaleza (SbN)',
-        'Módulo III: Economía Circular del Agua, Tratamiento Descentralizado y Reúso',
-        'Módulo IV: Marco Regulatorio, Derecho Humano al Agua y Tarifas Equitativas',
-      ],
-    },
-    {
-      id: 'dip-finanzas',
-      title: {
-        es: 'Diplomado en Finanzas Climáticas, Taxonomía Verde y Mercados de Biodiversidad',
-        en: 'Diploma in Climate Finance, Green Taxonomy and Biodiversity Credits',
-      },
-      duration: '100 horas lectivas · 3.5 meses · Modalidad Virtual en Vivo',
-      dates: 'Inicio: 7 de Septiembre de 2026',
-      badge: 'Certificación en Criterios ESG / Fondos Verdes',
-      desc: {
-        es: 'Estructuración de bonos verdes, créditos de carbono de alta integridad, métricas de biodiversidad e inversión de impacto alineada con los estándares de la Unión Europea y el Banco Mundial.',
-        en: 'Structuring green bonds, high-integrity carbon credits, biodiversity metrics and impact investing aligned with EU and World Bank standards.',
-      },
-      target: {
-        es: 'Analistas financieros, gestores de fondos, ejecutivos de sostenibilidad y asesores de políticas.',
-        en: 'Financial analysts, fund managers, sustainability executives and policy advisors.',
-      },
-      modules: [
-        'Módulo I: Arquitectura Financiera Global del Clima (Fondo Verde, BID, BM)',
-        'Módulo II: Mercados de Carbono Voluntario y Regulado (Artículo 6 Acuerdo de París)',
-        'Módulo III: Créditos Bioculturales y Métricas de Conservación Marina y Terrestre',
-        'Módulo IV: Auditoría, Trazabilidad Blockchain y Certificación de Proyectos',
-      ],
-    },
   ],
   cursos: [
     {
@@ -315,23 +217,15 @@ const DEFAULT_TRAINING_DATA = {
       desc: { es: 'Protocolos de recolección botánica, pruebas de viabilidad, almacenamiento hermético y resguardo ante sequías prolongadas.', en: 'Botanical collection protocols, viability testing, hermetic storage and drought resilience.' },
       instructor: 'Dra. María Soledad Albarrán',
     },
-    {
-      id: 'cur-carbono',
-      title: { es: 'Curso de Medición de Huella de Carbono y GHG Protocol', en: 'Carbon Footprint Measurement & GHG Protocol Course' },
-      hours: '40 horas · Virtual en Vivo',
-      dates: '6 - 17 Julio 2026',
-      desc: { es: 'Cálculo de emisiones Alcance 1, 2 y 3 para organizaciones, cadenas de suministro y planes de descarbonización neta.', en: 'Scope 1, 2 and 3 emissions calculation for organizations, supply chains and net-zero plans.' },
-      instructor: 'Dr. Marcus Thorne',
-    },
   ],
   webinars: [
     {
       id: 'web-oceanos',
       title: { es: 'Conferencia Magistral: La Voz de los Océanos en la Era del Antropoceno', en: 'Keynote: The Voice of the Oceans in the Anthropocene' },
-      speaker: 'Dra. Elena Vance · Asesora Científica CGA Ginebra',
+      speaker: 'Dra. Erika Sánchez · Asesora Científica CGA',
       date: '28 de Mayo, 2026 · 17:00 CET',
       type: 'Webinar Abierto · Transmisión Global',
-      summary: { es: 'Análisis de la acidificación marina, zonas de oxígeno mínimo y el tratado global de alta mar.', en: 'Analysis of ocean acidification, oxygen minimum zones and the High Seas Treaty.' },
+      summary: { es: 'Análisis de la educación socioambiental, resiliencia ecológica y salvaguardas del Tratado Global.', en: 'Analysis of socio-environmental education, ecological resilience and Global Treaty safeguards.' },
     },
   ],
   especialistas: [
@@ -342,14 +236,6 @@ const DEFAULT_TRAINING_DATA = {
       credentials: 'Dr. en Gobernanza Territorial y Políticas Públicas',
       expertise: { es: 'Liderazgo en diplomacia ambiental, conservación de biomas estratégicos y diseño de marcos de resolución de conflictos socioambientales.', en: 'Leadership in environmental diplomacy, biome conservation and socio-environmental conflict frameworks.' },
       origin: 'México / Suiza',
-    },
-    {
-      id: 'esp-albarran',
-      name: 'Dra. María Soledad Albarrán',
-      role: { es: 'Directora Académica y de Posgrados', en: 'Academic & Postgraduate Director' },
-      credentials: 'Dra. en Ciencias Biológicas y Ecología del Paisaje',
-      expertise: { es: 'Restauración biocultural de ecosistemas templados y tropicales, bancos de germoplasma y redes de custodia comunitaria de semillas.', en: 'Biocultural restoration of temperate/tropical biomes, germplasm banks and community seed stewardship.' },
-      origin: 'Iberoamérica',
     },
   ],
   organizaciones: {
@@ -369,33 +255,6 @@ const DEFAULT_TRAINING_DATA = {
         desc: { es: 'Ordenamientos territoriales ecológicos, evaluación de impacto ambiental estratégico y estructuración de proyectos para fondos verdes internacionales.', en: 'Territorial zoning, environmental impact assessment and green fund structuring.' },
         modalities: ['In-Situ / Presencial', 'Asesoría Técnica', '30 a 90 hrs'],
         badge: 'Gubernamental',
-      },
-      {
-        id: 'org-empresas',
-        sector: 'Corporativo & ESG',
-        tag: 'Empresas & Cadenas de Valor',
-        title: { es: 'Descarbonización, Taxonomía Verde y Debida Diligencia (TNFD/TCFD)', en: 'Decarbonization, Green Taxonomy & Due Diligence (TNFD/TCFD)' },
-        desc: { es: 'Capacitación in-company en cálculo de huella de carbono, reporte de sostenibilidad, métricas de biodiversidad y transición hacia modelos regenerativos.', en: 'In-company training on carbon footprint, sustainability reporting, biodiversity metrics and regenerative models.' },
-        modalities: ['Campus Privado Virtual', 'Talleres Ejecutivos', '40 a 120 hrs'],
-        badge: 'In-Company',
-      },
-      {
-        id: 'org-comunidades',
-        sector: 'Territorial',
-        tag: 'Comunidades & Ejidos',
-        title: { es: 'Custodia Territorial Biocultural y Bancos de Germoplasma', en: 'Biocultural Territorial Stewardship & Germplasm Banks' },
-        desc: { es: 'Formación de brigadas comunitarias de vigilancia forestal, resguardo de semillas nativas, gestión de viveros y defensa comunitaria del agua.', en: 'Training community forest brigades, native seed preservation, nursery management and water defense.' },
-        modalities: ['Talleres en Campo', 'Metodología Participativa', 'Flexible'],
-        badge: 'Comunitario',
-      },
-      {
-        id: 'org-multilateral',
-        sector: 'Multilateral & ONGs',
-        tag: 'Organismos Internacionales',
-        title: { es: 'Monitoreo Satelital y Salvaguardas Socioambientales', en: 'Satellite Monitoring & Socio-Environmental Safeguards' },
-        desc: { es: 'Implementación de telemetría geoespacial, indicadores ODS, auditoría de créditos bioculturales y gobernanza compartida.', en: 'Implementation of geospatial telemetry, SDG indicators, biocultural credit auditing and shared governance.' },
-        modalities: ['Formato Híbrido', 'Certificación Oficial', '45 hrs'],
-        badge: 'Internacional',
       },
     ],
     benefits: [
@@ -424,20 +283,9 @@ const DEFAULT_TRAINING_DATA = {
       time: '17:00 - 18:30 CET',
       category: 'Conferencia',
       modality: 'Transmisión Global Abierta',
-      desc: { es: 'Dra. Elena Vance analiza la acidificación marina y las salvaguardas del Tratado de Alta Mar.', en: 'Dr. Elena Vance analyzes ocean acidification and High Seas Treaty safeguards.' },
+      desc: { es: 'Dra. Erika Sánchez analiza la educación socioambiental, resiliencia territorial y salvaguardas climáticas.', en: 'Dr. Erika Sánchez analyzes socio-environmental education, territorial resilience and climate safeguards.' },
       link: '/capacitacion#conferencias',
       featured: false,
-    },
-    {
-      id: 'cal-3',
-      date: '2026-06-15',
-      title: { es: 'Inicio: Diplomado en Mercados de Carbono y Finanzas Verdes', en: 'Start: Diploma in Carbon Markets & Green Finance' },
-      time: '18:30 - 21:30 CET',
-      category: 'Diplomado',
-      modality: 'Virtual en Vivo',
-      desc: { es: 'Estructuración de créditos bioculturales, taxonomía europea y auditoría de bonos verdes.', en: 'Biocultural credits structuring, EU taxonomy and green bond audits.' },
-      link: '/capacitacion#diplomados',
-      featured: true,
     },
     {
       id: 'cal-4',
@@ -447,17 +295,6 @@ const DEFAULT_TRAINING_DATA = {
       category: 'Curso / Taller',
       modality: 'Presencial en Territorio',
       desc: { es: 'Protocolos de recolección botánica, viabilidad genética y custodia de germoplasma ante sequías.', en: 'Botanical collection protocols, genetic viability and germplasm custody.' },
-      link: '/capacitacion#cursos',
-      featured: false,
-    },
-    {
-      id: 'cal-5',
-      date: '2026-07-06',
-      title: { es: 'Curso Intensivo: Medición de Huella de Carbono y GHG Protocol', en: 'Intensive Course: Carbon Footprint Measurement & GHG Protocol' },
-      time: '17:00 - 20:00 CET',
-      category: 'Curso / Taller',
-      modality: 'Virtual en Vivo',
-      desc: { es: 'Cálculo de emisiones Alcance 1, 2 y 3 para cadenas de suministro y planes net-zero.', en: 'Scope 1, 2 and 3 emissions calculation for supply chains and net-zero plans.' },
       link: '/capacitacion#cursos',
       featured: false,
     },
@@ -504,14 +341,29 @@ const DEFAULT_APPLICATIONS = [
 const SiteSettingsContext = createContext(null);
 
 export function SiteSettingsProvider({ children }) {
-  // Lista de múltiples pop-ups
+  // Lista de pop-ups (limpia: exclusivamente 1 de bienvenida en Home)
   const [popups, setPopups] = useState(() => {
     try {
       const stored = localStorage.getItem(POPUPS_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const hasLegacy = parsed.some(
+            (p) =>
+              p.id === 'popup-001' ||
+              p.id === 'popup-002' ||
+              p.id === 'popup-003' ||
+              p.id === 'popup-004' ||
+              p.targetRoute !== '/'
+          );
+          if (hasLegacy || parsed.length > 1) {
+            localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
+            return INITIAL_POPUPS_LIST;
+          }
+          return parsed;
+        }
       }
+      localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
       return INITIAL_POPUPS_LIST;
     } catch {
       return INITIAL_POPUPS_LIST;
@@ -543,14 +395,43 @@ export function SiteSettingsProvider({ children }) {
       const stored = localStorage.getItem(TRAINING_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        const needsSanitize =
+          parsed.diplomados?.length > 1 ||
+          parsed.cursos?.length > 1 ||
+          parsed.especialistas?.length > 1 ||
+          parsed.organizaciones?.programs?.length > 1;
+
+        if (needsSanitize) {
+          const sanitized = {
+            ...DEFAULT_TRAINING_DATA,
+            ...parsed,
+            diplomados: DEFAULT_TRAINING_DATA.diplomados,
+            cursos: DEFAULT_TRAINING_DATA.cursos,
+            webinars: DEFAULT_TRAINING_DATA.webinars,
+            especialistas: DEFAULT_TRAINING_DATA.especialistas,
+            organizaciones: {
+              ...DEFAULT_TRAINING_DATA.organizaciones,
+              programs: DEFAULT_TRAINING_DATA.organizaciones.programs,
+              benefits: DEFAULT_TRAINING_DATA.organizaciones.benefits,
+            },
+            calendario: DEFAULT_TRAINING_DATA.calendario,
+          };
+          localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(sanitized));
+          return sanitized;
+        }
+
         return {
           ...DEFAULT_TRAINING_DATA,
           ...parsed,
+          diplomados: parsed.diplomados?.length ? parsed.diplomados.slice(0, 1) : DEFAULT_TRAINING_DATA.diplomados,
+          cursos: parsed.cursos?.length ? parsed.cursos.slice(0, 1) : DEFAULT_TRAINING_DATA.cursos,
+          webinars: parsed.webinars?.length ? parsed.webinars.slice(0, 1) : DEFAULT_TRAINING_DATA.webinars,
+          especialistas: parsed.especialistas?.length ? parsed.especialistas.slice(0, 1) : DEFAULT_TRAINING_DATA.especialistas,
           organizaciones: {
             ...DEFAULT_TRAINING_DATA.organizaciones,
             ...(parsed.organizaciones || {}),
             programs: parsed.organizaciones?.programs?.length
-              ? parsed.organizaciones.programs
+              ? parsed.organizaciones.programs.slice(0, 1)
               : DEFAULT_TRAINING_DATA.organizaciones.programs,
             benefits: parsed.organizaciones?.benefits?.length
               ? parsed.organizaciones.benefits
@@ -561,6 +442,7 @@ export function SiteSettingsProvider({ children }) {
             : DEFAULT_TRAINING_DATA.calendario,
         };
       }
+      localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(DEFAULT_TRAINING_DATA));
       return DEFAULT_TRAINING_DATA;
     } catch {
       return DEFAULT_TRAINING_DATA;
@@ -588,11 +470,158 @@ export function SiteSettingsProvider({ children }) {
   const [governanceMembers, setGovernanceMembers] = useState(() => {
     try {
       const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : DEFAULT_GOVERNANCE_MEMBERS;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Filtrar miembros de prueba o residuales (Elena Vance, Mateo Morales)
+          const cleaned = parsed.filter((m) => {
+            const name = (m.name || '').toUpperCase();
+            const id = (m.id || '').toLowerCase();
+            return (
+              id !== 'elena-vance' &&
+              id !== 'mateo-morales' &&
+              !name.includes('ELENA VANCE') &&
+              !name.includes('MATEO MORALES')
+            );
+          });
+
+          // Inyectar los 5 miembros oficiales verificados si no están en la lista
+          const existingIds = new Set(cleaned.map((m) => m.id));
+          DEFAULT_GOVERNANCE_MEMBERS.forEach((defM) => {
+            if (!existingIds.has(defM.id)) {
+              cleaned.push(defM);
+            }
+          });
+
+          // Sincronizar atributos institucionales de los miembros oficiales
+          const finalMembers = cleaned.map((m) => {
+            const officialMatch = DEFAULT_GOVERNANCE_MEMBERS.find((defM) => defM.id === m.id);
+            if (officialMatch) {
+              return {
+                ...officialMatch,
+                ...m,
+                img: m.img || officialMatch.img,
+                bio: m.bio || officialMatch.bio,
+                responsibilities:
+                  m.responsibilities && m.responsibilities.length > 0
+                    ? m.responsibilities
+                    : officialMatch.responsibilities,
+              };
+            }
+            return m;
+          });
+
+          finalMembers.sort((a, b) => (parseInt(a.num, 10) || 99) - (parseInt(b.num, 10) || 99));
+
+          localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(finalMembers));
+          return finalMembers;
+        }
+      }
+      localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(DEFAULT_GOVERNANCE_MEMBERS));
+      return DEFAULT_GOVERNANCE_MEMBERS;
     } catch {
       return DEFAULT_GOVERNANCE_MEMBERS;
     }
   });
+
+  // Limpieza reactiva en caso de que persistan vestigios en localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
+      if (
+        stored &&
+        (stored.toUpperCase().includes('ELENA VANCE') ||
+          stored.toUpperCase().includes('MATEO MORALES') ||
+          stored.includes('elena-vance') ||
+          stored.includes('mateo-morales'))
+      ) {
+        setGovernanceMembers((prev) => {
+          const cleaned = prev.filter((m) => {
+            const name = (m.name || '').toUpperCase();
+            const id = (m.id || '').toLowerCase();
+            return (
+              id !== 'elena-vance' &&
+              id !== 'mateo-morales' &&
+              !name.includes('ELENA VANCE') &&
+              !name.includes('MATEO MORALES')
+            );
+          });
+          const existingIds = new Set(cleaned.map((m) => m.id));
+          DEFAULT_GOVERNANCE_MEMBERS.forEach((defM) => {
+            if (!existingIds.has(defM.id)) cleaned.push(defM);
+          });
+          cleaned.sort((a, b) => (parseInt(a.num, 10) || 99) - (parseInt(b.num, 10) || 99));
+          localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(cleaned));
+          return cleaned;
+        });
+      }
+    } catch (err) {
+      console.warn('Error sanitizing governance storage:', err);
+    }
+  }, []);
+
+  // Limpieza reactiva de pop-ups residuales en caso de persistir en localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(POPUPS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (
+          Array.isArray(parsed) &&
+          (parsed.length > 1 ||
+            parsed.some(
+              (p) =>
+                p.id === 'popup-001' ||
+                p.id === 'popup-002' ||
+                p.id === 'popup-003' ||
+                p.id === 'popup-004' ||
+                p.targetRoute !== '/'
+            ))
+        ) {
+          setPopups(INITIAL_POPUPS_LIST);
+          localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
+        }
+      }
+    } catch (err) {
+      console.warn('Error sanitizing popups storage:', err);
+    }
+  }, []);
+
+  // Limpieza reactiva de duplicados en capacitaciones (dejar exactamente 1 de cada una)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(TRAINING_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed.diplomados?.length > 1 ||
+          parsed.cursos?.length > 1 ||
+          parsed.especialistas?.length > 1 ||
+          parsed.organizaciones?.programs?.length > 1 ||
+          (parsed.calendario && parsed.calendario.length > 5)
+        ) {
+          setTrainingData((prev) => {
+            const cleaned = {
+              ...prev,
+              diplomados: prev.diplomados?.slice(0, 1) || DEFAULT_TRAINING_DATA.diplomados,
+              cursos: prev.cursos?.slice(0, 1) || DEFAULT_TRAINING_DATA.cursos,
+              webinars: prev.webinars?.slice(0, 1) || DEFAULT_TRAINING_DATA.webinars,
+              especialistas: prev.especialistas?.slice(0, 1) || DEFAULT_TRAINING_DATA.especialistas,
+              organizaciones: {
+                ...prev.organizaciones,
+                programs: prev.organizaciones?.programs?.slice(0, 1) || DEFAULT_TRAINING_DATA.organizaciones.programs,
+              },
+              calendario: DEFAULT_TRAINING_DATA.calendario,
+            };
+            localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(cleaned));
+            return cleaned;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Error sanitizing training storage:', err);
+    }
+  }, []);
 
   // Guardar en localStorage ante cambios
   useEffect(() => {

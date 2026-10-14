@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useArticles } from '../context/ArticlesContext.jsx';
 import { useSiteSettings, POPUP_TARGET_ROUTES } from '../context/SiteSettingsContext.jsx';
@@ -212,12 +212,23 @@ export default function Admin() {
   const [adminCalSearch, setAdminCalSearch] = useState('');
 
   // Estados de Gestión de Pop-ups Multiruta (Izquierda 25% Lista / Derecha 75% Info, Formulario y Preview)
-  const [selectedPopupId, setSelectedPopupId] = useState(() => (popups && popups.length > 0 ? popups[0].id : 'popup-001'));
+  const [selectedPopupId, setSelectedPopupId] = useState(() => (popups && popups.length > 0 ? popups[0].id : 'popup-home-welcome'));
   const [editingPopup, setEditingPopup] = useState(() => (popups && popups.length > 0 ? JSON.parse(JSON.stringify(popups[0])) : null));
   const [popupViewMode, setPopupViewMode] = useState('split'); // 'split' | 'editor' | 'preview'
   const [previewingPopupItem, setPreviewingPopupItem] = useState(null);
   const [popupFilterRoute, setPopupFilterRoute] = useState('all-filters');
   const [popupSearch, setPopupSearch] = useState('');
+
+  // Sincronizar pop-up seleccionado si el actual ya no existe tras depuración
+  useEffect(() => {
+    if (popups && popups.length > 0) {
+      const exists = popups.some((p) => p.id === selectedPopupId);
+      if (!exists) {
+        setSelectedPopupId(popups[0].id);
+        setEditingPopup(JSON.parse(JSON.stringify(popups[0])));
+      }
+    }
+  }, [popups, selectedPopupId]);
 
   // Estados de Aliados Institucionales
   const [editingAlliance, setEditingAlliance] = useState(null);
@@ -803,6 +814,7 @@ export default function Admin() {
   const handleStartCreateAlliance = () => {
     setEditingAlliance({
       id: `alliance-${Date.now()}`,
+      name: '',
       logo: '',
       website: '',
     });
@@ -6028,13 +6040,15 @@ export default function Admin() {
               </span>
             </div>
 
-            {/* Grilla de Tarjetas de Aliados (Únicamente Logotipo y Sitio Web, sin nombres) */}
+            {/* Grilla de Tarjetas de Aliados (Logotipo, Nombre y Sitio Web) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {alliances
                 .filter((a) => {
                   if (!allianceSearch.trim()) return true;
                   const q = allianceSearch.toLowerCase();
                   return (
+                    a.name?.toLowerCase().includes(q) ||
+                    a.shortName?.toLowerCase().includes(q) ||
                     a.website?.toLowerCase().includes(q) ||
                     a.logo?.toLowerCase().includes(q)
                   );
@@ -6050,7 +6064,7 @@ export default function Admin() {
                         {item.logo ? (
                           <img
                             src={formatDriveUrl(item.logo)}
-                            alt="Logotipo de Aliado"
+                            alt={item.name || 'Logotipo de Aliado'}
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-contain"
                             loading="lazy"
@@ -6071,6 +6085,16 @@ export default function Admin() {
                             Google Drive
                           </span>
                         )}
+                      </div>
+
+                      {/* Nombre del Aliado / Institución */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#4a5a22] block">
+                          Institución / Aliado
+                        </span>
+                        <h4 className="font-serif text-sm font-medium text-[#2d2618] line-clamp-1">
+                          {item.name || item.shortName || 'Aliado Institucional'}
+                        </h4>
                       </div>
 
                       {/* Sitio Web Oficial */}
@@ -6323,8 +6347,22 @@ export default function Admin() {
                 </button>
               </div>
 
-              {/* Formulario (Únicamente URL de imagen/logo y Sitio Web) */}
+              {/* Formulario de Aliado */}
               <form onSubmit={handleSaveAllianceForm} className="p-6 overflow-y-auto space-y-5 flex-1 bg-[#eae4d2]">
+                {/* Nombre de la Institución / Aliado */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Nombre de la Institución / Organización
+                  </label>
+                  <input
+                    type="text"
+                    value={editingAlliance.name || ''}
+                    onChange={(e) => setEditingAlliance({ ...editingAlliance, name: e.target.value })}
+                    placeholder="Ej. World Environmental Sustainability Summit (WESS)"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                  />
+                </div>
+
                 {/* URL del Logotipo con Helper Google Drive */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">

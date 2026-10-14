@@ -304,126 +304,6 @@ export const INITIAL_ARTICLES = [
     author: 'Comité Científico Editorial',
     authorRole: { es: 'Dirección de Investigación y Ciencias Ambientales', en: 'Directorate of Research and Environmental Science' },
   },
-  {
-    id: 'red-viveros-bioculturales-alta-montana',
-    aliasId: 'art-6',
-    type: 'noticias',
-    cardStyle: 'dark-overlay',
-    detailLayout: 'immersive',
-    heroStyle: 'png-element',
-    heroPng: '/imagenes/Rama 2.svg',
-    heroPngPosition: 'right',
-    heroPngSize: 'xl',
-    heroPngOpacity: 0.9,
-    heroPngHasBeigeOverlay: true,
-    heroPngOverlayOpacity: 0.3,
-    image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=900&fit=crop&auto=format',
-    category: { es: 'Alianzas Estratégicas', en: 'Strategic Partnerships' },
-    date: '10 Febrero 2026',
-    title: {
-      es: 'Inauguración de la Red de Viveros Bioculturales de Alta Montaña',
-      en: 'Inauguration of the High-Mountain Biocultural Nurseries Network',
-    },
-    summary: {
-      es: 'Puesta en marcha de 8 centros comunitarios para la germinación y rescate de especies endémicas de pinos y oyameles resistentes a sequías extremas.',
-      en: 'Launch of 8 community centers for the propagation and rescue of endemic pine and fir species resilient to severe droughts.',
-    },
-    paragraphs: [
-      {
-        es: 'Con una capacidad instalada para producir más de 1.2 millones de plántulas nativas al año, el Consejo Global Ambiental y las comunidades forestales de la Sierra Madre inauguraron la Red de Viveros Bioculturales de Alta Montaña.',
-        en: 'With an installed capacity to propagate over 1.2 million native saplings per year, the Global Environmental Council and Sierra Madre forest communities inaugurated the High-Mountain Biocultural Nurseries Network.',
-      },
-    ],
-    quote: {
-      es: 'Cada plántula germinada en viveros comunitarios es una semilla de esperanza para el equilibrio hídrico del territorio.',
-      en: 'Every sapling germinated in community nurseries is a seed of hope for territorial water balance.',
-    },
-    keyPoints: [
-      { es: '8 viveros comunitarios de alta tecnología agroecológica.', en: '8 community nurseries with high agroecological technology.' },
-      { es: '1.2 millones de plántulas de especies nativas al año.', en: '1.2 million native saplings produced per year.' },
-    ],
-    readTime: '4 min de lectura',
-    author: 'Coordinación Forestal',
-    authorRole: { es: 'Programa de Reforestación Biocultural', en: 'Biocultural Reforestation Program' },
-  },
-  {
-    id: 'litigio-climatico-derechos-de-la-naturaleza',
-    aliasId: 'art-7',
-    type: 'opinion',
-    cardStyle: 'classic',
-    detailLayout: 'split', // Plantilla 3: Revista Split
-    heroStyle: 'solid-beige',
-    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=900&fit=crop&auto=format',
-    category: { es: 'Análisis Jurídico', en: 'Legal Analysis' },
-    date: '20 Enero 2026',
-    title: {
-      es: 'El giro biocéntrico: litigio climático y los derechos de la naturaleza',
-      en: 'The Biocentric Turn: Climate Litigation and Rights of Nature',
-    },
-    summary: {
-      es: 'Examen de las sentencias constitucionales recientes que reconocen la personalidad jurídica de cuencas hidrográficas y glaciares en tribunales internacionales.',
-      en: 'Examination of recent constitutional rulings recognizing the legal personhood of river basins and glaciers in international courts.',
-    },
-    paragraphs: [
-      {
-        es: 'El paradigma jurídico contemporáneo está experimentando una transformación sin precedentes. El reconocimiento de ríos, lagunas y biomas enteros como sujetos de derecho abre una nueva era para la jurisprudencia ambiental global.',
-        en: 'The contemporary legal paradigm is experiencing an unprecedented shift. Recognizing rivers, lakes and entire biomes as legal subjects heralds a new era for global environmental jurisprudence.',
-      },
-    ],
-    quote: {
-      es: 'La naturaleza no es un objeto de dominio; es un sujeto de derechos fundamentales irrenunciables.',
-      en: 'Nature is not an object of ownership; it is a holder of inalienable fundamental rights.',
-    },
-    keyPoints: [
-      { es: 'Doctrina de personalidad jurídica para cuencas hidrográficas.', en: 'Legal personhood doctrine for river basins.' },
-      { es: 'Precedentes vinculantes en tribunales de América Latina y Europa.', en: 'Binding precedents in Latin American and European courts.' },
-    ],
-    readTime: '7 min de lectura',
-    author: 'Área Jurídica CGA',
-    authorRole: { es: 'Consejo Consultivo de Derecho Ambiental', en: 'Environmental Law Advisory Board' },
-  },
-  {
-    id: 'manual-bancos-comunitarios-semillas-criollas',
-    aliasId: 'art-8',
-    type: 'publicaciones',
-    cardStyle: 'dark-overlay',
-    detailLayout: 'classic',
-    heroStyle: 'png-element',
-    heroPng: '/imagenes/Liana.png',
-    heroPngPosition: 'right',
-    heroPngSize: 'md',
-    heroPngOpacity: 0.8,
-    heroPngHasBeigeOverlay: false,
-    heroPngOverlayOpacity: 0.25,
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=900&fit=crop&auto=format',
-    category: { es: 'Guía Metodológica', en: 'Methodological Guide' },
-    date: 'Enero 2026',
-    title: {
-      es: 'Manual de Bancos Comunitarios de Semillas y Germoplasma Criollo',
-      en: 'Handbook of Community Seed Banks & Heirloom Germplasm',
-    },
-    summary: {
-      es: 'Manual práctico ilustrado para la recolección, selección, secado, almacenamiento hermético y catálogo genético de maíces y leguminosas nativas.',
-      en: 'Illustrated practical handbook for collection, selection, drying, hermetic storage and genetic cataloguing of native crops.',
-    },
-    paragraphs: [
-      {
-        es: 'Una guía metodológica integral diseñada para productores agrícolas, cooperativas campesinas y escuelas agroecológicas, con protocolos prácticos paso a paso para la conservación de semillas nativas y soberanía alimentaria.',
-        en: 'A comprehensive methodological guide designed for farmers, rural cooperatives and agroecological schools, with practical step-by-step protocols for native seed conservation and food sovereignty.',
-      },
-    ],
-    quote: {
-      es: 'En cada semilla nativa reside la memoria genética de siglos de adaptación; protegerla es salvaguardar la soberanía alimentaria del mañana.',
-      en: 'Within every native seed lies the genetic memory of centuries of adaptation; protecting it safeguards the food sovereignty of tomorrow.',
-    },
-    keyPoints: [
-      { es: 'Protocolos de recolección, selección y almacenamiento hermético sin químicos.', en: 'Chemical-free collection, selection and hermetic storage protocols.' },
-      { es: 'Catálogo de variedades criollas tolerantes a sequía y heladas.', en: 'Catalogue of heirloom varieties tolerant to drought and frost.' },
-    ],
-    readTime: 'PDF Descargable · 8.2 MB',
-    author: 'Dra. María Soledad Albarrán',
-    authorRole: { es: 'Coordinadora de Soberanía Alimentaria y Agroecología', en: 'Food Sovereignty & Agroecology Coordinator' },
-  },
 ];
 
 const STORAGE_KEY = 'cga_articles_cms_v1';
@@ -440,6 +320,25 @@ export function getStoredArticles() {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Filtrar para garantizar exactamente una de cada categoría: noticias, opinión, diálogos, eventos, publicaciones
+      const seenTypes = new Set();
+      const uniqueByType = [];
+      parsed.forEach((art) => {
+        if (!seenTypes.has(art.type)) {
+          seenTypes.add(art.type);
+          uniqueByType.push(art);
+        }
+      });
+
+      if (uniqueByType.length < parsed.length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueByType));
+        return uniqueByType.map((art, idx) => ({
+          ...art,
+          cardStyle: art.cardStyle === 'dark-overlay' ? 'dark-overlay' : (art.cardStyle === 'classic' ? 'classic' : CARD_STYLES_CYCLE[idx % CARD_STYLES_CYCLE.length]),
+          detailLayout: art.detailLayout === 'academic' ? 'split' : (art.detailLayout || DETAIL_LAYOUTS_CYCLE[idx % DETAIL_LAYOUTS_CYCLE.length]),
+        }));
+      }
+
       return parsed.map((art, idx) => ({
         ...art,
         cardStyle: art.cardStyle === 'dark-overlay' ? 'dark-overlay' : (art.cardStyle === 'classic' ? 'classic' : CARD_STYLES_CYCLE[idx % CARD_STYLES_CYCLE.length]),

@@ -66,25 +66,33 @@ export default function About() {
   const timeline = [
     {
       year: '2020',
+      period: '04 de Febrero, 2020',
       tag: 'Fundación del Consejo',
+      location: 'Ciudad de México',
       title: 'Establecimiento en México',
       desc: 'El 4 de febrero se establece el Consejo Global Ambiental en la Ciudad de México, con la finalidad de articular especialistas, instituciones y capacidades de cooperación ante desafíos ambientales que requieren una respuesta multidisciplinaria.',
     },
     {
       year: '2023 - 2024',
+      period: 'Periodo Operativo',
       tag: 'Acción Territorial en Xochimilco',
+      location: 'Suelo de Conservación ANP',
       title: 'Intervención en Área Natural Protegida',
       desc: 'Bajo la conducción del Mtro. Luis D. García González y el Mtro. Francisco Solorio del Consejo Global Ambiental, se desarrollan actividades de educación ambiental, conservación, divulgación y participación comunitaria en el Área Natural Protegida Ejidos de Xochimilco y San Gregorio Atlapulco en la Ciudad de México.',
     },
     {
       year: '2026',
+      period: 'Proyección Bilateral',
       tag: 'Cooperación Internacional en Canadá',
+      location: 'Toronto · Ottawa · Montreal',
       title: 'Proyección y Diálogo Bilateral',
       desc: 'El Consejo Global Ambiental fortalece su proyección internacional mediante una agenda de vinculación institucional, cooperación e intercambio de experiencias en Toronto, Ottawa y Montreal, impulsando oportunidades de colaboración en restauración ecológica, sostenibilidad urbana, gobernanza ambiental y participación comunitaria.',
     },
     {
       year: '2026',
+      period: 'Consolidación Institucional',
       tag: 'Fortalecimiento del CGA y Proyectos',
+      location: 'Cuerpo Colegiado y Proyectos',
       title: 'Consejerías Honoríficas y Dirección Nacional',
       desc: 'El CGA inicia una nueva etapa de fortalecimiento institucional con la conformación de sus primeras Consejerías Honoríficas, integrando especialistas de reconocida trayectoria en áreas estratégicas como bienestar animal y educación ambiental. Asimismo, incorpora la Dirección Nacional de Proyectos, fortaleciendo las capacidades de coordinación, vinculación y ejecución de proyectos en México.',
     },
@@ -106,9 +114,9 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Columna Izquierda: Mensaje Editorial Oficial */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[#4a5a22] text-xs font-semibold tracking-wider uppercase">
-              01 · Identidad Institucional
-            </div>
+            <span className="text-xs uppercase tracking-[0.24em] font-semibold text-[#4a5a22] block">
+              Identidad Institucional
+            </span>
             
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-light text-[#2d2618] leading-[1.15]">
               Quiénes somos en el{' '}
@@ -159,35 +167,51 @@ export default function About() {
       </section>
 
       {/* =================================================================
-          1.2 MISIÓN Y VISIÓN
+          1.2 MISIÓN Y VISIÓN (CON FONDO WATERMARK EDITORIAL)
           ================================================================= */}
       <section className="py-20 sm:py-28 px-6 sm:px-12 md:px-20 bg-[#ece4d0]/60 border-y border-[#d8ceb6]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
-          {/* Misión */}
-          <div className="bg-[#f5efe3] rounded-3xl p-8 sm:p-12 border border-[#d8ceb6] shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 rounded-full bg-[#4a5a22]/15 text-[#4a5a22] flex items-center justify-center font-serif text-lg font-bold mb-6">
-                M
-              </div>
-              <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light mb-4">
-                Nuestra <span className="italic text-[#4a5a22]">Misión</span>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          {/* Misión con Watermark M y MISIÓN */}
+          <div className="relative overflow-hidden bg-[#f5efe3] rounded-3xl p-8 sm:p-12 border border-[#d8ceb6] shadow-sm flex flex-col justify-between group hover:border-[#4a5a22]/50 transition-all duration-300">
+            {/* Watermark de Fondo */}
+            <span className="absolute -bottom-8 -right-3 font-serif text-[150px] sm:text-[210px] font-bold text-[#4a5a22]/[0.06] select-none pointer-events-none leading-none tracking-tighter transition-transform duration-500 group-hover:scale-105">
+              M
+            </span>
+            <span className="absolute top-6 right-8 font-serif text-2xl sm:text-3xl font-light italic tracking-[0.25em] text-[#4a5a22]/10 uppercase select-none pointer-events-none">
+              Misión
+            </span>
+
+            <div className="relative z-10 space-y-4">
+              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22] block">
+                Propósito Fundamental
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2d2618] font-light">
+                Nuestra <span className="italic text-[#4a5a22] font-normal">Misión</span>
               </h3>
-              <p className="text-[#5c523e] text-base leading-relaxed font-light">
+              <p className="text-[#5c523e] text-base sm:text-lg leading-relaxed font-light">
                 Fortalecer la gobernanza ambiental y promover el desarrollo sostenible mediante la cooperación internacional, el conocimiento especializado y la articulación de alianzas estratégicas, impulsando soluciones que protejan la biodiversidad, fortalezcan la resiliencia de los territorios y generen beneficios ambientales y sociales verificables.
               </p>
             </div>
           </div>
 
-          {/* Visión */}
-          <div className="bg-[#f5efe3] rounded-3xl p-8 sm:p-12 border border-[#d8ceb6] shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 rounded-full bg-[#4a5a22]/15 text-[#4a5a22] flex items-center justify-center font-serif text-lg font-bold mb-6">
-                V
-              </div>
-              <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light mb-4">
-                Nuestra <span className="italic text-[#4a5a22]">Visión</span>
+          {/* Visión con Watermark V y VISIÓN */}
+          <div className="relative overflow-hidden bg-[#f5efe3] rounded-3xl p-8 sm:p-12 border border-[#d8ceb6] shadow-sm flex flex-col justify-between group hover:border-[#4a5a22]/50 transition-all duration-300">
+            {/* Watermark de Fondo */}
+            <span className="absolute -bottom-8 -right-3 font-serif text-[150px] sm:text-[210px] font-bold text-[#4a5a22]/[0.06] select-none pointer-events-none leading-none tracking-tighter transition-transform duration-500 group-hover:scale-105">
+              V
+            </span>
+            <span className="absolute top-6 right-8 font-serif text-2xl sm:text-3xl font-light italic tracking-[0.25em] text-[#4a5a22]/10 uppercase select-none pointer-events-none">
+              Visión
+            </span>
+
+            <div className="relative z-10 space-y-4">
+              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22] block">
+                Horizonte Institucional
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2d2618] font-light">
+                Nuestra <span className="italic text-[#4a5a22] font-normal">Visión</span>
               </h3>
-              <p className="text-[#5c523e] text-base leading-relaxed font-light">
+              <p className="text-[#5c523e] text-base sm:text-lg leading-relaxed font-light">
                 Consolidarse como un organismo internacional de referencia en gobernanza ambiental y desarrollo sostenible, reconocido por su liderazgo, capacidad de incidencia y articulación multisectorial para transformar el conocimiento y la cooperación en soluciones de impacto duradero para los territorios y las comunidades.
               </p>
             </div>
@@ -196,9 +220,9 @@ export default function About() {
       </section>
 
       {/* =================================================================
-          1.2 PRINCIPIOS INSTITUCIONALES (Los 9 Principios Oficiales)
+          1.2 PRINCIPIOS INSTITUCIONALES (Los 9 Principios Oficiales - Sin Scroll)
           ================================================================= */}
-      <section className="py-28 md:py-36 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] overflow-hidden min-h-[640px] lg:min-h-[740px] flex items-center">
+      <section className="py-24 sm:py-32 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] overflow-hidden">
         {/* Imagen de fondo interactiva */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[75%] h-full pointer-events-none z-0 overflow-hidden">
           <AnimatePresence mode="wait">
@@ -229,8 +253,8 @@ export default function About() {
         </div>
 
         <div className="max-w-7xl mx-auto w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Columna Izquierda: Índice de Principios */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* Columna Izquierda: Índice Completo de Principios (Sin Scroll Interno) */}
             <div className="lg:col-span-6 space-y-6">
               <div className="space-y-3">
                 <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22]">
@@ -244,15 +268,17 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Lista interactiva */}
-              <div className="divide-y divide-[#d8ceb6]/50 max-h-[460px] overflow-y-auto pr-3">
+              {/* Lista completa interactiva - Flujo natural sin scrollbar */}
+              <div className="divide-y divide-[#d8ceb6]/60">
                 {principles.map((p, idx) => (
                   <button
                     key={p.num}
                     type="button"
                     onClick={() => setActivePrinciple(idx)}
-                    className={`group w-full flex items-start gap-4 py-3 text-left transition-all duration-300 cursor-pointer ${
-                      activePrinciple === idx ? 'bg-[#4a5a22]/10 px-3 rounded-xl' : 'hover:pl-2'
+                    className={`group w-full flex items-start gap-4 py-3.5 text-left transition-all duration-200 cursor-pointer ${
+                      activePrinciple === idx
+                        ? 'bg-[#4a5a22]/10 px-3.5 rounded-2xl'
+                        : 'hover:pl-2'
                     }`}
                   >
                     <span
@@ -273,7 +299,7 @@ export default function About() {
                         {p.title}
                       </span>
                       {activePrinciple === idx && (
-                        <p className="mt-2 text-xs text-[#5c523e] font-light leading-relaxed">
+                        <p className="mt-2 text-xs text-[#5c523e] font-light leading-relaxed lg:hidden">
                           {p.desc}
                         </p>
                       )}
@@ -283,75 +309,211 @@ export default function About() {
               </div>
             </div>
 
-            {/* Columna Derecha: Tarjeta Detallada del Principio Activo */}
-            <div className="lg:col-span-6 hidden lg:block">
-              <div className="bg-[#f5efe3]/90 backdrop-blur-xl border border-[#d8ceb6] rounded-3xl p-8 shadow-xl">
-                <span className="text-xs font-mono text-[#4a5a22] font-bold">
-                  PRINCIPIO {principles[activePrinciple].num}
-                </span>
-                <h3 className="font-serif text-2xl text-[#2d2618] mt-2 mb-4 font-normal">
-                  {principles[activePrinciple].title}
-                </h3>
-                <p className="text-sm text-[#5c523e] font-light leading-relaxed">
-                  {principles[activePrinciple].desc}
-                </p>
-              </div>
+            {/* Columna Derecha: Tarjeta Detallada del Principio Activo (Sticky en Desktop) */}
+            <div className="lg:col-span-6 hidden lg:block sticky top-28 self-start">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activePrinciple}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="bg-[#f5efe3]/95 backdrop-blur-xl border border-[#d8ceb6] rounded-3xl p-8 sm:p-10 shadow-xl space-y-4"
+                >
+                  <span className="text-xs font-mono text-[#4a5a22] font-bold tracking-wider uppercase block">
+                    Principio {principles[activePrinciple].num}
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal leading-snug">
+                    {principles[activePrinciple].title}
+                  </h3>
+                  <div className="w-12 h-[2px] bg-[#4a5a22]/40 my-3" />
+                  <p className="text-sm sm:text-base text-[#5c523e] font-light leading-relaxed">
+                    {principles[activePrinciple].desc}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </section>
 
       {/* =================================================================
-          1.3 HISTORIA DEL CGA
+          1.3 HISTORIA DEL CGA (LÍNEA DE TIEMPO ALTERNADA Y ANIMADA)
           ================================================================= */}
-      <section className="py-24 sm:py-32 px-6 sm:px-12 md:px-20 bg-[#ece4d0]/40 border-t border-[#d8ceb6]">
+      <section className="py-24 sm:py-36 px-6 sm:px-12 md:px-20 bg-[#ece4d0]/40 border-t border-[#d8ceb6] relative overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22]">
-              Trayectoria y Antecedentes
-            </span>
+          {/* Cabecera Editorial */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center max-w-3xl mx-auto mb-20 space-y-4"
+          >
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#2d2618]">
               Historia del <span className="italic text-[#4a5a22]">Consejo Global Ambiental</span>
             </h2>
             <p className="text-[#6b6048] font-light text-sm sm:text-base leading-relaxed">
               El CGA fue fundado el 4 de febrero de 2020 con la finalidad de articular especialistas, instituciones y capacidades de cooperación ante desafíos ambientales que requieren una respuesta multidisciplinaria. Su trayectoria ha incorporado acciones territoriales, desarrollo de proyectos y una agenda de vinculación internacional.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="space-y-8 relative before:absolute before:inset-0 before:left-8 md:before:left-1/2 before:w-[1px] before:bg-[#d8ceb6]">
-            {timeline.map((item, idx) => (
-              <div
-                key={idx}
-                className={`relative flex flex-col md:flex-row items-start gap-8 ${
-                  idx % 2 === 0 ? 'md:flex-row-reverse' : ''
-                }`}
-              >
-                {/* Contenido */}
-                <div className="md:w-1/2 pl-16 md:pl-0">
-                  <div className={`p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm ${
-                    idx % 2 === 0 ? 'md:mr-10' : 'md:ml-10'
-                  }`}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-serif text-xl font-bold text-[#4a5a22]">
-                        {item.year}
-                      </span>
-                      <span className="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4a5a22]/10 text-[#4a5a22] font-medium">
-                        {item.tag}
-                      </span>
-                    </div>
-                    <h3 className="font-serif text-lg font-medium text-[#2d2618] mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-[#5c523e] font-light leading-relaxed">
-                      {item.desc}
-                    </p>
+          {/* Línea de Tiempo: Alternada (Izquierda - Derecha - Izquierda) con Eje Central */}
+          <div className="relative">
+            {/* Eje Vertical Central en Desktop / Lateral en Mobile */}
+            <div className="absolute top-4 bottom-4 left-6 md:left-1/2 md:-translate-x-1/2 w-[1.5px] bg-gradient-to-b from-[#4a5a22]/10 via-[#4a5a22]/35 to-[#4a5a22]/10 pointer-events-none" />
+
+            <div className="space-y-12 sm:space-y-16">
+              {timeline.map((item, idx) => {
+                const isLeft = idx % 2 === 0;
+
+                return (
+                  <div
+                    key={idx}
+                    className="relative flex flex-col md:flex-row items-start md:items-center w-full group"
+                  >
+                    {/* Indicador Central (Nodo con Animación) */}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      whileInView={{ scale: 1, opacity: 1 }}
+                      viewport={{ once: true, margin: '-40px' }}
+                      whileHover={{ scale: 1.35 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute left-6 md:left-1/2 -translate-x-1/2 top-7 md:top-1/2 md:-translate-y-1/2 w-6 h-6 rounded-full bg-[#f5efe3] border-2 border-[#4a5a22] shadow-xs flex items-center justify-center z-20 group-hover:border-[#384519] group-hover:bg-[#4a5a22] transition-colors"
+                    >
+                      <span className="w-2 h-2 rounded-full bg-[#4a5a22] group-hover:bg-[#f5efe3] transition-colors" />
+                    </motion.div>
+
+                    {/* Fila Izquierda / Derecha según alternancia */}
+                    {isLeft ? (
+                      <>
+                        {/* Tarjeta en la IZQUIERDA (Desktop) */}
+                        <motion.div
+                          initial={{ opacity: 0, x: -35 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-50px' }}
+                          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                          whileHover={{ y: -3 }}
+                          className="w-full md:w-1/2 pl-14 md:pl-0 md:pr-12 lg:md:pr-16"
+                        >
+                          <div className="p-7 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xs border border-[#d8ceb6] shadow-xs hover:shadow-md hover:border-[#4a5a22]/40 transition-all duration-300 space-y-3">
+                            {/* Cabecera Limpia (Sin Cápsulas) */}
+                            <div className="flex items-center justify-between gap-3 border-b border-[#d8ceb6]/40 pb-3">
+                              <div>
+                                <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22] block font-sans">
+                                  {item.tag}
+                                </span>
+                                <span className="text-[11px] text-[#8a7e68] font-light block mt-0.5">
+                                  {item.location}
+                                </span>
+                              </div>
+                              {/* Año en mobile */}
+                              <div className="md:hidden text-right">
+                                <span className="font-serif text-xl font-light text-[#4a5a22] block leading-none">
+                                  {item.year}
+                                </span>
+                                <span className="text-[10px] text-[#8a7e68] block mt-0.5">
+                                  {item.period}
+                                </span>
+                              </div>
+                            </div>
+
+                            <h3 className="font-serif text-xl sm:text-2xl font-light text-[#2d2618] leading-snug">
+                              {item.title}
+                            </h3>
+
+                            <p className="text-sm text-[#5c523e] font-light leading-relaxed">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </motion.div>
+
+                        {/* Año Contextual a la DERECHA (Desktop) */}
+                        <motion.div
+                          initial={{ opacity: 0, x: 30 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-50px' }}
+                          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                          className="hidden md:flex md:w-1/2 md:pl-12 lg:md:pl-16 flex-col justify-center text-left"
+                        >
+                          <span className="font-serif text-4xl lg:text-5xl font-light text-[#4a5a22] tracking-tight group-hover:text-[#384519] transition-colors">
+                            {item.year}
+                          </span>
+                          <span className="text-xs uppercase tracking-[0.2em] font-medium text-[#7a6e58] mt-1.5 block">
+                            {item.period}
+                          </span>
+                          <span className="text-xs text-[#8a7e68] font-light mt-0.5 block">
+                            {item.location}
+                          </span>
+                        </motion.div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Año Contextual a la IZQUIERDA (Desktop) */}
+                        <motion.div
+                          initial={{ opacity: 0, x: -30 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-50px' }}
+                          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                          className="hidden md:flex md:w-1/2 md:pr-12 lg:md:pr-16 flex-col justify-center text-right"
+                        >
+                          <span className="font-serif text-4xl lg:text-5xl font-light text-[#4a5a22] tracking-tight group-hover:text-[#384519] transition-colors">
+                            {item.year}
+                          </span>
+                          <span className="text-xs uppercase tracking-[0.2em] font-medium text-[#7a6e58] mt-1.5 block">
+                            {item.period}
+                          </span>
+                          <span className="text-xs text-[#8a7e68] font-light mt-0.5 block">
+                            {item.location}
+                          </span>
+                        </motion.div>
+
+                        {/* Tarjeta en la DERECHA (Desktop) */}
+                        <motion.div
+                          initial={{ opacity: 0, x: 35 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, margin: '-50px' }}
+                          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                          whileHover={{ y: -3 }}
+                          className="w-full md:w-1/2 pl-14 md:pl-12 lg:md:pl-16"
+                        >
+                          <div className="p-7 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xs border border-[#d8ceb6] shadow-xs hover:shadow-md hover:border-[#4a5a22]/40 transition-all duration-300 space-y-3">
+                            {/* Cabecera Limpia (Sin Cápsulas) */}
+                            <div className="flex items-center justify-between gap-3 border-b border-[#d8ceb6]/40 pb-3">
+                              <div>
+                                <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22] block font-sans">
+                                  {item.tag}
+                                </span>
+                                <span className="text-[11px] text-[#8a7e68] font-light block mt-0.5">
+                                  {item.location}
+                                </span>
+                              </div>
+                              {/* Año en mobile */}
+                              <div className="md:hidden text-right">
+                                <span className="font-serif text-xl font-light text-[#4a5a22] block leading-none">
+                                  {item.year}
+                                </span>
+                                <span className="text-[10px] text-[#8a7e68] block mt-0.5">
+                                  {item.period}
+                                </span>
+                              </div>
+                            </div>
+
+                            <h3 className="font-serif text-xl sm:text-2xl font-light text-[#2d2618] leading-snug">
+                              {item.title}
+                            </h3>
+
+                            <p className="text-sm text-[#5c523e] font-light leading-relaxed">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
                   </div>
-                </div>
-
-                {/* Marcador central */}
-                <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#4a5a22] ring-4 ring-[#f5efe3] z-10" />
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import MapBorderBiodiversity from './MapBorderBiodiversity.jsx';
 
 // Capas de mapas 100% reales sin clave de API ni marcas de agua
 const TILE_LAYERS = {
@@ -25,18 +24,101 @@ const TILE_LAYERS = {
   },
 };
 
-export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSpecies = false, speciesKey = 0, isCompact = false }) {
+export const DEFAULT_SEDES = [
+  {
+    id: 'mexico',
+    num: '01',
+    country: { es: 'México', en: 'Mexico' },
+    city: { es: 'Ciudad de México', en: 'Mexico City' },
+    sedeType: { es: 'Sede Central Global & Presidencia', en: 'Global Headquarters & Presidency' },
+    code: 'MX',
+    flag: '🇲🇽',
+    lat: 23.6345,
+    lon: -102.5528,
+    status: { es: 'Sede Principal de Gobierno', en: 'Principal Government HQ' },
+    email: 'info@consejoglobalambiental.com',
+  },
+  {
+    id: 'canada',
+    num: '02',
+    country: { es: 'Canadá', en: 'Canada' },
+    city: { es: 'Ottawa / Toronto', en: 'Ottawa / Toronto' },
+    sedeType: { es: 'Council for Green Action — Canada', en: 'Council for Green Action — Canada' },
+    code: 'CA',
+    flag: '🇨🇦',
+    lat: 56.1304,
+    lon: -106.3468,
+    status: { es: 'Agenda de Cooperación e Intercambio', en: 'Cooperation & Exchange Agenda' },
+    email: 'info@councilforgreenaction.com',
+  },
+  {
+    id: 'colombia',
+    num: '03',
+    country: { es: 'Colombia', en: 'Colombia' },
+    city: { es: 'Bogotá D.C.', en: 'Bogota D.C.' },
+    sedeType: { es: 'Vinculación Académica & Cooperación Técnica', en: 'Academic Liaison & Technical Cooperation' },
+    code: 'CO',
+    flag: '🇨🇴',
+    lat: 4.5709,
+    lon: -74.2973,
+    status: { es: 'Intercambio de Conocimiento', en: 'Knowledge Exchange' },
+    email: 'alianzas@consejoglobalambiental.com',
+  },
+  {
+    id: 'costarica',
+    num: '04',
+    country: { es: 'Costa Rica', en: 'Costa Rica' },
+    city: { es: 'San José', en: 'San Jose' },
+    sedeType: { es: 'Proyección Internacional', en: 'International Projection' },
+    code: 'CR',
+    flag: '🇨🇷',
+    lat: 9.7489,
+    lon: -83.7534,
+    status: { es: 'Exploración de Mecanismos de Cooperación', en: 'Exploration of Cooperation Mechanisms' },
+    email: 'alianzas@consejoglobalambiental.com',
+  },
+  {
+    id: 'espana',
+    num: '05',
+    country: { es: 'España', en: 'Spain' },
+    city: { es: 'Madrid', en: 'Madrid' },
+    sedeType: { es: 'Proyección Internacional', en: 'International Projection' },
+    code: 'ES',
+    flag: '🇪🇸',
+    lat: 40.4637,
+    lon: -3.7492,
+    status: { es: 'Interlocución Institucional', en: 'Institutional Dialogue' },
+    email: 'alianzas@consejoglobalambiental.com',
+  },
+];
+
+export default function RealWorldMap({
+  sedes,
+  activeSedeId,
+  onSelectSede,
+  activeCountry,
+  onSelectCountry,
+  showSpecies = false,
+  speciesKey = 0,
+  isCompact = false,
+}) {
+  const currentSedes = sedes && Array.isArray(sedes) && sedes.length > 0 ? sedes : DEFAULT_SEDES;
+  const currentActiveId = activeSedeId || activeCountry || currentSedes[0]?.id || 'mexico';
+  const handleSelect = (id) => {
+    if (onSelectSede) onSelectSede(id);
+    if (onSelectCountry) onSelectCountry(id);
+  };
+
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
-  const linesRef = useRef([]);
   const [currentLayerKey, setCurrentLayerKey] = useState('satellite');
 
   // Inicialización de Leaflet 100% Real
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    const initialSede = sedes.find((s) => s.id === activeSedeId) || sedes[0];
+    const initialSede = currentSedes.find((s) => s.id === currentActiveId) || currentSedes[0];
 
     // Crear mapa centrado exactamente en la sede activa en ambas dimensiones
     const map = L.map(mapContainerRef.current, {
@@ -85,41 +167,13 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
     if (!mapInstanceRef.current) return;
     const { map } = mapInstanceRef.current;
 
-    // Limpiar marcadores y líneas previas
+    // Limpiar marcadores previos
     Object.values(markersRef.current).forEach((m) => map.removeLayer(m));
-    linesRef.current.forEach((l) => map.removeLayer(l));
     markersRef.current = {};
-    linesRef.current = [];
-
-    const mexicoSede = sedes.find((s) => s.id === 'mexico') || sedes[0];
-
-    // 1. Dibujar líneas geodésicas de cooperación desde México hacia las demás sedes
-    sedes
-      .filter((s) => s.id !== 'mexico')
-      .forEach((sede) => {
-        const isActive = activeSedeId === sede.id || activeSedeId === 'mexico';
-        
-        // Crear curva con puntos intermedios interpolados
-        const latlngs = [
-          [mexicoSede.lat, mexicoSede.lon],
-          [(mexicoSede.lat + sede.lat) / 2 + 3, (mexicoSede.lon + sede.lon) / 2],
-          [sede.lat, sede.lon],
-        ];
-
-        const polyline = L.polyline(latlngs, {
-          color: isActive ? '#4a5a22' : '#8a7e68',
-          weight: isActive ? 2.5 : 1.5,
-          opacity: isActive ? 0.9 : 0.45,
-          dashArray: isActive ? null : '5, 8',
-          smoothFactor: 1,
-        }).addTo(map);
-
-        linesRef.current.push(polyline);
-      });
 
     // 2. Crear Marcadores de Sede con HTML personalizado de lujo
-    sedes.forEach((sede) => {
-      const isSelected = activeSedeId === sede.id;
+    currentSedes.forEach((sede) => {
+      const isSelected = currentActiveId === sede.id;
 
       const size = isSelected ? 46 : 36;
       const flagUrl = `https://flagcdn.com/w80/${sede.code.toLowerCase()}.png`;
@@ -130,7 +184,7 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
           <div style="position:relative;width:${size}px;height:${size}px;cursor:pointer;">
             ${isSelected ? `<div class="animate-ping" style="position:absolute;inset:-4px;border-radius:9999px;background:rgba(255,255,255,0.45);"></div>` : ''}
             <div style="position:relative;width:100%;height:100%;border-radius:9999px;overflow:hidden;border:${isSelected ? '3px solid #ffffff' : '2px solid rgba(255,255,255,0.85)'};box-shadow:${isSelected ? '0 0 0 3px #4a5a22, 0 8px 24px rgba(0,0,0,0.55)' : '0 4px 14px rgba(0,0,0,0.45)'};transition:all .3s;">
-              <img src="${flagUrl}" alt="${sede.country.es}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+              <img src="${flagUrl}" alt="${sede.country?.es || sede.country || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />
             </div>
           </div>
         `,
@@ -141,17 +195,17 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
       const marker = L.marker([sede.lat, sede.lon], { icon: customIcon }).addTo(map);
 
       marker.on('click', () => {
-        onSelectSede(sede.id);
+        handleSelect(sede.id);
       });
 
       markersRef.current[sede.id] = marker;
     });
-  }, [sedes, activeSedeId, currentLayerKey]);
+  }, [currentSedes, currentActiveId, currentLayerKey]);
 
   // Enfocar suavemente y volar a la sede activa
   useEffect(() => {
-    if (!mapInstanceRef.current || !activeSedeId) return;
-    const activeSede = sedes.find((s) => s.id === activeSedeId);
+    if (!mapInstanceRef.current || !currentActiveId) return;
+    const activeSede = currentSedes.find((s) => s.id === currentActiveId);
     if (activeSede) {
       const { map } = mapInstanceRef.current;
       const targetZoom = isCompact ? 3.8 : 4.2;
@@ -167,7 +221,7 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
 
       return () => clearTimeout(timer);
     }
-  }, [activeSedeId, sedes, isCompact]);
+  }, [currentActiveId, currentSedes, isCompact]);
 
   // Actualizar tamaño de Leaflet cuando el contenedor cambie de dimensión sin interrumpir el vuelo
   useEffect(() => {
@@ -195,9 +249,6 @@ export default function RealWorldMap({ sedes, activeSedeId, onSelectSede, showSp
       <div className="relative w-full h-[500px] sm:h-[600px] lg:h-[660px] overflow-hidden">
         {/* Mapa Leaflet Base */}
         <div ref={mapContainerRef} className="w-full h-full z-0" />
-
-        {/* Fauna y Flora Emblemática recortada saliendo de los bordes del mapa */}
-        <MapBorderBiodiversity activeSedeId={activeSedeId} visible={showSpecies} playKey={speciesKey} />
 
         {/* Selector sutil de capas en esquina superior derecha */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[25] flex items-center gap-1 p-1 bg-black/60 backdrop-blur-md rounded-full border border-white/20">

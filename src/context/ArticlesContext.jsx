@@ -7,6 +7,24 @@ export function ArticlesProvider({ children }) {
   const [articles, setArticles] = useState(getStoredArticles);
 
   useEffect(() => {
+    setArticles((prev) => {
+      const seenTypes = new Set();
+      const unique = [];
+      prev.forEach((a) => {
+        if (!seenTypes.has(a.type)) {
+          seenTypes.add(a.type);
+          unique.push(a);
+        }
+      });
+      if (unique.length < prev.length) {
+        saveStoredArticles(unique);
+        return unique;
+      }
+      return prev;
+    });
+  }, []);
+
+  useEffect(() => {
     saveStoredArticles(articles);
   }, [articles]);
 
