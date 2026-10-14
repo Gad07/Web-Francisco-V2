@@ -6006,22 +6006,6 @@ export default function Admin() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    const data = localStorage.getItem('cga_alliances_list') || JSON.stringify(alliances, null, 2);
-                    navigator.clipboard.writeText(data).then(() => {
-                      showToast('¡Datos de aliados copiados al portapapeles! Pégalos en el chat con Ctrl + V');
-                    }).catch(() => {
-                      prompt('Copia este texto y pégalo en el chat:', data);
-                    });
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-[#2d2618] hover:bg-[#1a160e] text-[#f5efe3] text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-md"
-                  title="Copia los aliados y logotipos para guardarlos permanentemente en Git"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar alianzas para Git</span>
-                </button>
-                <button
-                  type="button"
                   onClick={handleResetAlliances}
                   className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
                 >
@@ -6181,22 +6165,6 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const data = localStorage.getItem('cga_governance_members') || JSON.stringify(governanceMembers, null, 2);
-                    navigator.clipboard.writeText(data).then(() => {
-                      showToast('¡Datos copiados al portapapeles! Pégalos en el chat con Ctrl + V');
-                    }).catch(() => {
-                      prompt('Copia este texto y pégalo en el chat:', data);
-                    });
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-[#2d2618] hover:bg-[#1a160e] text-[#f5efe3] text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-md"
-                  title="Copia los miembros y fotos configurados para subirlos permanentemente a Git"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar datos para Git</span>
-                </button>
                 <button
                   type="button"
                   onClick={handleResetGovMembers}
