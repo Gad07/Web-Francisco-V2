@@ -12,7 +12,6 @@ export default function Governance() {
   const { governanceMembers = [] } = useSiteSettings();
 
   const [selectedMemberId, setSelectedMemberId] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('all');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeShareId, setActiveShareId] = useState(null);
   const [windowWidth, setWindowWidth] = useState(
@@ -30,26 +29,8 @@ export default function Governance() {
     ? governanceMembers
     : DEFAULT_GOVERNANCE_MEMBERS;
 
-  // Filtrado de miembros según cuerpo directivo
-  const filteredMembers = sourceMembers.filter((m) => {
-    if (activeFilter === 'founders') {
-      return (
-        m.category === 'founders' ||
-        m.category === 'presidencia' ||
-        m.category === 'secretaria' ||
-        m.category === 'proyectos' ||
-        (m.role?.es && (m.role.es.includes('FUNDADOR') || m.role.es.includes('PRESIDENTE') || m.role.es.includes('SECRETARIO')))
-      );
-    }
-    if (activeFilter === 'council') {
-      return (
-        m.category === 'council' ||
-        m.category === 'honorifico' ||
-        (m.role?.es && m.role.es.includes('HONORÍFICO'))
-      );
-    }
-    return true;
-  });
+  // Lista de miembros completa mostrada directamente en el carrusel
+  const filteredMembers = sourceMembers;
 
   // Cálculo de tarjetas visibles según viewport
   const visibleCards = windowWidth >= 1024 ? 3 : windowWidth >= 640 ? 2 : 1;
@@ -96,66 +77,26 @@ export default function Governance() {
           bgImage="https://images.unsplash.com/photo-1577985051167-0d49eec21977?w=1600&h=900&fit=crop"
         />
 
-        {/* ─── INTRODUCCIÓN EDITORIAL ─── */}
-        <section className="pt-20 pb-10 px-6 sm:px-12 md:px-20 max-w-7xl mx-auto w-full">
-          <div className="max-w-4xl space-y-4">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22]">
-              Estructura Colegiada
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#2d2618] leading-[1.12]">
-              Liderazgo y articulación <br />
-              <span className="italic text-[#4a5a22]">para la gobernanza ambiental.</span>
-            </h2>
-            <p className="text-[#6b6048] font-sans text-base sm:text-lg font-light leading-relaxed">
-              El Consejo Global Ambiental integra conducción estratégica, coordinación ejecutiva, dirección nacional de proyectos y participación honorífica especializada. La Presidencia define prioridades y representa a la institución; la Secretaría Ejecutiva articula su gestión y cooperación; la Dirección Nacional de Proyectos desarrolla y da seguimiento a iniciativas; y el Consejo Honorífico incorpora perspectivas técnicas en las materias del CGA.
-            </p>
-          </div>
-        </section>
-
-        {/* ─── SECCIÓN INTERACTIVA: CARRUSEL & FICHA DE GOBERNANZA (DISEÑO ORIGINAL) ─── */}
-        <section className="pb-24 sm:pb-32 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full min-h-[750px]">
+        {/* ─── SECCIÓN PRINCIPAL: GOBERNANZA COLEGIADA Y CARRUSEL ─── */}
+        <section className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full min-h-[750px]">
           
-          {/* Cabecera Editorial y Filtros */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#d8ceb6]/70 mb-8">
-            <div className="space-y-2 max-w-2xl">
-              <div className="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#5a6b2a]">
-                {t({ es: 'Estructura Directiva', en: 'Board Structure' })}
-              </div>
-              <h3 className="font-serif text-2xl sm:text-3xl lg:text-[38px] font-light text-[#2d2618] leading-[1.12]">
-                {t({ es: 'Cuerpo de Gobernanza', en: 'Governance Body' })}{' '}
-                <span className="italic text-[#4a5a22] font-normal">
-                  {t({ es: 'e Investigadores.', en: 'and Researchers.' })}
-                </span>
-              </h3>
-            </div>
-
-            {/* Selector de Filtros */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5 p-1 bg-[#eae4d2]/80 rounded-xl border border-[#d8ceb6]">
-                {[
-                  { id: 'all', label: { es: 'Todos los Miembros', en: 'All Members' } },
-                  { id: 'founders', label: { es: 'Liderazgo Directivo', en: 'Executive Leadership' } },
-                  { id: 'council', label: { es: 'Consejeros Honoríficos', en: 'Honorary Councillors' } },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveFilter(tab.id);
-                      setCurrentIndex(0);
-                      setSelectedMemberId(null);
-                    }}
-                    className={`py-1.5 px-3.5 rounded-lg text-xs font-sans transition-all cursor-pointer ${
-                      activeFilter === tab.id
-                        ? 'bg-[#3a4a18] text-[#f5efe3] font-semibold shadow-sm'
-                        : 'text-[#6b6048] hover:text-[#2d2618]'
-                    }`}
-                  >
-                    {t(tab.label)}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Cabecera Editorial Unificada (Sin Filtros) */}
+          <div className="pb-6 border-b border-[#d8ceb6]/70 mb-8 max-w-4xl space-y-3">
+            <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[#5a6b2a]">
+              {t({ es: 'Estructura Colegiada & Directiva', en: 'Collegial & Board Structure' })}
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-light text-[#2d2618] leading-[1.12]">
+              {t({ es: 'Cuerpo de Gobernanza', en: 'Governance Body' })}{' '}
+              <span className="italic text-[#4a5a22] font-normal">
+                {t({ es: 'e Investigadores.', en: 'and Researchers.' })}
+              </span>
+            </h2>
+            <p className="text-[#6b6048] font-sans text-sm sm:text-base font-light leading-relaxed">
+              {t({
+                es: 'El Consejo Global Ambiental integra conducción estratégica, coordinación ejecutiva, dirección nacional de proyectos y participación honorífica especializada para la gobernanza ambiental.',
+                en: 'The Global Environmental Council integrates strategic leadership, executive coordination, national project direction, and specialized honorary governance for environmental stewardship.'
+              })}
+            </p>
           </div>
 
           {/* ─── CONTENEDOR PRINCIPAL INTERACTIVO CON ANIMACIÓN TRANSLATE OPTIMIZADA ─── */}
