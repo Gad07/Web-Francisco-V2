@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useTransform, useMotionValue, useMotionValueEvent } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowRight, X, Waves, Compass } from 'lucide-react';
 import FooterNav from './FooterNav.jsx';
 import CanvasFrameSequence from './CanvasFrameSequence.jsx';
 import FpsMeter from './FpsMeter.jsx';
@@ -212,12 +212,13 @@ export default function EditorialOverlay({
 
   // Fases
   const PHASE_2_START = 0.02;
-  const PHASE_3_START = 0.70;
-  const HYSTERESIS = 0.025;
+  const PHASE_3_START = 0.60;
+  const HYSTERESIS = 0.015;
 
   // Opacidades basadas en interScrollMV
   const stoneTextOpacity = useTransform(interScrollMV, [0, 0.02, 0.10], [1, 1, 0]);
-  const reefTextOpacity = useTransform(interScrollMV, [0, 0.64, 0.70, 0.95, 1], [0, 0, 1, 1, 0]);
+  const stoneImgOpacity = useTransform(interScrollMV, [0, 0.05, 0.15], [1, 1, 0]);
+  const reefTextOpacity = useTransform(interScrollMV, [0, 0.58, 0.64, 0.95, 1], [0, 0, 1, 1, 0]);
 
   const [showFrames, setShowFrames] = useState(true);
   const [showLoopVideo, setShowLoopVideo] = useState(false);
@@ -239,10 +240,25 @@ export default function EditorialOverlay({
       setShowFrames(true);
       setShowLoopVideo(false);
     } else {
-      setShowFrames(false);
+      setShowFrames(true); // Mantener fotograma final 153 como base estable mientras transiciona el video
       setShowLoopVideo(true);
     }
   };
+
+  // Asegurar reproducción fluida del video en bucle al activar la fase 2
+  useEffect(() => {
+    const video = videoLoopRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    if (showLoopVideo) {
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [showLoopVideo]);
 
   // ✅ rAF loop de alta precisión que actualiza scrubTarget y notifica
   // directamente a CanvasFrameSequence sin disparar re-renders de React.
@@ -330,12 +346,17 @@ export default function EditorialOverlay({
         // Control del video del arrecife (solo al transicionar de fase)
         if (videoLoopRef.current) {
           if (next === 2) {
+            videoLoopRef.current.muted = true;
             const p = videoLoopRef.current.play();
             if (p && typeof p.catch === 'function') p.catch(() => { });
           } else {
             videoLoopRef.current.pause();
           }
         }
+      } else if (next === 2 && videoLoopRef.current && videoLoopRef.current.paused) {
+        videoLoopRef.current.muted = true;
+        const p = videoLoopRef.current.play();
+        if (p && typeof p.catch === 'function') p.catch(() => { });
       }
     };
 
@@ -834,7 +855,7 @@ export default function EditorialOverlay({
               zIndex: 5,
             }}
           >
-            <img
+            <motion.img
               src="/VideoFrames/frame_001.jpg"
               alt={t({ es: 'Piedra Ecosistémica', en: 'Ecosystem Rock' })}
               style={{
@@ -845,23 +866,38 @@ export default function EditorialOverlay({
                 objectFit: 'cover',
                 objectPosition: 'center',
                 zIndex: 4,
+                opacity: stoneImgOpacity,
               }}
             />
 
             <CanvasFrameSequence
               ref={canvasFrameRef}
               totalFrames={TOTAL_VIDEO_FRAMES}
-              showFrames={!showLoopVideo}
+              showFrames={true}
               showLoopVideo={false}
             />
 
             <video
-              ref={videoLoopRef}
-              src="/video/video loop.mp4"
+              ref={(el) => {
+                videoLoopRef.current = el;
+                if (el) {
+                  el.muted = true;
+                  el.defaultMuted = true;
+                  el.playsInline = true;
+                }
+              }}
+              src="/video/video_loop.mp4"
+              autoPlay
               loop
               muted
               playsInline
               preload="auto"
+              onCanPlay={(e) => {
+                e.currentTarget.muted = true;
+                if (phaseRef.current === 2) {
+                  e.currentTarget.play().catch(() => {});
+                }
+              }}
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -871,10 +907,14 @@ export default function EditorialOverlay({
                 objectPosition: 'center',
                 opacity: showLoopVideo ? 1 : 0,
                 visibility: showLoopVideo ? 'visible' : 'hidden',
+                transition: 'opacity 0.6s ease',
                 pointerEvents: 'none',
                 zIndex: 10,
               }}
-            />
+            >
+              <source src="/video/video_loop.mp4" type="video/mp4" />
+              <source src="/video/video loop.mp4" type="video/mp4" />
+            </video>
           </div>
 
           <div
@@ -962,32 +1002,33 @@ export default function EditorialOverlay({
           </div>
 
           <div
-            className={`w-full max-w-[1400px] flex flex-col md:flex-row items-stretch justify-between gap-4 sm:gap-8 absolute inset-x-0 mx-auto z-20 pointer-events-none px-4 sm:px-8 md:px-12 ${reefVisible ? '' : 'invisible'}`}
+            className={`w-full max-w-[1380px] flex flex-col md:flex-row items-stretch justify-between gap-6 sm:gap-8 absolute inset-x-0 mx-auto z-20 pointer-events-none px-4 sm:px-8 md:px-12 ${reefVisible ? '' : 'invisible'}`}
           >
-            {/* Tarjeta 1: Nuestra misión con el océano — Estilo Cálido de Vidrio Líquido */}
+            {/* Tarjeta 1: Nuestra misión con el océano — Glassmorphism Líquido Puro */}
             <div
-              className="relative w-full md:w-[48%] lg:w-[45%] text-left pointer-events-auto p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl overflow-hidden"
+              className="relative w-full md:w-[48%] text-left pointer-events-auto p-7 sm:p-9 md:p-11 rounded-[2rem] overflow-hidden flex flex-col justify-center"
               style={{
                 background:
-                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.40), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.58) 0%, rgba(246,240,224,0.20) 50%, rgba(246,240,224,0.42) 100%)',
-                backdropFilter: 'blur(22px) saturate(1.4)',
-                WebkitBackdropFilter: 'blur(22px) saturate(1.4)',
+                  'linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.42) 50%, rgba(255, 255, 255, 0.58) 100%)',
+                backdropFilter: 'blur(28px) saturate(1.7)',
+                WebkitBackdropFilter: 'blur(28px) saturate(1.7)',
+                border: '1px solid rgba(255, 255, 255, 0.60)',
                 boxShadow:
-                  'inset 0 1px 0 rgba(255,255,255,0.5), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(90,70,40,0.12), inset 0 -16px 32px -20px rgba(100,90,45,0.30), 0 30px 80px -30px rgba(45,38,24,0.45)',
+                  '0 25px 60px -15px rgba(0, 20, 50, 0.25), 0 8px 24px -6px rgba(0, 20, 50, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(255, 255, 255, 0.25)',
               }}
             >
-              {/* Brillos especulares del liquid glass */}
-              <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/50 via-white/12 to-transparent blur-[2px]" />
-                <div className="absolute right-[-8%] bottom-[-20%] h-[70%] w-[34%] rotate-[18deg] bg-gradient-to-l from-white/10 via-white/4 to-transparent" />
-              </div>
+              {/* Reflejo de luz ambiental superior del cristal (sin rayas diagonales que tapen el texto) */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-gradient-to-b from-white/40 via-white/10 to-transparent rounded-t-[2rem]"
+              />
 
               <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
-                <h2 className="relative font-serif text-2xl sm:text-4xl md:text-5xl text-[#2d2618] tracking-tight leading-[1.06] mb-3 sm:mb-5 font-light">
+                <h2 className="relative font-serif text-2xl sm:text-3xl md:text-4xl text-[#0d1f2d] tracking-tight leading-[1.12] mb-4 sm:mb-5 font-light">
                   {t({ es: 'Lo que cuidamos en tierra respira bajo el agua.', en: 'What we protect on land breathes underwater.' })}
                 </h2>
 
-                <p className="relative font-sans text-xs sm:text-base text-[#6b6048] font-light leading-relaxed">
+                <p className="relative font-sans text-xs sm:text-sm md:text-base text-[#1e2e38] font-light leading-relaxed">
                   {t({
                     es: 'En la inmensidad del océano, la luz del sol baila entre los arrecifes y el fitoplancton genera el aliento de nuestro planeta. Proteger los bosques y frenar la escorrentía es proteger la continuidad de los corales y la vida marina.',
                     en: 'In the ocean’s depth, sunlight dances through coral reefs and phytoplankton generates the planet’s breath. Safeguarding forests and curbing runoff sustains corals and marine life.',
@@ -996,30 +1037,31 @@ export default function EditorialOverlay({
               </motion.div>
             </div>
 
-            {/* Tarjeta 2: Restauración territorial y marina — Estilo Cálido de Vidrio Líquido */}
+            {/* Tarjeta 2: Restauración territorial y marina — Glassmorphism Líquido Puro */}
             <div
-              className="relative w-full md:w-[46%] lg:w-[43%] text-left pointer-events-auto p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl overflow-hidden"
+              className="relative w-full md:w-[48%] text-left pointer-events-auto p-7 sm:p-9 md:p-11 rounded-[2rem] overflow-hidden flex flex-col justify-center"
               style={{
                 background:
-                  'radial-gradient(130% 130% at 15% 0%, rgba(255,255,255,0.40), rgba(255,255,255,0) 46%), linear-gradient(155deg, rgba(246,240,224,0.58) 0%, rgba(246,240,224,0.20) 50%, rgba(246,240,224,0.42) 100%)',
-                backdropFilter: 'blur(22px) saturate(1.4)',
-                WebkitBackdropFilter: 'blur(22px) saturate(1.4)',
+                  'linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.42) 50%, rgba(255, 255, 255, 0.58) 100%)',
+                backdropFilter: 'blur(28px) saturate(1.7)',
+                WebkitBackdropFilter: 'blur(28px) saturate(1.7)',
+                border: '1px solid rgba(255, 255, 255, 0.60)',
                 boxShadow:
-                  'inset 0 1px 0 rgba(255,255,255,0.5), inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(90,70,40,0.12), inset 0 -16px 32px -20px rgba(100,90,45,0.30), 0 30px 80px -30px rgba(45,38,24,0.45)',
+                  '0 25px 60px -15px rgba(0, 20, 50, 0.25), 0 8px 24px -6px rgba(0, 20, 50, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(255, 255, 255, 0.25)',
               }}
             >
-              {/* Brillos especulares del liquid glass */}
-              <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                <div className="absolute -top-1/4 left-[-10%] h-[75%] w-[46%] rotate-[18deg] bg-gradient-to-r from-white/50 via-white/12 to-transparent blur-[2px]" />
-                <div className="absolute right-[-8%] bottom-[-20%] h-[70%] w-[34%] rotate-[18deg] bg-gradient-to-l from-white/10 via-white/4 to-transparent" />
-              </div>
+              {/* Reflejo de luz ambiental superior del cristal (sin rayas diagonales que tapen el texto) */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-gradient-to-b from-white/40 via-white/10 to-transparent rounded-t-[2rem]"
+              />
 
               <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
-                <h3 className="relative font-serif text-2xl sm:text-4xl text-[#2d2618] font-light leading-[1.08] mb-3 sm:mb-5">
+                <h3 className="relative font-serif text-2xl sm:text-3xl md:text-4xl text-[#0d1f2d] font-light leading-[1.12] tracking-tight mb-4 sm:mb-5">
                   {t({ es: 'Restauración territorial y marina.', en: 'Territorial and marine restoration.' })}
                 </h3>
 
-                <p className="relative font-sans text-xs sm:text-base text-[#6b6048] font-light leading-relaxed">
+                <p className="relative font-sans text-xs sm:text-sm md:text-base text-[#1e2e38] font-light leading-relaxed">
                   {t({
                     es: 'Protegemos las cuencas altas que nutren a los arrecifes costeros mediante monitoreo continuo y gobernanza compartida con comunidades locales para preservar los santuarios marinos.',
                     en: 'We protect the upper watersheds that feed coastal reefs through continuous monitoring and shared governance with local communities to preserve marine sanctuaries.',

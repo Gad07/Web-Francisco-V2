@@ -23,7 +23,23 @@ const frameLoadListeners = new Set();
  */
 export function preloadAllVideoFrames() {
   if (typeof window === 'undefined') return;
-  for (let i = 1; i <= TOTAL_FRAMES; i++) {
+
+  // Prioritize critical boundary and midpoint frames (rock, transition, reef)
+  const priorityFrames = [1, TOTAL_FRAMES, 75];
+  priorityFrames.forEach((i) => {
+    if (!VIDEO_FRAMES[i]) {
+      const img = new Image();
+      img.src = getFrameSrc(i);
+      img.onload = () => {
+        VIDEO_FRAMES[i] = img;
+        frameLoadListeners.forEach((fn) => fn(i));
+      };
+      VIDEO_FRAMES[i] = img;
+    }
+  });
+
+  for (let i = 2; i < TOTAL_FRAMES; i++) {
+    if (i === 75) continue;
     if (!VIDEO_FRAMES[i]) {
       const img = new Image();
       img.src = getFrameSrc(i);
@@ -103,7 +119,11 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
         }
       }
       if (!img || !img.complete || img.naturalWidth === 0) {
-        img = VIDEO_FRAMES[1];
+        if (frameNum > 80 && VIDEO_FRAMES[totalFrames]?.complete && VIDEO_FRAMES[totalFrames]?.naturalWidth > 0) {
+          img = VIDEO_FRAMES[totalFrames];
+        } else {
+          img = VIDEO_FRAMES[1];
+        }
       }
     }
 
@@ -249,7 +269,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
 
       {showLoopVideo && (
         <video
-          src="/video/video loop.mp4"
+          src="/video/video_loop.mp4"
           autoPlay
           loop
           muted
