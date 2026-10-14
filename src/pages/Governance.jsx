@@ -255,6 +255,22 @@ export default function Governance() {
                               src={formatDriveUrl(member.img)}
                               alt={member.name}
                               referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                const currentSrc = e.currentTarget.src || '';
+                                if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                  e.currentTarget.dataset.retried = 'true';
+                                  const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                  if (idMatch && idMatch[1]) {
+                                    e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                    return;
+                                  }
+                                }
+                                if (member.id === 'francisco-solorio') {
+                                  e.currentTarget.src = '/imports/Perfiles/FranciscoSolorio.png';
+                                } else {
+                                  e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&auto=format';
+                                }
+                              }}
                               className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-500 ease-out"
                             />
 

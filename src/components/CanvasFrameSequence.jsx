@@ -21,11 +21,14 @@ const frameLoadListeners = new Set();
  * Standard HTMLImageElement downloads and caches compressed JPEGs (~22 MB total)
  * without triggering mass 1.27 GB RGBA pixel buffer allocations.
  */
-export function preloadAllVideoFrames() {
-  if (typeof window === 'undefined') return;
+let isPreloading = false;
 
-  // Prioritize critical boundary and midpoint frames (rock, transition, reef)
-  const priorityFrames = [1, TOTAL_FRAMES, 75];
+export function preloadAllVideoFrames() {
+  if (typeof window === 'undefined' || isPreloading) return;
+  isPreloading = true;
+
+  // 1. Cargar únicamente los fotogramas clave de anclaje (inicio y fin)
+  const priorityFrames = [1, TOTAL_FRAMES];
   priorityFrames.forEach((i) => {
     if (!VIDEO_FRAMES[i]) {
       const img = new Image();
@@ -38,25 +41,66 @@ export function preloadAllVideoFrames() {
     }
   });
 
-  for (let i = 2; i < TOTAL_FRAMES; i++) {
-    if (i === 75) continue;
-    if (!VIDEO_FRAMES[i]) {
-      const img = new Image();
-      img.src = getFrameSrc(i);
+  // 2. Cargar el resto en lotes controlados para no saturar el ancho de banda de Netlify
+  const loadBatches = () => {
+    let currentIdx = 2;
+    const batchSize = 6;
 
-      img.onload = () => {
-        VIDEO_FRAMES[i] = img;
-        frameLoadListeners.forEach((fn) => fn(i));
-      };
+    const loadNextBatch = () => {
+      const end = Math.min(TOTAL_FRAMES, currentIdx + batchSize);
+      for (let i = currentIdx; i < end; i++) {
+        if (!VIDEO_FRAMES[i]) {
+          const img = new Image();
+          img.src = getFrameSrc(i);
+          img.onload = () => {
+            VIDEO_FRAMES[i] = img;
+            frameLoadListeners.forEach((fn) => fn(i));
+          };
+          VIDEO_FRAMES[i] = img;
+        }
+      }
+      currentIdx = end;
+      if (currentIdx < TOTAL_FRAMES) {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(loadNextBatch, { timeout: 800 });
+        } else {
+          setTimeout(loadNextBatch, 120);
+        }
+      }
+    };
 
-      VIDEO_FRAMES[i] = img;
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(loadNextBatch, { timeout: 1500 });
+    } else {
+      setTimeout(loadNextBatch, 300);
     }
+  };
+
+  if (document.readyState === 'complete') {
+    loadBatches();
+  } else {
+    window.addEventListener('load', loadBatches, { once: true });
   }
 }
 
-// Start preloading immediately
+// Carga inmediata del fotograma 1 para render inicial instantáneo sin bloquear la red
 if (typeof window !== 'undefined') {
-  preloadAllVideoFrames();
+  if (!VIDEO_FRAMES[1]) {
+    const firstImg = new Image();
+    firstImg.src = getFrameSrc(1);
+    firstImg.onload = () => {
+      VIDEO_FRAMES[1] = firstImg;
+      frameLoadListeners.forEach((fn) => fn(1));
+    };
+    VIDEO_FRAMES[1] = firstImg;
+  }
+
+  // Pre-carga diferida durante tiempo ocioso del navegador
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => preloadAllVideoFrames(), { timeout: 3500 });
+  } else {
+    setTimeout(() => preloadAllVideoFrames(), 2000);
+  }
 }
 
 const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(

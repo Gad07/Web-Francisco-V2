@@ -6227,6 +6227,20 @@ export default function Admin() {
                             src={formatDriveUrl(member.img)}
                             alt={member.name}
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              const currentSrc = e.currentTarget.src || '';
+                              if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                e.currentTarget.dataset.retried = 'true';
+                                const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                if (idMatch && idMatch[1]) {
+                                  e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                  return;
+                                }
+                              }
+                              if (member.id === 'francisco-solorio') {
+                                e.currentTarget.src = '/imports/Perfiles/FranciscoSolorio.png';
+                              }
+                            }}
                             className="w-full h-full object-cover object-top"
                             loading="lazy"
                           />
@@ -6671,6 +6685,16 @@ export default function Admin() {
                         src={formatDriveUrl(editingGovMember.img)}
                         alt="Vista previa de perfil"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const currentSrc = e.currentTarget.src || '';
+                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                            e.currentTarget.dataset.retried = 'true';
+                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                            if (idMatch && idMatch[1]) {
+                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                            }
+                          }
+                        }}
                         className="h-full w-auto object-cover rounded-xl"
                       />
                     ) : (

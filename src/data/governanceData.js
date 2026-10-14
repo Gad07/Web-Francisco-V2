@@ -73,7 +73,7 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
     social: {
       email: 'secretaria@consejoglobalambiental.com',
     },
-    img: franciscoSolorioImg,
+    img: '/imports/Perfiles/FranciscoSolorio.png',
   },
   {
     id: 'veronica-gonzalez',

@@ -496,11 +496,18 @@ export function SiteSettingsProvider({ children }) {
           // Sincronizar atributos institucionales de los miembros oficiales
           const finalMembers = cleaned.map((m) => {
             const officialMatch = DEFAULT_GOVERNANCE_MEMBERS.find((defM) => defM.id === m.id);
+            let imgUrl = m.img || officialMatch?.img || '';
+            if (typeof imgUrl === 'string' && imgUrl.startsWith('/src/imports/')) {
+              imgUrl = imgUrl.replace('/src/imports/', '/imports/');
+            }
+            if (m.id === 'francisco-solorio' && (!imgUrl || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
+              imgUrl = '/imports/Perfiles/FranciscoSolorio.png';
+            }
             if (officialMatch) {
               return {
                 ...officialMatch,
                 ...m,
-                img: m.img || officialMatch.img,
+                img: imgUrl || officialMatch.img,
                 bio: m.bio || officialMatch.bio,
                 responsibilities:
                   m.responsibilities && m.responsibilities.length > 0
@@ -508,7 +515,10 @@ export function SiteSettingsProvider({ children }) {
                     : officialMatch.responsibilities,
               };
             }
-            return m;
+            return {
+              ...m,
+              img: imgUrl,
+            };
           });
 
           finalMembers.sort((a, b) => (parseInt(a.num, 10) || 99) - (parseInt(b.num, 10) || 99));
