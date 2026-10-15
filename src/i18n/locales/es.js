@@ -45,6 +45,7 @@ const es = {
     publicaciones: 'Publicaciones',
 
     apoyaCGA: 'Apoya al CGA',
+    idioma: 'Idioma',
     contacto: 'Contacto',
   },
 
@@ -60,6 +61,8 @@ const es = {
 
     capacitacion: 'Formación especializada y capacidades institucionales',
     comunicacion: 'Información oficial, diálogo público y publicaciones',
+    idiomaEs: 'Español (Edición Institucional)',
+    idiomaEn: 'English (International Edition)',
   },
 
   a11y: {

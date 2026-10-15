@@ -24,6 +24,7 @@ import InstitutionalAlliances from './pages/InstitutionalAlliances.jsx';
 import Training from './pages/Training.jsx';
 import Communication from './pages/Communication.jsx';
 import Admin from './pages/Admin.jsx';
+import PresidentBusinessCard from './pages/PresidentBusinessCard.jsx';
 import { ArticlesProvider } from './context/ArticlesContext.jsx';
 import { SiteSettingsProvider } from './context/SiteSettingsContext.jsx';
 import SiteNotificationSystem from './components/SiteNotificationSystem.jsx';
@@ -291,6 +292,17 @@ export default function App() {
               <Route path="/contacto" element={<Contact />} />
               <Route path="/apoya" element={<SupportCGA />} />
               <Route path="/apoya-al-cga" element={<SupportCGA />} />
+
+              {/* ─── SEMBLANZAS Y PERFILES DIRECTIVOS DEL CGA ─── */}
+              <Route path="/luis-garcia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/francisco-solorio" element={<PresidentBusinessCard memberId="francisco-solorio" />} />
+              <Route path="/presidencia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/secretaria-ejecutiva" element={<PresidentBusinessCard memberId="francisco-solorio" />} />
+              <Route path="/semblanza-presidencia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/tarjeta-presidencia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/business-card" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/tarjeta-digital" element={<PresidentBusinessCard memberId="luis-garcia" />} />
+              <Route path="/credencial-presidencia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
 
               {/* ─── RUTA DEL ADMINISTRADOR CMS ─── */}
               <Route path="/admin" element={<Admin />} />

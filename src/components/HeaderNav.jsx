@@ -107,6 +107,55 @@ function DropdownItem({ to, label, sub, delay, isDark = false }) {
   );
 }
 
+function DropdownLanguageItem({ label, sub, active, onClick, delay, isDark = false }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3, delay, ease: EASE_LUX }}
+    >
+      <button
+        type="button"
+        onClick={onClick}
+        className={`w-full group flex items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors duration-200 text-left cursor-pointer ${
+          active
+            ? isDark
+              ? 'bg-white/10 text-white font-semibold'
+              : 'bg-[#4a5a22]/10 text-[#4a5a22] font-semibold'
+            : isDark
+            ? 'hover:bg-white/10 text-[#e0d8c7]'
+            : 'hover:bg-[#4a5a22]/8 text-[#4a5340]'
+        }`}
+      >
+        <span>
+          <span className={`block text-[13px] font-medium transition-colors duration-200 ${
+            active
+              ? isDark ? 'text-white' : 'text-[#4a5a22]'
+              : isDark ? 'text-[#f5efe3] group-hover:text-white' : 'text-[#4a5340] group-hover:text-[#2d2618]'
+          }`}>
+            {label}
+          </span>
+          {sub && (
+            <span className={`mt-0.5 block text-[11px] font-light ${
+              isDark ? 'text-[#a8a090]' : 'text-[#8a7e68]'
+            }`}>
+              {sub}
+            </span>
+          )}
+        </span>
+        <span className={`text-xs font-bold transition-all duration-200 ${
+          active
+            ? isDark ? 'text-[#d8eb96]' : 'text-[#4a5a22]'
+            : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-[-4px]'
+        }`}>
+          {active ? '✓' : '→'}
+        </span>
+      </button>
+    </motion.div>
+  );
+}
+
 function NavLink({ to, label, active, isDark = false }) {
   const activeClass = isDark ? 'text-[#d8eb96] font-semibold drop-shadow-[0_1px_8px_rgba(216,235,150,0.4)]' : 'text-[#3a4a18] font-semibold';
   const idleClass = isDark ? 'text-[#f5efe3]/85 hover:text-white drop-shadow-sm' : 'text-[#5c523e] hover:text-[#2d2618]';
@@ -114,7 +163,7 @@ function NavLink({ to, label, active, isDark = false }) {
   return (
     <Link
       to={to}
-      className={`group relative inline-flex h-9 shrink-0 items-center px-1.5 xl:px-2.5 font-sans text-[12.5px] xl:text-[13px] font-medium tracking-[0.03em] whitespace-nowrap transition-colors duration-300 ${
+      className={`group relative inline-flex h-9 shrink-0 items-center px-1 xl:px-2 2xl:px-2.5 font-sans text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium tracking-[0.02em] whitespace-nowrap transition-colors duration-300 ${
         active ? activeClass : idleClass
       }`}
     >
@@ -130,7 +179,7 @@ function DropdownTrigger({ label, open, onClick, active = false, isDark = false 
   return (
     <button
       onClick={onClick}
-      className={`group relative inline-flex h-9 shrink-0 items-center gap-1 xl:gap-1.5 px-1.5 xl:px-2.5 whitespace-nowrap font-sans text-[12.5px] xl:text-[13px] font-medium tracking-[0.03em] transition-colors duration-300 active:scale-[0.98] ${
+      className={`group relative inline-flex h-9 shrink-0 items-center gap-1 xl:gap-1.5 px-1 xl:px-2 2xl:px-2.5 whitespace-nowrap font-sans text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium tracking-[0.02em] transition-colors duration-300 active:scale-[0.98] cursor-pointer ${
         open || active ? activeClass : idleClass
       }`}
     >
@@ -151,7 +200,7 @@ function DropdownTrigger({ label, open, onClick, active = false, isDark = false 
 export default function HeaderNav({
   isLoaded = true,
 }) {
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -277,14 +326,14 @@ export default function HeaderNav({
         } ${
           isScrolled
             ? isDarkTheme
-              ? 'top-3 md:top-4 w-[94%] max-w-6xl h-[60px] md:h-[64px] rounded-full px-4 sm:px-6 md:px-8 bg-black/65 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_18px_45px_-16px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10'
-              : 'top-3 md:top-4 w-[94%] max-w-6xl h-[60px] md:h-[64px] rounded-full px-4 sm:px-6 md:px-8 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
+              ? 'top-3 md:top-4 w-[96%] max-w-[1360px] h-[60px] md:h-[64px] rounded-full px-3.5 sm:px-5 md:px-7 bg-black/65 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_18px_45px_-16px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10'
+              : 'top-3 md:top-4 w-[96%] max-w-[1360px] h-[60px] md:h-[64px] rounded-full px-3.5 sm:px-5 md:px-7 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
             : isDarkTheme
               ? 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-black/85 via-black/45 to-transparent border-0 border-transparent shadow-none'
               : 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-[#f5efe3]/95 via-[#f5efe3]/75 to-transparent border-0 border-transparent shadow-none'
         } ${!isLoaded ? 'pointer-events-none' : ''}`}
       >
-        <div className="mx-auto flex w-full h-full items-center justify-between gap-3 sm:gap-6">
+        <div className="mx-auto flex w-full h-full items-center justify-between gap-2 sm:gap-4 xl:gap-6">
           {/* Cluster izquierdo: logo que se adapta a fondo claro u oscuro */}
           <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
             <Link
@@ -298,7 +347,7 @@ export default function HeaderNav({
                 className={`w-auto object-contain transition-all duration-500 ease-out group-hover:scale-[1.04] ${
                   isDarkTheme ? 'drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]' : 'drop-shadow-none'
                 } ${
-                  isScrolled ? 'h-[38px] md:h-[42px]' : 'h-[50px] md:h-[56px] lg:h-[58px]'
+                  isScrolled ? 'h-[36px] md:h-[40px]' : 'h-[50px] md:h-[56px] lg:h-[58px]'
                 }`}
               />
             </Link>
@@ -306,7 +355,7 @@ export default function HeaderNav({
 
           {/* Navegación central (desktop) */}
           <nav
-            className="hidden lg:flex items-center gap-2 xl:gap-3.5 2xl:gap-5 flex-shrink-0"
+            className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-3 flex-shrink-0"
             onMouseLeave={scheduleClose}
           >
             {/* 1. EL CONSEJO */}
@@ -369,13 +418,48 @@ export default function HeaderNav({
             <div onMouseEnter={() => openMenu(null)}>
               <NavLink to="/comunicacion" label={t('nav.comunicacion')} active={isComunicacionActive} isDark={isDarkTheme} />
             </div>
+
+            {/* 6. IDIOMA */}
+            <div className="relative" onMouseEnter={() => openMenu('idioma')}>
+              <DropdownTrigger
+                label={t('nav.idioma') || 'Idioma'}
+                open={openDropdown === 'idioma'}
+                active={false}
+                isDark={isDarkTheme}
+                onClick={() => setOpenDropdown(openDropdown === 'idioma' ? null : 'idioma')}
+              />
+              <Dropdown open={openDropdown === 'idioma'} isDark={isDarkTheme}>
+                <DropdownLanguageItem
+                  label="Español (ES)"
+                  sub={t('navSub.idiomaEs') || 'Edición Institucional'}
+                  active={lang === 'es'}
+                  onClick={() => {
+                    setLang('es');
+                    setOpenDropdown(null);
+                  }}
+                  delay={0}
+                  isDark={isDarkTheme}
+                />
+                <DropdownLanguageItem
+                  label="English (EN)"
+                  sub={t('navSub.idiomaEn') || 'International Edition'}
+                  active={lang === 'en'}
+                  onClick={() => {
+                    setLang('en');
+                    setOpenDropdown(null);
+                  }}
+                  delay={0.03}
+                  isDark={isDarkTheme}
+                />
+              </Dropdown>
+            </div>
           </nav>
 
           {/* Acciones derecha: Apoya al CGA · Contacto */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
             <Link
               to="/apoya"
-              className={`group hidden md:inline-flex h-9 items-center px-4 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.08em] uppercase rounded-full transition-all duration-300 ring-1 ring-inset ${
+              className={`group hidden xl:inline-flex h-9 items-center px-3.5 xl:px-4 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.08em] uppercase rounded-full transition-all duration-300 ring-1 ring-inset ${
                 isDarkTheme
                   ? 'text-[#f5efe3] ring-white/20 hover:bg-white/10'
                   : 'text-[#4a5a22] ring-[#4a5a22]/30 hover:bg-[#4a5a22]/10'
@@ -386,7 +470,7 @@ export default function HeaderNav({
 
             <Link
               to="/contacto"
-              className={`group hidden sm:inline-flex h-9 items-center gap-2.5 rounded-full px-4 xl:px-5 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.12em] uppercase transition-all duration-500 ease-out active:scale-[0.97] ring-1 ring-inset ${
+              className={`group hidden sm:inline-flex h-9 items-center gap-2 rounded-full px-3.5 xl:px-5 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.1em] uppercase transition-all duration-500 ease-out active:scale-[0.97] ring-1 ring-inset ${
                 isDarkTheme
                   ? isScrolled
                     ? 'bg-[#4a5a22] text-[#f5efe3] ring-white/15 shadow-[0_8px_24px_-10px_rgba(74,90,34,0.6)] hover:bg-[#5a6b2a]'
@@ -522,6 +606,36 @@ export default function HeaderNav({
               </div>
 
               <div className="mt-6 pt-3 flex flex-col gap-3">
+                <div className="flex items-center justify-between border-t border-[#d8ceb6]/40 pt-3 pb-1">
+                  <span className="text-xs text-[#7a6e58] uppercase font-semibold tracking-wider font-sans">
+                    {t('nav.idioma') || 'Idioma'}
+                  </span>
+                  <div className="flex items-center gap-1.5 font-sans">
+                    <button
+                      type="button"
+                      onClick={() => setLang('es')}
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        lang === 'es'
+                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs'
+                          : 'bg-[#eae3d2] text-[#7a6e58] hover:bg-[#ded5c0]'
+                      }`}
+                    >
+                      ES
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLang('en')}
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        lang === 'en'
+                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs'
+                          : 'bg-[#eae3d2] text-[#7a6e58] hover:bg-[#ded5c0]'
+                      }`}
+                    >
+                      EN
+                    </button>
+                  </div>
+                </div>
+
                 <Link
                   to="/apoya"
                   onClick={() => setMobileMenuOpen(false)}

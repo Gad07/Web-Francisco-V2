@@ -6,6 +6,7 @@ import FooterNav from './FooterNav.jsx';
 import CanvasFrameSequence from './CanvasFrameSequence.jsx';
 import FpsMeter from './FpsMeter.jsx';
 import Reveal, { RevealItem } from './Reveal.jsx';
+import luisGarciaImg from '../imports/Perfiles/LuisGarcia.png';
 import franciscoSolorioImg from '../imports/Perfiles/FranciscoSolorio.png';
 import { useI18n } from '../i18n/index.jsx';
 import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
@@ -1450,7 +1451,7 @@ export default function EditorialOverlay({
             <RevealItem index={0} className="h-full">
               <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
                 <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop&auto=format" alt="Mtro. Luis García González" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+                  <img src={luisGarciaImg} alt="Mtro. Luis García González" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
                   <div>
@@ -1458,8 +1459,8 @@ export default function EditorialOverlay({
                     <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Consejero Presidente y Fundador', en: 'President and Founding Councillor' })}</p>
                     <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Con amplia experiencia en diplomacia multilateral y gobernanza ambiental de alto nivel. Ha impulsado acuerdos vinculantes con organismos internacionales y consolidado marcos de resiliencia ecosistémica.', en: 'With extensive experience in multilateral diplomacy and high-level environmental governance. He has driven binding agreements with international bodies and consolidated ecosystem resilience frameworks.' })}</p>
                   </div>
-                  <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
-                    <div>{t({ es: 'Conocer trayectoria institucional', en: 'View institutional track record' })}</div>
+                  <Link to="/luis-garcia" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
+                    <div>{t({ es: 'Conocer semblanza y despacho', en: 'View profile & presidency office' })}</div>
                     <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
                   </Link>
                 </div>
@@ -1477,8 +1478,8 @@ export default function EditorialOverlay({
                     <p className="text-xs text-[#5a6b2a] font-semibold tracking-wide mb-5">{t({ es: 'Secretario Ejecutivo y Fundador', en: 'Executive Secretary and Founder' })}</p>
                     <p className="text-xs sm:text-[13px] text-[#6b6048] font-light leading-relaxed mb-6 font-sans">{t({ es: 'Especialista en gestión técnica, cooperación territorial y alianzas público-privadas. Encabeza el despliegue operativo en campo, la vinculación con ejidos y comunidades, y la implementación de los proyectos galardonados.', en: 'Specialist in technical management, territorial cooperation and public-private partnerships. He leads field operations, relations with communal landholdings and communities, and the implementation of award-winning projects.' })}</p>
                   </div>
-                  <Link to="/gobernanza" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
-                    <div>{t({ es: 'Conocer coordinación operativa', en: 'View operational coordination' })}</div>
+                  <Link to="/francisco-solorio" className="pt-4 border-t border-[#d8ceb6]/60 flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-[#4a5a22] group-hover:text-[#2d2618] transition-colors">
+                    <div>{t({ es: 'Conocer semblanza y secretaría', en: 'View profile & executive secretariat' })}</div>
                     <div className="transition-transform duration-300 group-hover:translate-x-1.5">&rarr;</div>
                   </Link>
                 </div>

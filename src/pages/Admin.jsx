@@ -6765,7 +6765,7 @@ export default function Admin() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Correo Electrónico Institucional
+                      Correo Electrónico
                     </label>
                     <input
                       type="email"
@@ -6794,6 +6794,91 @@ export default function Admin() {
                         })
                       }
                       placeholder="https://linkedin.com/in/usuario"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Teléfono México (con lada)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingGovMember.social?.phoneMx || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), phoneMx: e.target.value },
+                        })
+                      }
+                      placeholder="+52 55 4569 1548"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Teléfono Canadá (con lada)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingGovMember.social?.phoneCa || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), phoneCa: e.target.value },
+                        })
+                      }
+                      placeholder="+1 437 290 8820"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Facebook Personal / Institucional (URL)
+                    </label>
+                    <input
+                      type="url"
+                      value={editingGovMember.social?.facebook || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), facebook: e.target.value },
+                        })
+                      }
+                      placeholder="https://facebook.com/usuario"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Instagram Personal / Institucional (URL)
+                    </label>
+                    <input
+                      type="url"
+                      value={editingGovMember.social?.instagram || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), instagram: e.target.value },
+                        })
+                      }
+                      placeholder="https://instagram.com/usuario"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      WhatsApp (Enlace directo wa.me o número internacional)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingGovMember.social?.whatsapp || ''}
+                      onChange={(e) =>
+                        setEditingGovMember({
+                          ...editingGovMember,
+                          social: { ...(editingGovMember.social || {}), whatsapp: e.target.value },
+                        })
+                      }
+                      placeholder="https://wa.me/525545691548"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
                     />
                   </div>

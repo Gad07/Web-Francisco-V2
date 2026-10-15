@@ -45,7 +45,8 @@ const en = {
     opinionAnalisis: 'Opinion & Analysis',
     dialogosCGA: 'CGA Dialogues',
     publicaciones: 'Publications & Papers',
-
+    apoyaCGA: 'Support CGA',
+    idioma: 'Language',
     contacto: 'Contact',
   },
 
@@ -60,6 +61,8 @@ const en = {
 
     capacitacion: 'Environmental leadership training',
     comunicacion: 'News, publications and dialogues',
+    idiomaEs: 'Español (Institutional Edition)',
+    idiomaEn: 'English (International Edition)',
   },
 
   a11y: {

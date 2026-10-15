@@ -1,11 +1,12 @@
 import React from 'react';
 
 /**
- * WhatsAppButton — Botón flotante expandible con hover animation de WhatsApp.
+ * WhatsAppButton — Botón flotante circular (56px) que se expande
+ * suavemente a cápsula al pasar el cursor (hover).
  */
 export default function WhatsAppButton({
-  phoneNumber = '5215500000000',
-  message = 'Hola, me gustaría solicitar información sobre el Consejo Global Ambiental.',
+  phoneNumber = '525545691548',
+  message = 'Hola, me gustaría solicitar información sobre el Consejo Global Agroalimentario.',
 }) {
   const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
   const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
@@ -15,8 +16,8 @@ export default function WhatsAppButton({
       <style>{`
         .whatsapp-floating-wrapper {
           position: fixed;
-          bottom: 24px;
-          right: 24px;
+          bottom: 26px;
+          right: 26px;
           z-index: 9999;
         }
 
@@ -24,31 +25,33 @@ export default function WhatsAppButton({
           display: flex;
           align-items: center;
           justify-content: flex-start;
-          width: 45px;
-          height: 45px;
+          width: 56px;
+          height: 56px;
           border: none;
           border-radius: 50%;
           cursor: pointer;
           position: relative;
           overflow: hidden;
-          transition-duration: 0.3s;
-          box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-          background-color: #00d757;
+          transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease, box-shadow 0.25s ease;
+          box-shadow: 0 8px 22px -3px rgba(37, 211, 102, 0.42), 0 4px 10px -2px rgba(0, 0, 0, 0.15);
+          background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
           text-decoration: none;
         }
 
         .sign-whatsapp {
-          width: 100%;
-          transition-duration: 0.3s;
+          width: 56px;
+          height: 56px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          transition: transform 0.3s ease;
         }
 
         .sign-whatsapp svg {
-          width: 25px;
-          height: 25px;
+          width: 29px;
+          height: 29px;
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
         }
 
         .sign-whatsapp svg path {
@@ -57,39 +60,66 @@ export default function WhatsAppButton({
 
         .text-whatsapp {
           position: absolute;
-          right: 0%;
+          right: 0;
           width: 0%;
           opacity: 0;
           color: white;
-          font-size: 1.15em;
+          font-size: 15px;
           font-weight: 600;
-          transition-duration: 0.3s;
+          letter-spacing: 0.01em;
+          transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
           white-space: nowrap;
           overflow: hidden;
           font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          pointer-events: none;
         }
 
         .Btn-whatsapp:hover {
-          width: 150px;
-          border-radius: 40px;
-          transition-duration: 0.3s;
+          width: 160px;
+          border-radius: 35px;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px -3px rgba(37, 211, 102, 0.52), 0 6px 14px -2px rgba(0, 0, 0, 0.2);
         }
 
         .Btn-whatsapp:hover .sign-whatsapp {
-          width: 30%;
-          transition-duration: 0.3s;
-          padding-left: 10px;
+          transform: scale(1.05);
         }
 
         .Btn-whatsapp:hover .text-whatsapp {
           opacity: 1;
-          width: 70%;
-          transition-duration: 0.3s;
-          padding-right: 10px;
+          width: 104px;
+          padding-left: 2px;
+          padding-right: 18px;
         }
 
         .Btn-whatsapp:active {
-          transform: translate(2px, 2px);
+          transform: translateY(1px) scale(0.97);
+        }
+
+        @media (max-width: 640px) {
+          .whatsapp-floating-wrapper {
+            bottom: 20px;
+            right: 20px;
+          }
+          .Btn-whatsapp {
+            width: 50px;
+            height: 50px;
+          }
+          .sign-whatsapp {
+            width: 50px;
+            height: 50px;
+          }
+          .sign-whatsapp svg {
+            width: 26px;
+            height: 26px;
+          }
+          .Btn-whatsapp:hover {
+            width: 150px;
+          }
+          .Btn-whatsapp:hover .text-whatsapp {
+            width: 100px;
+            font-size: 14px;
+          }
         }
       `}</style>
 
@@ -98,7 +128,8 @@ export default function WhatsAppButton({
         target="_blank"
         rel="noopener noreferrer"
         className="Btn-whatsapp"
-        aria-label="Whatsapp"
+        aria-label="WhatsApp"
+        title="WhatsApp"
       >
         <div className="sign-whatsapp">
           <svg className="socialSvg whatsappSvg" viewBox="0 0 16 16">
@@ -108,7 +139,7 @@ export default function WhatsAppButton({
           </svg>
         </div>
 
-        <div className="text-whatsapp">Whatsapp</div>
+        <div className="text-whatsapp">WhatsApp</div>
       </a>
     </div>
   );

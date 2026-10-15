@@ -1,158 +1,137 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useI18n, LANGUAGES } from './index.jsx';
 
-const EASE_LUX = [0.16, 1, 0.3, 1];
+/**
+ * LanguageSwitch — Submenú de Idioma Minimalista y Ligero
+ * Trigger tipo label limpio (ej. "ES ▾") que despliega un submenú
+ * compacto, estilizado y sin saturar visualmente el navbar.
+ */
+export default function LanguageSwitch({ tone = 'default', className = '', align = 'right' }) {
+  const { lang, setLang } = useI18n();
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  const closeTimerRef = useRef(null);
 
-function GlobeIcon({ className = '' }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6">
-      <circle cx="12" cy="12" r="9" />
-      <path strokeLinecap="round" d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z" />
-    </svg>
-  );
-}
+  const isDark = tone === 'dark';
+  const currentLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
 
-export default function LanguageSwitch({ tone = 'default', align = 'right', className = '' }) {
-  const { lang, setLang, t } = useI18n();
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-  const triggerRef = useRef(null);
-
-  const current = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
-
-  const close = useCallback(() => setOpen(false), []);
-
+  // Cerrar al hacer clic fuera
   useEffect(() => {
-    if (!open) return undefined;
-    const onPointerDown = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) close();
-    };
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        close();
-        triggerRef.current?.focus();
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
       }
-    };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open, close]);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const choose = (code) => {
-    setLang(code);
-    close();
-    triggerRef.current?.focus();
+  const handleMouseEnter = () => {
+    clearTimeout(closeTimerRef.current);
+    setIsOpen(true);
   };
 
-  // tone="solid" para superficies oscuras simples, tone="dark" para navbar oscura/inmersiva
-  const isSolid = tone === 'solid';
-  const isDark = tone === 'dark';
-  const triggerClass = isDark
-    ? 'border-white/20 bg-black/45 text-[#f5efe3] hover:text-white hover:border-white/40 hover:bg-black/65 shadow-sm'
-    : isSolid
-    ? 'border-[#6b6048]/25 bg-[#f5efe3]/70 text-[#3a4a18] hover:bg-[#f5efe3]'
-    : 'border-[#d8ceb6]/70 bg-[#f5efe3]/60 text-[#5c523e] hover:text-[#2d2618] hover:border-[#4a5a22]/40 hover:bg-[#f5efe3]';
+  const handleMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 180);
+  };
+
+  const handleSelect = (code) => {
+    setLang(code);
+    setIsOpen(false);
+  };
 
   return (
-    <div ref={wrapRef} className={`relative ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative inline-block ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Trigger: Label limpio y ligero con flecha discreta */}
       <button
-        ref={triggerRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={`${t('a11y.selectLanguage')}: ${current.label}`}
-        className={`group inline-flex h-9 items-center gap-1.5 rounded-full border pl-2.5 pr-2.5 font-sans text-[11px] font-semibold tracking-[0.14em] uppercase backdrop-blur-md transition-all duration-300 active:scale-[0.97] ${triggerClass} ${
-          open ? (isDark ? 'border-white/50 text-white' : 'border-[#4a5a22]/50 text-[#2d2618]') : ''
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        className={`group inline-flex items-center gap-1 px-2 py-1 rounded-md font-sans text-[12px] font-semibold tracking-wider uppercase cursor-pointer select-none transition-colors duration-200 ${
+          isDark
+            ? isOpen
+              ? 'text-white bg-white/10'
+              : 'text-[#f5efe3]/80 hover:text-white hover:bg-white/5'
+            : isOpen
+            ? 'text-[#4a5a22] bg-[#4a5a22]/10'
+            : 'text-[#5c523e] hover:text-[#2d2618] hover:bg-[#4a5a22]/5'
         }`}
       >
-        <GlobeIcon className="h-[15px] w-[15px] opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
-        <span className="tabular-nums">{current.short}</span>
-        <motion.span
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.3, ease: EASE_LUX }}
-          className="opacity-55"
+        <span>{currentLang.short}</span>
+        <svg
+          className={`w-3 h-3 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          } ${isDark ? 'text-white/60 group-hover:text-white' : 'text-[#7a6e58] group-hover:text-[#2d2618]'}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2.2"
         >
-          <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" d="M19 9l-7 7-7-7" />
-          </svg>
-        </motion.span>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
+      {/* Submenú: Limpio, compacto y sin sobrecargar la pantalla */}
       <AnimatePresence>
-        {open && (
+        {isOpen && (
           <motion.div
-            role="listbox"
-            aria-label={t('a11y.language')}
-            tabIndex={-1}
-            initial={{ opacity: 0, y: 8, scale: 0.97 }}
+            initial={{ opacity: 0, y: 4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: EASE_LUX }}
-            style={{ transformOrigin: align === 'right' ? 'top right' : 'top left' }}
-            className={`absolute top-full mt-2 z-50 min-w-[168px] overflow-hidden rounded-2xl border p-1.5 backdrop-blur-xl ${
-              isDark
-                ? 'border-white/15 bg-[#141811]/95 text-[#f5efe3] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.8)]'
-                : 'border-[#d8ceb6] bg-[#f5efe3] text-[#2d2618] shadow-[0_24px_50px_-24px_rgba(45,38,24,0.45)]'
+            exit={{ opacity: 0, y: 3, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className={`absolute top-full mt-1.5 w-36 rounded-xl border p-1 shadow-lg backdrop-blur-xl z-50 ${
+              align === 'left' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
             } ${
-              align === 'right' ? 'right-0' : 'left-0'
+              isDark
+                ? 'bg-[#141811]/95 border-white/15 text-[#f5efe3] shadow-[0_12px_32px_rgba(0,0,0,0.6)]'
+                : 'bg-[#fbf8f1]/95 border-[#d8ceb6] text-[#2d2618] shadow-[0_12px_28px_rgba(45,38,24,0.18)]'
             }`}
           >
-            {LANGUAGES.map((l, i) => {
-              const active = l.code === lang;
+            {LANGUAGES.map((item) => {
+              const isActive = item.code === lang;
               return (
-                <motion.button
-                  key={l.code}
-                  role="option"
-                  aria-selected={active}
+                <button
+                  key={item.code}
                   type="button"
-                  onClick={() => choose(l.code)}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.24, delay: 0.04 * i, ease: EASE_LUX }}
-                  className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left font-sans transition-colors duration-200 ${
-                    active
+                  onClick={() => handleSelect(item.code)}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left text-xs font-sans font-medium transition-colors duration-150 cursor-pointer ${
+                    isActive
                       ? isDark
-                        ? 'bg-[#a8bc65]/20 text-[#d8eb96]'
-                        : 'bg-[#4a5a22]/10'
+                        ? 'bg-white/10 text-[#d8eb96] font-semibold'
+                        : 'bg-[#4a5a22]/10 text-[#4a5a22] font-semibold'
                       : isDark
-                      ? 'hover:bg-white/10 text-[#d8ceb6] hover:text-white'
-                      : 'hover:bg-[#4a5a22]/8'
+                      ? 'text-[#f5efe3]/75 hover:bg-white/5 hover:text-white'
+                      : 'text-[#6a5e48] hover:bg-[#4a5a22]/5 hover:text-[#2d2618]'
                   }`}
                 >
-                  <span className="flex items-baseline gap-2.5 min-w-0">
-                    <span
-                      className={`text-[11px] font-bold tracking-[0.14em] tabular-nums ${
-                        active ? (isDark ? 'text-[#d8eb96]' : 'text-[#4a5a22]') : (isDark ? 'text-[#a8bc65]' : 'text-[#8a7e68]')
-                      }`}
-                    >
-                      {l.short}
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold tracking-wider opacity-60">
+                      {item.short}
                     </span>
-                    <span
-                      className={`text-[13px] font-medium truncate ${
-                        active ? (isDark ? 'text-white' : 'text-[#2d2618]') : (isDark ? 'text-[#e0d8c7]' : 'text-[#4a5340]')
-                      }`}
-                    >
-                      {l.label}
-                    </span>
+                    <span>{item.label}</span>
                   </span>
-                  <AnimatePresence>
-                    {active && (
-                      <motion.span
-                        initial={{ opacity: 0, scale: 0.7 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.7 }}
-                        transition={{ duration: 0.2, ease: EASE_LUX }}
-                        className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDark ? 'bg-[#a8bc65]' : 'bg-[#4a5a22]'}`}
-                      />
-                    )}
-                  </AnimatePresence>
-                </motion.button>
+
+                  {isActive && (
+                    <svg
+                      className="w-3.5 h-3.5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
               );
             })}
           </motion.div>
@@ -161,3 +140,5 @@ export default function LanguageSwitch({ tone = 'default', align = 'right', clas
     </div>
   );
 }
+
+

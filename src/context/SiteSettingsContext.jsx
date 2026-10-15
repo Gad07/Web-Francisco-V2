@@ -549,6 +549,10 @@ export function SiteSettingsProvider({ children }) {
               return {
                 ...officialMatch,
                 ...m,
+                social: {
+                  ...officialMatch.social,
+                  ...(m.social || {}),
+                },
                 img: imgUrl || officialMatch.img,
                 bio: m.bio || officialMatch.bio,
                 responsibilities:
