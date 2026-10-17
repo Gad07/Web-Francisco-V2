@@ -86,18 +86,18 @@ export const DEFAULT_ALLIANCES_LIST = [
   },
   {
     id: 'fgpb',
-    name: 'Fondo Global para el Patrimonio Biocultural',
-    shortName: 'Fondo Biocultural',
-    acronym: 'FGPB',
-    type: 'philanthropic',
-    scope: { es: 'Multilateral', en: 'Multilateral' },
+    name: 'Alas Metropolitanas',
+    shortName: 'Alas Metropolitanas',
+    acronym: 'ALAS',
+    type: 'territorial',
+    scope: { es: 'Territorial · Biodiversidad Urbana', en: 'Territorial · Urban Biodiversity' },
     role: {
-      es: 'Financiamiento directo a proyectos comunitarios y brigadas contra la deforestación.',
-      en: 'Direct funding for community projects and anti-deforestation brigades.',
+      es: 'Conservación de fauna aviar, protección de corredores biológicos y biodiversidad metropolitana.',
+      en: 'Avian wildlife conservation, biological corridor protection and metropolitan biodiversity.',
     },
-    tag: 'Financiamiento Verde',
-    logo: '/imports/Logos/fgpb.png',
-    website: 'https://www.expomexico.ca/',
+    tag: 'Biodiversidad Urbana',
+    logo: '/imports/Logos/alasmetropolitanas.jpg',
+    website: 'https://mexicoporelclima.com/',
   },
   {
     id: 'alliance-1791929073252',
@@ -494,10 +494,32 @@ export function SiteSettingsProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const synced = DEFAULT_ALLIANCES_LIST.map((def) => {
-            const match = parsed.find((p) => p.id === def.id);
-            return match ? { ...def, ...match, logo: def.logo } : def;
+          const existingIds = new Set(parsed.map((p) => p.id));
+          // Conservar los aliados y logotipos guardados/editados por el usuario
+          const synced = parsed.map((item) => {
+            const defMatch = DEFAULT_ALLIANCES_LIST.find((def) => def.id === item.id);
+            let logoUrl = item.logo;
+            if (typeof logoUrl === 'string' && logoUrl.startsWith('/src/imports/')) {
+              logoUrl = logoUrl.replace('/src/imports/', '/imports/');
+            }
+            if (item.id === 'fgpb' && (logoUrl === '/imports/Logos/fgpb.png' || !logoUrl)) {
+              logoUrl = '/imports/Logos/alasmetropolitanas.jpg';
+            }
+            return {
+              ...(defMatch || {}),
+              ...item,
+              // Preservar el logotipo personalizado del usuario; si está vacío, usar el default
+              logo: logoUrl || defMatch?.logo || '',
+            };
           });
+
+          // Agregar aliados oficiales predeterminados si faltasen
+          DEFAULT_ALLIANCES_LIST.forEach((def) => {
+            if (!existingIds.has(def.id)) {
+              synced.push(def);
+            }
+          });
+
           localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(synced));
           return synced;
         }
@@ -542,7 +564,7 @@ export function SiteSettingsProvider({ children }) {
             if (typeof imgUrl === 'string' && imgUrl.startsWith('/src/imports/')) {
               imgUrl = imgUrl.replace('/src/imports/', '/imports/');
             }
-            if (officialMatch && (!imgUrl || imgUrl.includes('drive.google.com') || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
+            if (officialMatch && (!imgUrl || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
               imgUrl = officialMatch.img;
             }
             if (officialMatch) {
@@ -717,6 +739,30 @@ export function SiteSettingsProvider({ children }) {
   useEffect(() => {
     localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(governanceMembers));
   }, [governanceMembers]);
+
+  // Sincronización automática entre pestañas abiertas (Admin <-> Sitio Web)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (!e.newValue) return;
+      try {
+        if (e.key === ALLIANCES_STORAGE_KEY) {
+          setAlliances(JSON.parse(e.newValue));
+        } else if (e.key === GOVERNANCE_STORAGE_KEY) {
+          setGovernanceMembers(JSON.parse(e.newValue));
+        } else if (e.key === SETTINGS_STORAGE_KEY) {
+          setSiteSettings(JSON.parse(e.newValue));
+        } else if (e.key === POPUPS_STORAGE_KEY) {
+          setPopups(JSON.parse(e.newValue));
+        } else if (e.key === TRAINING_STORAGE_KEY) {
+          setTrainingData(JSON.parse(e.newValue));
+        }
+      } catch (err) {
+        console.warn('Error syncing storage event:', err);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // ─── GESTIÓN DE POP-UPS (CRUD + TOGGLE + DUPLICAR) ───
   const savePopup = (popupData) => {

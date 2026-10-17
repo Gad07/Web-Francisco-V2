@@ -59,14 +59,14 @@ const BASELINE_ALLIANCES_DATA = {
     acronym: 'UCEPS',
   },
   fgpb: {
-    type: 'philanthropic',
-    scope: { es: 'Multilateral', en: 'Multilateral' },
+    type: 'territorial',
+    scope: { es: 'Territorial · Biodiversidad Urbana', en: 'Territorial · Urban Biodiversity' },
     role: {
-      es: 'Financiamiento directo a proyectos comunitarios y brigadas contra la deforestación.',
-      en: 'Direct funding for community projects and anti-deforestation brigades.',
+      es: 'Conservación de fauna aviar, protección de corredores biológicos y biodiversidad metropolitana.',
+      en: 'Avian wildlife conservation, biological corridor protection and metropolitan biodiversity.',
     },
-    tag: 'Financiamiento Verde',
-    acronym: 'FGPB',
+    tag: 'Biodiversidad Urbana',
+    acronym: 'ALAS',
   },
 };
 
@@ -217,13 +217,36 @@ export default function InstitutionalAlliances() {
               const cardContent = (
                 <div className="w-full h-36 sm:h-44 p-6 sm:p-8 rounded-2xl bg-white border border-[#d8ceb6] hover:border-[#4a5a22]/50 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
                   {item.logo ? (
-                    <img
-                      src={formatDriveUrl(item.logo)}
-                      alt={item.name || 'Aliado Institucional'}
-                      referrerPolicy="no-referrer"
-                      className="max-h-20 sm:max-h-24 max-w-[85%] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    <>
+                      <img
+                        src={formatDriveUrl(item.logo)}
+                        alt={item.name || 'Aliado Institucional'}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const currentSrc = e.currentTarget.src || '';
+                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                            e.currentTarget.dataset.retried = 'true';
+                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                            if (idMatch && idMatch[1]) {
+                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                              return;
+                            }
+                          }
+                          // Si la imagen falla por completo, mostrar el nombre con estilo tipográfico
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) fallback.style.display = 'block';
+                        }}
+                        className="max-h-20 sm:max-h-24 max-w-[85%] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <span
+                        style={{ display: 'none' }}
+                        className="font-serif text-center text-[#2d2618] text-sm sm:text-base font-light px-3 group-hover:text-[#4a5a22] transition-colors line-clamp-3"
+                      >
+                        {item.name}
+                      </span>
+                    </>
                   ) : (
                     <span className="font-serif text-center text-[#2d2618] text-sm sm:text-base font-light px-3 group-hover:text-[#4a5a22] transition-colors line-clamp-3">
                       {item.name}

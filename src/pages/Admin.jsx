@@ -817,6 +817,7 @@ export default function Admin() {
       name: '',
       logo: '',
       website: '',
+      type: 'multilateral',
     });
   };
 
@@ -6066,6 +6067,16 @@ export default function Admin() {
                             src={formatDriveUrl(item.logo)}
                             alt={item.name || 'Logotipo de Aliado'}
                             referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              const currentSrc = e.currentTarget.src || '';
+                              if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                e.currentTarget.dataset.retried = 'true';
+                                const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                if (idMatch && idMatch[1]) {
+                                  e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                }
+                              }
+                            }}
                             className="w-full h-full object-contain"
                             loading="lazy"
                           />
@@ -6409,6 +6420,16 @@ export default function Admin() {
                         src={formatDriveUrl(editingAlliance.logo)}
                         alt="Vista previa"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const currentSrc = e.currentTarget.src || '';
+                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                            e.currentTarget.dataset.retried = 'true';
+                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                            if (idMatch && idMatch[1]) {
+                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                            }
+                          }
+                        }}
                         className="w-full h-full object-contain"
                       />
                     ) : (
@@ -6418,6 +6439,23 @@ export default function Admin() {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Categoría / Tipo de Aliado */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Categoría de Alianza
+                  </label>
+                  <select
+                    value={editingAlliance.type || 'multilateral'}
+                    onChange={(e) => setEditingAlliance({ ...editingAlliance, type: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                  >
+                    <option value="multilateral">Organismo Multilateral</option>
+                    <option value="academic">Red Académica & Científica</option>
+                    <option value="territorial">Organización Comunitaria / Territorial</option>
+                    <option value="philanthropic">Fondo & Filantropía</option>
+                  </select>
                 </div>
 
                 {/* Sitio Web Oficial */}
