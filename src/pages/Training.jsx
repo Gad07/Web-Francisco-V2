@@ -182,27 +182,27 @@ export default function Training() {
               ))}
             </div>
 
-            {/* CTA RÁPIDO A DIPLOMADOS */}
+            {/* AVISO INSTITUCIONAL DE FORMACIÓN */}
             <div className="p-8 sm:p-12 rounded-3xl bg-[#2d2618] text-[#f5efe3] flex flex-col md:flex-row items-center justify-between gap-8">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-[#a8bc65]">
-                  {t({ es: 'Convocatoria Ciclo 2026', en: '2026 Academic Cycle Open' })}
+                  {t({ es: 'CGA Academy', en: 'CGA Academy' })}
                 </span>
                 <h4 className="font-serif text-2xl sm:text-3xl font-light mt-1 mb-2">
-                  {t({ es: 'Explora nuestros 4 Diplomados Internacionales', en: 'Explore our 4 International Diplomas' })}
+                  {t({ es: 'Próximas Convocatorias y Programas', en: 'Upcoming Calls & Programs' })}
                 </h4>
                 <p className="text-sm text-[#d8ceb6] font-light max-w-xl">
                   {t({
-                    es: 'Modalidades híbridas y virtuales con becas disponibles del 50% al 100% para líderes comunitarios y servidores públicos.',
-                    en: 'Hybrid and online modalities with 50% to 100% scholarships for community leaders and civil servants.',
+                    es: 'Los programas de formación especializada y convocatorias institucionales serán publicados a través de esta plataforma.',
+                    en: 'Specialized training programs and institutional calls will be published through this platform.',
                   })}
                 </p>
               </div>
               <button
-                onClick={() => setActiveTab('diplomados')}
-                className="px-6 py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shrink-0 shadow-lg"
+                onClick={() => setActiveTab('inscripciones')}
+                className="px-6 py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shrink-0 shadow-lg cursor-pointer"
               >
-                {t({ es: 'Ver Diplomados', en: 'View Diplomas' })} &rarr;
+                {t({ es: 'Contacto & Registro', en: 'Contact & Registration' })} &rarr;
               </button>
             </div>
           </div>
@@ -216,59 +216,76 @@ export default function Training() {
                 {t({ es: 'Programas de Alta Especialización', en: 'High Specialization Programs' })}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
-                {t({ es: 'Diplomados Ejecutivos e Internacionales 2026', en: 'Executive & International Diplomas 2026' })}
+                {t({ es: 'Diplomados Ejecutivos e Internacionales', en: 'Executive & International Diplomas' })}
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {diplomados.map((item, i) => (
-                <Reveal key={item.id} delay={i * 0.1}>
-                  <div className="p-8 sm:p-10 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-full">
-                    <div>
-                      <span className="block text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[#4a5a22] mb-2.5">
-                        {item.badge}
-                      </span>
-                      <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug mb-3">
-                        {t(item.title)}
-                      </h4>
-                      <p className="text-xs text-[#8a7e68] font-medium uppercase tracking-wider mb-1">
-                        {item.duration}
-                      </p>
-                      <p className="text-xs text-[#4a5a22] font-semibold mb-4">
-                        {item.dates}
-                      </p>
-                      <p className="text-[#6b6048] text-sm font-light leading-relaxed mb-4">
-                        {t(item.desc)}
-                      </p>
-                      <div className="p-3.5 rounded-xl bg-[#eae4d2]/60 mb-6 text-xs text-[#5c523e]">
-                        <strong>{t({ es: 'Perfil de Ingreso: ', en: 'Candidate Profile: ' })}</strong>
-                        {t(item.target)}
-                      </div>
-
-                      <div className="space-y-2 pt-4 border-t border-[#eae4d2]">
-                        <p className="text-[11px] uppercase tracking-wider font-semibold text-[#2d2618]">
-                          {t({ es: 'Estructura Curricular:', en: 'Curriculum Structure:' })}
+            {diplomados.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {diplomados.map((item, i) => (
+                  <Reveal key={item.id} delay={i * 0.1}>
+                    <div className="p-8 sm:p-10 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-full">
+                      <div>
+                        <span className="block text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[#4a5a22] mb-2.5">
+                          {item.badge}
+                        </span>
+                        <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light leading-snug mb-3">
+                          {t(item.title)}
+                        </h4>
+                        <p className="text-xs text-[#8a7e68] font-medium uppercase tracking-wider mb-1">
+                          {item.duration}
                         </p>
-                        <ul className="text-xs text-[#6b6048] space-y-1.5 list-disc list-inside font-light">
-                          {item.modules.map((m, mIdx) => (
-                            <li key={mIdx}>{m}</li>
-                          ))}
-                        </ul>
+                        <p className="text-xs text-[#4a5a22] font-semibold mb-4">
+                          {item.dates}
+                        </p>
+                        <p className="text-[#6b6048] text-sm font-light leading-relaxed mb-4">
+                          {t(item.desc)}
+                        </p>
+                        <div className="p-3.5 rounded-xl bg-[#eae4d2]/60 mb-6 text-xs text-[#5c523e]">
+                          <strong>{t({ es: 'Perfil de Ingreso: ', en: 'Candidate Profile: ' })}</strong>
+                          {t(item.target)}
+                        </div>
+
+                        <div className="space-y-2 pt-4 border-t border-[#eae4d2]">
+                          <p className="text-[11px] uppercase tracking-wider font-semibold text-[#2d2618]">
+                            {t({ es: 'Estructura Curricular:', en: 'Curriculum Structure:' })}
+                          </p>
+                          <ul className="text-xs text-[#6b6048] space-y-1.5 list-disc list-inside font-light">
+                            {item.modules.map((m, mIdx) => (
+                              <li key={mIdx}>{m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="mt-8 pt-6 border-t border-[#eae4d2] flex items-center justify-between gap-4">
+                        <button
+                          onClick={() => handleOpenModal(t(item.title))}
+                          className="w-full py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider transition-all shadow-md text-center"
+                        >
+                          {t({ es: 'Solicitar Admisión & Temario', en: 'Apply & Request Syllabus' })} &rarr;
+                        </button>
                       </div>
                     </div>
-
-                    <div className="mt-8 pt-6 border-t border-[#eae4d2] flex items-center justify-between gap-4">
-                      <button
-                        onClick={() => handleOpenModal(t(item.title))}
-                        className="w-full py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider transition-all shadow-md text-center"
-                      >
-                        {t({ es: 'Solicitar Admisión & Temario', en: 'Apply & Request Syllabus' })} &rarr;
-                      </button>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+                  </Reveal>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-4">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                  {t({ es: 'Convocatorias CGA', en: 'CGA Calls' })}
+                </span>
+                <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  {t({ es: 'Próximamente Convocatorias de Diplomados', en: 'Upcoming Diploma Calls' })}
+                </h4>
+                <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                  {t({
+                    es: 'Actualmente no hay convocatorias abiertas en este ciclo. Puedes registrarte en la sección de inscripciones para recibir avisos de apertura.',
+                    en: 'There are currently no open calls in this cycle. You can register in the admissions section to receive launch notifications.',
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -284,29 +301,46 @@ export default function Training() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {cursos.map((c, idx) => (
-                <div key={idx} className="p-8 rounded-3xl bg-[#eae4d2]/70 border border-[#d8ceb6] flex flex-col justify-between shadow-sm">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="text-xs font-semibold text-[#4a5a22] uppercase tracking-wider">{c.hours}</span>
-                      <span className="text-xs text-[#8a7e68] font-medium">{c.dates}</span>
+            {cursos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {cursos.map((c, idx) => (
+                  <div key={idx} className="p-8 rounded-3xl bg-[#eae4d2]/70 border border-[#d8ceb6] flex flex-col justify-between shadow-sm">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="text-xs font-semibold text-[#4a5a22] uppercase tracking-wider">{c.hours}</span>
+                        <span className="text-xs text-[#8a7e68] font-medium">{c.dates}</span>
+                      </div>
+                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-3">{t(c.title)}</h4>
+                      <p className="text-sm text-[#6b6048] font-light leading-relaxed mb-4">{t(c.desc)}</p>
+                      <p className="text-xs text-[#8a7e68]">
+                        <strong>{t({ es: 'Catedrático: ', en: 'Instructor: ' })}</strong>{c.instructor}
+                      </p>
                     </div>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-3">{t(c.title)}</h4>
-                    <p className="text-sm text-[#6b6048] font-light leading-relaxed mb-4">{t(c.desc)}</p>
-                    <p className="text-xs text-[#8a7e68]">
-                      <strong>{t({ es: 'Catedrático: ', en: 'Instructor: ' })}</strong>{c.instructor}
-                    </p>
+                    <button
+                      onClick={() => handleOpenModal(t(c.title))}
+                      className="mt-6 py-3 rounded-full bg-[#2d2618] hover:bg-[#3a4a18] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider transition-colors"
+                    >
+                      {t({ es: 'Inscribirme a este Curso', en: 'Enroll in this Course' })} &rarr;
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleOpenModal(t(c.title))}
-                    className="mt-6 py-3 rounded-full bg-[#2d2618] hover:bg-[#3a4a18] text-[#f5efe3] text-xs uppercase font-semibold tracking-wider transition-colors"
-                  >
-                    {t({ es: 'Inscribirme a este Curso', en: 'Enroll in this Course' })} &rarr;
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-4">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                  {t({ es: 'Educación Continua', en: 'Continuing Education' })}
+                </span>
+                <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  {t({ es: 'Próximamente Talleres y Cursos Especializados', en: 'Upcoming Specialized Workshops' })}
+                </h4>
+                <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                  {t({
+                    es: 'No hay talleres o cursos técnicos programados en este momento. Las nuevas ediciones se darán a conocer a través de esta sección.',
+                    en: 'There are currently no workshops or courses scheduled.',
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -318,31 +352,48 @@ export default function Training() {
                 {t({ es: 'Diálogo Abierto & Divulgación', en: 'Open Dialogue & Outreach' })}
               </span>
               <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
-                {t({ es: 'Conferencias Magistrales & Webinars Globales', en: 'Keynotes & Global Webinars' })}
+                {t({ es: 'Conferencias Magistrales & Foros Globales', en: 'Keynotes & Global Forums' })}
               </h3>
             </div>
 
-            <div className="space-y-6 max-w-4xl mx-auto">
-              {webinars.map((w, idx) => (
-                <div key={idx} className="p-7 sm:p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                  <div className="space-y-2">
-                    <span className="block text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[#4a5a22]">
-                      {w.type}
-                    </span>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light leading-snug">{t(w.title)}</h4>
-                    <p className="text-sm text-[#4a5a22] font-medium">{w.speaker}</p>
-                    <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t(w.summary)}</p>
-                    <p className="text-xs text-[#8a7e68] font-semibold pt-1">{w.date}</p>
+            {webinars.length > 0 ? (
+              <div className="space-y-6 max-w-4xl mx-auto">
+                {webinars.map((w, idx) => (
+                  <div key={idx} className="p-7 sm:p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                      <span className="block text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[#4a5a22]">
+                        {w.type}
+                      </span>
+                      <h4 className="font-serif text-2xl text-[#2d2618] font-light leading-snug">{t(w.title)}</h4>
+                      <p className="text-sm text-[#4a5a22] font-medium">{w.speaker}</p>
+                      <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t(w.summary)}</p>
+                      <p className="text-xs text-[#8a7e68] font-semibold pt-1">{w.date}</p>
+                    </div>
+                    <button
+                      onClick={() => handleOpenModal(t(w.title))}
+                      className="px-6 py-3 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 shadow-sm"
+                    >
+                      {t({ es: 'Reservar Lugar', en: 'Book Seat' })}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleOpenModal(t(w.title))}
-                    className="px-6 py-3 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 shadow-sm"
-                  >
-                    {t({ es: 'Reservar Lugar', en: 'Book Seat' })}
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-4">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                  {t({ es: 'Divulgación Abierta', en: 'Open Outreach' })}
+                </span>
+                <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  {t({ es: 'Próximamente Conferencias Magistrales', en: 'Upcoming Keynote Conferences' })}
+                </h4>
+                <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                  {t({
+                    es: 'No hay conferencias magistrales ni webinars programados en este momento.',
+                    en: 'There are currently no keynote conferences or webinars scheduled.',
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -474,23 +525,40 @@ export default function Training() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {especialistas.map((sp, idx) => (
-                <div key={idx} className="p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] text-[#8a7e68] font-bold uppercase tracking-widest block mb-2">{sp.origin}</span>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-1">{sp.name}</h4>
-                    <p className="text-xs font-semibold text-[#4a5a22] mb-2">{t(sp.role)}</p>
-                    <p className="text-[11px] text-[#8a7e68] italic mb-4">{sp.credentials}</p>
-                    <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t(sp.expertise)}</p>
+            {especialistas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {especialistas.map((sp, idx) => (
+                  <div key={idx} className="p-8 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-sm flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] text-[#8a7e68] font-bold uppercase tracking-widest block mb-2">{sp.origin}</span>
+                      <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-1">{sp.name}</h4>
+                      <p className="text-xs font-semibold text-[#4a5a22] mb-2">{t(sp.role)}</p>
+                      <p className="text-[11px] text-[#8a7e68] italic mb-4">{sp.credentials}</p>
+                      <p className="text-xs text-[#6b6048] font-light leading-relaxed">{t(sp.expertise)}</p>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-[#eae4d2] flex items-center justify-between text-[11px] text-[#8a7e68]">
+                      <span>{t({ es: 'Claustro Docente CGA', en: 'CGA Faculty Board' })}</span>
+                      <span className="text-[#4a5a22]">Ginebra · CDMX</span>
+                    </div>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-[#eae4d2] flex items-center justify-between text-[11px] text-[#8a7e68]">
-                    <span>{t({ es: 'Claustro Docente CGA', en: 'CGA Faculty Board' })}</span>
-                    <span className="text-[#4a5a22]">Ginebra · CDMX</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-4">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                  {t({ es: 'Cuerpo Académico', en: 'Academic Faculty' })}
+                </span>
+                <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                  {t({ es: 'Próximamente Claustro de Especialistas', en: 'Upcoming Faculty Board' })}
+                </h4>
+                <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                  {t({
+                    es: 'El claustro de catedráticos e investigadores internacionales se dará a conocer con la apertura del nuevo ciclo académico.',
+                    en: 'The faculty of international professors and researchers will be announced with the launch of the new academic cycle.',
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -545,14 +613,31 @@ export default function Training() {
                 </h3>
                 <p className="text-sm sm:text-base text-[#6b6048] font-light">
                   {t({
-                    es: 'Consulta las fechas de inicio de diplomados, talleres de campo, webinars magistrales y cierres de becas en tiempo real.',
-                    en: 'Check diploma start dates, field workshops, keynote webinars and scholarship deadlines in real time.',
+                    es: 'Consulta las fechas y actividades del nuevo ciclo académico y convocatorias institucionales.',
+                    en: 'Check dates and activities of the new academic cycle and institutional calls.',
                   })}
                 </p>
               </div>
 
-              {/* Barra de Filtros por Categoría y Selector de Vista */}
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6]">
+              {calendario.length === 0 ? (
+                <div className="text-center py-16 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-3">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                    {t({ es: 'Calendario Institucional', en: 'Institutional Calendar' })}
+                  </span>
+                  <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                    {t({ es: 'Sin Fechas Programadas Actualmente', en: 'No Scheduled Dates at This Time' })}
+                  </h4>
+                  <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                    {t({
+                      es: 'El cronograma oficial de convocatorias e inicios de ciclo se publicará próximamente.',
+                      en: 'The official schedule of calls and cycle starts will be published soon.',
+                    })}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Barra de Filtros por Categoría y Selector de Vista */}
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6]">
                 <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 md:pb-0">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#4a5a22] px-2 flex items-center gap-1 shrink-0">
                     <Filter className="w-3.5 h-3.5" />
@@ -873,8 +958,10 @@ export default function Training() {
                   ))}
                 </div>
               )}
-            </div>
-          );
+            </>
+          )}
+        </div>
+      );
         })()}
 
         {/* 8. INSCRIPCIONES Y BECAS */}
@@ -911,14 +998,19 @@ export default function Training() {
                     required
                     className="w-full px-4 py-3 rounded-xl bg-[#eae4d2]/70 border border-[#d8ceb6] text-sm focus:outline-none focus:border-[#4a5a22] text-[#2d2618]"
                   >
-                    <option value="">{t({ es: 'Selecciona un programa...', en: 'Select a program...' })}</option>
-                    <option value="dip-gobernanza">Diplomado Internacional en Gobernanza Socioambiental</option>
-                    <option value="dip-satelital">Diplomado en Monitoreo Satelital, IA y Conservación</option>
-                    <option value="dip-agua">Diplomado en Gestión Integral del Agua y Resiliencia Hídrica</option>
-                    <option value="dip-finanzas">Diplomado en Finanzas Climáticas y Bonos Verdes</option>
-                    <option value="curso-semillas">Taller de Bancos Comunitarios de Semillas Nativas</option>
-                    <option value="curso-huella">Curso de Medición de Huella de Carbono y GHG</option>
-                    <option value="in-company">Programa Especial In-Company para Organizaciones</option>
+                    <option value="">{t({ es: 'Selecciona una opción...', en: 'Select an option...' })}</option>
+                    {diplomados.map((d) => (
+                      <option key={d.id} value={d.id}>{t(d.title)}</option>
+                    ))}
+                    {cursos.map((c) => (
+                      <option key={c.id} value={c.id}>{t(c.title)}</option>
+                    ))}
+                    {webinars.map((w) => (
+                      <option key={w.id} value={w.id}>{t(w.title)}</option>
+                    ))}
+                    <option value="aviso-apertura">{t({ es: 'Notificación de apertura de nuevas convocatorias', en: 'Notification for upcoming calls' })}</option>
+                    <option value="solicitud-institucional">{t({ es: 'Solicitud de programa institucional para organizaciones', en: 'Institutional program request for organizations' })}</option>
+                    <option value="informacion-general">{t({ es: 'Información general de la Academia CGA', en: 'General CGA Academy information' })}</option>
                   </select>
                 </div>
 

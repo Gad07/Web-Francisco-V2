@@ -645,15 +645,15 @@ export default function Agenda2030() {
               </div>
 
               {/* Selector Rápido de ODS en Desktop */}
-              <div className="hidden lg:flex items-center gap-1 bg-black/50 p-1.5 border border-white/15 backdrop-blur-md">
+              <div className="hidden lg:flex items-center gap-1.5 bg-black/50 p-1.5 rounded-full border border-white/15 backdrop-blur-md">
                 {odsList.map((item, idx) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setActiveOdsIndex(idx)}
-                    className={`px-3 py-1.5 text-xs font-sans transition-all duration-300 cursor-pointer ${
+                    className={`px-3.5 py-1.5 text-xs font-sans rounded-full transition-all duration-300 cursor-pointer ${
                       activeOdsIndex === idx
-                        ? 'bg-white/20 text-white font-medium border border-white/30'
+                        ? 'bg-white/20 text-white font-medium border border-white/30 shadow-xs'
                         : 'text-slate-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
@@ -666,11 +666,11 @@ export default function Agenda2030() {
               <button
                 type="button"
                 onClick={() => setActiveOdsIndex(null)}
-                className="group inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-black/60 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[10px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.2em] transition-all duration-300 active:scale-[0.96] cursor-pointer"
+                className="group inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-black/60 hover:bg-[#f5efe3] text-[#f5efe3] hover:text-[#2d2618] backdrop-blur-xl border border-white/25 hover:border-[#f5efe3] text-[10px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.2em] rounded-full transition-all duration-300 active:scale-[0.96] cursor-pointer"
                 aria-label={t({ es: 'Cerrar inmersión', en: 'Close immersion' })}
               >
                 <span>{t({ es: 'Cerrar', en: 'Close' })}</span>
-                <span className="flex items-center justify-center w-4 h-4 bg-white/15 group-hover:bg-[#2d2618]/10 transition-colors">
+                <span className="flex items-center justify-center w-4 h-4 rounded-full bg-white/15 group-hover:bg-[#2d2618]/10 transition-colors">
                   <svg className="w-2.5 h-2.5 transition-transform duration-300 group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -717,7 +717,7 @@ export default function Agenda2030() {
                       <Link
                         to="/proyectos"
                         onClick={() => setActiveOdsIndex(null)}
-                        className="inline-flex items-center gap-2 py-3 px-7 bg-[#f5efe3] hover:bg-white text-[#2d2618] font-semibold text-xs uppercase tracking-widest transition-all duration-300 shadow-xl group cursor-pointer"
+                        className="inline-flex items-center gap-2 py-3 px-7 bg-[#f5efe3] hover:bg-white text-[#2d2618] font-semibold text-xs uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-xl group cursor-pointer"
                       >
                         <div>{t({ es: 'Ver Proyectos Territoriales', en: 'View Territorial Projects' })}</div>
                         <div className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</div>
@@ -728,7 +728,7 @@ export default function Agenda2030() {
                         <button
                           type="button"
                           onClick={handlePrevOds}
-                          className="w-10 h-10 bg-white/10 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer active:scale-95"
                           title={t({ es: 'Anterior', en: 'Previous' })}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -738,7 +738,7 @@ export default function Agenda2030() {
                         <button
                           type="button"
                           onClick={handleNextOds}
-                          className="w-10 h-10 bg-white/10 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer active:scale-95"
                           title={t({ es: 'Siguiente', en: 'Next' })}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -751,7 +751,7 @@ export default function Agenda2030() {
 
                   {/* Columna Derecha: Métricas y Entregables */}
                   <div className="lg:col-span-5 space-y-6 lg:border-l lg:border-white/15 lg:pl-10">
-                    <div className="p-5 bg-white/5 border border-white/10 backdrop-blur-md">
+                    <div className="p-5 sm:p-6 bg-white/5 border border-white/15 backdrop-blur-md rounded-2xl shadow-lg">
                       <div className="font-serif text-4xl sm:text-5xl text-[#f5efe3] font-light mb-1 tabular">
                         {activeOds.metric}
                       </div>
@@ -766,7 +766,7 @@ export default function Agenda2030() {
                       </div>
                       {activeOds.deliverables.map((item, idx) => (
                         <div key={idx} className="flex items-start gap-3 text-xs text-slate-300 font-light leading-relaxed">
-                          <span className="w-1.5 h-1.5 bg-[#a9bd6f] mt-1.5 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#a9bd6f] mt-1.5 shrink-0" />
                           <span>{t(item)}</span>
                         </div>
                       ))}

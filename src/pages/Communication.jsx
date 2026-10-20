@@ -8,7 +8,6 @@ import ArticleReader from '../components/ArticleReader.jsx';
 import { useI18n } from '../i18n/index.jsx';
 import { useArticles } from '../context/ArticlesContext.jsx';
 import { motion } from 'framer-motion';
-import { SlidersHorizontal } from 'lucide-react';
 
 export default function Communication() {
   const { t } = useI18n();
@@ -18,10 +17,7 @@ export default function Communication() {
   const { articles } = useArticles();
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [cardLayoutView, setCardLayoutView] = useState('dynamic'); // 'dynamic' | 'classic' | 'dark-overlay'
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const [subscribed, setSubscribed] = useState(false);
-  const [subEmail, setSubEmail] = useState('');
 
   // Sincronizar artículo seleccionado con URL param o query param
   useEffect(() => {
@@ -161,9 +157,8 @@ export default function Communication() {
                 </Reveal>
               )}
 
-              {/* BARRA DE HERRAMIENTAS: FILTROS POR CATEGORÍA + SELECTOR DE DISEÑO EDITORIAL */}
+              {/* BARRA DE FILTROS CATEGORIALES (SIEMPRE VISIBLE) */}
               <section className="space-y-4 max-w-7xl mx-auto w-full">
-                {/* SELECTOR DE FILTROS EN UNA SOLA LÍNEA */}
                 <div className="max-w-4xl mx-auto w-full">
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 sm:gap-1.5 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs">
                     {filters.map((f) => (
@@ -181,130 +176,38 @@ export default function Communication() {
                     ))}
                   </div>
                 </div>
+              </section>
 
-                {/* SELECTOR DE DISEÑO VISUAL DE NOTICIAS (FORMATOS EDITORIALES) */}
-                <div className="flex items-center justify-between gap-3 flex-wrap pt-2 px-2">
-                  <div className="flex items-center gap-2 text-xs font-mono text-[#6b6048]">
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-[#4a5a22]" />
-                    <span className="font-semibold uppercase tracking-wider text-[#4a5a22]">
-                      {t({ es: 'Diseño de Noticias:', en: 'News Card Layout:' })}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 flex-wrap bg-[#eae4d2]/60 p-1 rounded-xl border border-[#d8ceb6]">
-                    {[
-                      { id: 'dynamic', label: { es: 'Mosaico Dinámico', en: 'Dynamic Mosaic' } },
-                      { id: 'classic', label: { es: '1. Clásico Vertical', en: '1. Classic Vertical' } },
-                      { id: 'dark-overlay', label: { es: '3. Inmersivo Oscuro', en: '3. Dark Overlay' } },
-                    ].map((mode) => (
-                      <button
-                        key={mode.id}
-                        onClick={() => setCardLayoutView(mode.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-sans transition-all cursor-pointer ${
-                          cardLayoutView === mode.id
-                            ? 'bg-[#4a5a22] text-[#f5efe3] font-semibold shadow-xs'
-                            : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-white/60'
-                        }`}
-                      >
-                        {t(mode.label)}
-                      </button>
-                    ))}
-                  </div>
+              {/* GRILLA EDITORIAL O ESTADO VACÍO */}
+              {filtered.length > 0 ? (
+                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+                  {filtered.map((item, idx) => (
+                    <Reveal key={item.id} delay={idx * 0.04}>
+                      <NewsCard
+                        article={item}
+                        onSelect={handleSelectArticle}
+                        forcedStyle="classic"
+                      />
+                    </Reveal>
+                  ))}
+                </section>
+              ) : (
+                <div className="text-center py-20 px-6 rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] max-w-2xl mx-auto space-y-4 my-8">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22] block">
+                    {t({ es: 'Sala de Comunicación Oficial', en: 'Official Press Room' })}
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
+                    {t({ es: 'Próximamente Noticias y Comunicados', en: 'Upcoming News & Press Releases' })}
+                  </h3>
+                  <p className="text-sm text-[#6b6048] font-light leading-relaxed">
+                    {t({
+                      es: 'Actualmente no hay publicaciones en esta sección. Los pronunciamientos oficiales serán emitidos a través de este canal.',
+                      en: 'There are currently no publications in this section. Official releases will be published through this channel.',
+                    })}
+                  </p>
                 </div>
-              </section>
+              )}
 
-              {/* GRILLA EDITORIAL MULTI-DISEÑO DE ARTÍCULOS */}
-              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-                {filtered.map((item, idx) => (
-                  <Reveal key={item.id} delay={idx * 0.04}>
-                    <NewsCard
-                      article={item}
-                      onSelect={handleSelectArticle}
-                      forcedStyle={cardLayoutView === 'dynamic' ? null : cardLayoutView}
-                    />
-                  </Reveal>
-                ))}
-              </section>
-
-              {/* SALA DE MEDIOS & PRENSA INTERNACIONAL */}
-              <section className="p-8 sm:p-12 lg:p-14 rounded-3xl bg-[#2d2618] text-[#f5efe3] shadow-xl relative overflow-hidden">
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-8 space-y-3">
-                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#a8bc65]">
-                      {t({ es: 'Sala de Prensa & Prensa Internacional', en: 'Press Room & International Media' })}
-                    </span>
-                    <h3 className="font-serif text-3xl sm:text-4xl font-light leading-tight">
-                      {t({ es: 'Recursos Oficiales para Periodistas e Investigadores', en: 'Official Resources for Journalists & Researchers' })}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#d8ceb6] font-light leading-relaxed max-w-2xl">
-                      {t({
-                        es: 'Accede a kits de prensa oficiales, semblanzas curriculares del Dr. Francisco Solorio, archivo fotográfico de alta resolución y acreditaciones para foros globales del CGA.',
-                        en: 'Access official press kits, biographical profiles of Dr. Francisco Solorio, high-resolution media photography and credentials for CGA global summits.',
-                      })}
-                    </p>
-                  </div>
-
-                  <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-end">
-                    <a
-                      href="mailto:prensa@consejoparaelambienteglobal.org"
-                      className="px-6 py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all text-center shadow-md"
-                    >
-                      {t({ es: 'Contactar a Prensa', en: 'Contact Press Office' })} &rarr;
-                    </a>
-                    <Link
-                      to="/admin"
-                      className="px-6 py-3.5 rounded-full bg-[#f5efe3]/10 hover:bg-[#f5efe3]/20 border border-white/20 text-[#f5efe3] text-xs font-semibold uppercase tracking-wider transition-all text-center"
-                    >
-                      ⚙️ {t({ es: 'Gestor de Contenido (CMS)', en: 'Content Manager (CMS)' })}
-                    </Link>
-                  </div>
-                </div>
-              </section>
-
-              {/* SUSCRIPCIÓN AL BOLETÍN OFICIAL */}
-              <section id="boletin" className="p-8 sm:p-12 rounded-3xl bg-[#eae4d2]/70 border border-[#d8ceb6] text-center max-w-3xl mx-auto space-y-4">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#4a5a22]">
-                  {t({ es: 'Boletín Semanal CGA', en: 'CGA Weekly Dispatch' })}
-                </span>
-                <h4 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
-                  {t({ es: 'Suscríbete a nuestro boletín de análisis y convocatorias', en: 'Subscribe to our analysis and calls dispatch' })}
-                </h4>
-                <p className="text-xs sm:text-sm text-[#6b6048] max-w-lg mx-auto font-light leading-relaxed">
-                  {t({
-                    es: 'Recibe en tu correo las publicaciones científicas, análisis editoriales del Presidente y convocatorias a diplomados.',
-                    en: 'Receive scientific papers, presidential editorial essays and diploma calls directly in your inbox.',
-                  })}
-                </p>
-
-                {!subscribed ? (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setSubscribed(true);
-                    }}
-                    className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2"
-                  >
-                    <input
-                      required
-                      type="email"
-                      value={subEmail}
-                      onChange={(e) => setSubEmail(e.target.value)}
-                      placeholder={t({ es: 'tu.correo@ejemplo.com', en: 'your.email@example.com' })}
-                      className="flex-1 px-5 py-3.5 rounded-full bg-[#f5efe3] border border-[#d8ceb6] text-xs sm:text-sm focus:outline-none focus:border-[#4a5a22] text-[#2d2618]"
-                    />
-                    <button
-                      type="submit"
-                      className="px-7 py-3.5 rounded-full bg-[#4a5a22] hover:bg-[#5a6b2a] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md shrink-0"
-                    >
-                      {t({ es: 'Suscribirme', en: 'Subscribe' })}
-                    </button>
-                  </form>
-                ) : (
-                  <div className="p-4 rounded-2xl bg-[#4a5a22]/10 text-[#4a5a22] font-semibold text-xs">
-                    ✓ {t({ es: '¡Gracias por suscribirte al boletín oficial del CGA!', en: 'Thank you for subscribing to the official CGA dispatch!' })}
-                  </div>
-                )}
-              </section>
             </main>
           </>
         )}

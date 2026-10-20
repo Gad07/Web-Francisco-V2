@@ -1,7 +1,7 @@
 export const DEFAULT_GOVERNANCE_MEMBERS = [
   {
     id: 'luis-garcia',
-    category: 'founders',
+    category: 'gobierno',
     num: '01',
     name: 'MTRO. LUIS GARCÍA GONZÁLEZ',
     role: { es: 'CONSEJERO PRESIDENTE', en: 'PRESIDENT COUNCILLOR' },
@@ -33,7 +33,7 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
   },
   {
     id: 'francisco-solorio',
-    category: 'founders',
+    category: 'gobierno',
     num: '02',
     name: 'MTRO. FRANCISCO SOLORIO',
     role: { es: 'SECRETARIO EJECUTIVO', en: 'EXECUTIVE SECRETARY' },
@@ -65,7 +65,7 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
   },
   {
     id: 'veronica-gonzalez',
-    category: 'proyectos',
+    category: 'direcciones',
     num: '03',
     name: 'LIC. VERÓNICA GONZÁLEZ',
     role: { es: 'DIRECTORA NACIONAL DE PROYECTOS', en: 'NATIONAL DIRECTOR OF PROJECTS' },
@@ -89,7 +89,7 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
   },
   {
     id: 'carlos-esquivel',
-    category: 'council',
+    category: 'consejeria',
     num: '04',
     name: 'DR. CARLOS ESQUIVEL LACROIX',
     role: { es: 'CONSEJERO HONORÍFICO', en: 'HONORARY COUNCILLOR' },
@@ -114,7 +114,7 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
   },
   {
     id: 'erika-sanchez',
-    category: 'honorifico',
+    category: 'consejeria',
     num: '05',
     name: 'DRA. ERIKA SÁNCHEZ',
     role: { es: 'CONSEJO HONORÍFICO', en: 'HONORARY COUNCIL' },

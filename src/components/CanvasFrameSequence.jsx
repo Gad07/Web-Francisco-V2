@@ -6,7 +6,7 @@ import React, { useRef, useEffect, useImperativeHandle, forwardRef, useCallback 
  * Preloads all 153 frames, decodes asynchronously off the main thread,
  * and renders smoothly at 60-120 FPS without dropped frames or stutter.
  */
-const TOTAL_FRAMES = 153;
+const TOTAL_FRAMES = 169;
 const VIDEO_FRAMES = typeof window !== 'undefined'
   ? (window.__VIDEO_FRAMES__ || (window.__VIDEO_FRAMES__ = new Array(TOTAL_FRAMES + 1)))
   : new Array(TOTAL_FRAMES + 1);
@@ -163,7 +163,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
         }
       }
       if (!img || !img.complete || img.naturalWidth === 0) {
-        if (frameNum > 80 && VIDEO_FRAMES[totalFrames]?.complete && VIDEO_FRAMES[totalFrames]?.naturalWidth > 0) {
+        if (frameNum > 90 && VIDEO_FRAMES[totalFrames]?.complete && VIDEO_FRAMES[totalFrames]?.naturalWidth > 0) {
           img = VIDEO_FRAMES[totalFrames];
         } else {
           img = VIDEO_FRAMES[1];
@@ -313,7 +313,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
 
       {showLoopVideo && (
         <video
-          src="/video/video_loop.mp4"
+          src="/video/gemini_loop_1080p.mp4"
           autoPlay
           loop
           muted

@@ -196,12 +196,12 @@ export default function Projects() {
       ],
       photos: [
         {
-          url: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1400&h=900&fit=crop&auto=format',
+          url: '/agendas-ambientales.jpg',
           caption: { es: 'Mesas técnicas de deliberación de política pública ambiental', en: 'Environmental public policy technical roundtables' },
         },
         {
-          url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1400&h=900&fit=crop&auto=format',
-          caption: { es: 'Cartografía territorial y análisis de riesgos climáticos', en: 'Territorial cartography and climate risk analysis' },
+          url: '/agendas-ambientales-2.jpg',
+          caption: { es: 'Comisiones de diálogo institucional y vinculación legislativa', en: 'Institutional dialogue and legislative liaison committees' },
         },
       ],
     },
@@ -288,8 +288,8 @@ export default function Projects() {
       ],
       photos: [
         {
-          url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&h=900&fit=crop&auto=format',
-          caption: { es: 'Sostenibilidad corporativa y arquitectura bioclimática', en: 'Corporate sustainability and bioclimatic design' },
+          url: '/estrategias-esg.jpg',
+          caption: { es: 'Intervención en tribuna sobre gobernanza ambiental y marcos de debida diligencia', en: 'Keynote address on environmental governance and due diligence frameworks' },
         },
         {
           url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=1400&h=900&fit=crop&auto=format',
@@ -542,7 +542,7 @@ export default function Projects() {
             CATÁLOGO INTERACTIVO CON SELECTOR HORIZONTAL Y PANTALLA VISUAL
             ================================================================= */}
         <section className="pt-16 sm:pt-20 pb-24 px-4 sm:px-8 md:px-12 lg:px-16 max-w-7xl mx-auto w-full">
-          
+
           {/* Cabecera de la Sección Centrada */}
           <div className="text-center max-w-3xl mx-auto mb-10">
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light leading-[1.14]">
@@ -553,9 +553,9 @@ export default function Projects() {
             </h2>
           </div>
 
-          {/* ─── SELECTOR EDITORIAL (ARQUITECTÓNICO, SIN CÁPSULAS) ─── */}
-          <div className="mb-12 w-full border-b border-[#d8ceb6]">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 w-full divide-x divide-[#d8ceb6]/40">
+          {/* ─── SELECTOR EDITORIAL CON ESQUINAS REDONDEADAS ─── */}
+          <div className="mb-12 w-full pb-3 border-b border-[#d8ceb6]/70">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5 w-full">
               {projects.map((proj, idx) => {
                 const isActive = activeIndex === idx;
                 return (
@@ -563,23 +563,20 @@ export default function Projects() {
                     key={proj.id}
                     type="button"
                     onClick={() => handleSelect(idx)}
-                    className={`group relative text-left p-3.5 sm:p-4.5 transition-all duration-200 cursor-pointer border-b-2 -mb-[2px] ${
-                      isActive
-                        ? 'border-[#334215] bg-[#eae4d2]/60 text-[#2d2618]'
-                        : 'border-transparent text-[#7a6e58] hover:text-[#2d2618] hover:bg-[#eae4d2]/25'
-                    }`}
+                    className={`group relative text-left p-3.5 sm:p-4 rounded-2xl transition-all duration-200 cursor-pointer border ${isActive
+                        ? 'border-[#334215] bg-[#eae4d2] text-[#2d2618] shadow-xs ring-1 ring-[#334215]/20'
+                        : 'border-transparent text-[#7a6e58] hover:text-[#2d2618] hover:bg-[#eae4d2]/40 hover:border-[#d8ceb6]/50'
+                      }`}
                   >
                     <span
-                      className={`font-serif text-xs font-semibold tabular transition-colors block mb-1 ${
-                        isActive ? 'text-[#334215]' : 'text-[#8c7e65] group-hover:text-[#4a5a22]'
-                      }`}
+                      className={`font-serif text-xs font-semibold tabular transition-colors block mb-1 ${isActive ? 'text-[#334215]' : 'text-[#8c7e65] group-hover:text-[#4a5a22]'
+                        }`}
                     >
                       {proj.id}
                     </span>
                     <span
-                      className={`text-xs sm:text-[13px] transition-colors leading-snug block ${
-                        isActive ? 'text-[#2d2618] font-semibold' : 'text-[#5c523e] font-normal group-hover:text-[#2d2618]'
-                      }`}
+                      className={`text-xs sm:text-[13px] transition-colors leading-snug block ${isActive ? 'text-[#2d2618] font-semibold' : 'text-[#5c523e] font-normal group-hover:text-[#2d2618]'
+                        }`}
                     >
                       {t(proj.shortTitle)}
                     </span>
@@ -656,7 +653,7 @@ export default function Projects() {
 
                 {/* 3. COLUMNAS ABIERTAS EDITORIALES (NARRATIVA, RETO/SOLUCIÓN, ENTREGABLES) */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-                  
+
                   {/* Columna 1: Narrativa y Gobernanza (lg:col-span-5) */}
                   <div className="lg:col-span-5 space-y-6">
                     <div className="space-y-2">

@@ -860,6 +860,7 @@ export default function Admin() {
       country: { es: 'México / Internacional', en: 'Mexico / International' },
       bio: { es: '', en: '' },
       img: '',
+      category: 'consejeria',
       social: { email: '', linkedin: '', twitter: '' },
       responsibilities: [],
     });
@@ -1042,7 +1043,7 @@ export default function Admin() {
               { id: 'comunicaciones', label: 'Comunicaciones & Medios' },
               { id: 'popups', label: 'Pop-ups & Avisos' },
               { id: 'alianzas', label: 'Aliados & Logotipos' },
-              { id: 'gobernanza', label: 'Cuerpo de Gobernanza' },
+              { id: 'gobernanza', label: 'Gobierno y Estructura' },
             ].map((mod) => {
               const isActive = adminModule === mod.id;
               return (
@@ -6168,7 +6169,7 @@ export default function Admin() {
                   Estructura Directiva & Investigación
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
-                  Cuerpo de Gobernanza e Investigadores
+                  Gobierno y Estructura Institucional
                 </h2>
                 <p className="text-xs sm:text-sm text-[#6b6048] font-light leading-relaxed">
                   Configura a los consejeros, directores y científicos colegiados mostrados en la sección pública (/gobernanza). Soporta enlaces directos de Google Drive (convertidos automáticamente con previsualización en vivo), semblanzas institucionales y atribuciones.
@@ -6553,6 +6554,22 @@ export default function Admin() {
                       className="w-full px-3 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-center font-mono font-bold text-[#2d2618]"
                     />
                   </div>
+                </div>
+
+                {/* Categoría / Sección del Colegiado */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                    Sección Institucional (Pestaña en /gobernanza) *
+                  </label>
+                  <select
+                    value={editingGovMember.category || 'consejeria'}
+                    onChange={(e) => setEditingGovMember({ ...editingGovMember, category: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs font-semibold text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                  >
+                    <option value="gobierno">Gobierno (Presidencia & Secretaría Ejecutiva)</option>
+                    <option value="direcciones">Direcciones (Dirección Nacional & Operativa)</option>
+                    <option value="consejeria">Consejería (Consejo Honorífico & Científico)</option>
+                  </select>
                 </div>
 
                 {/* Cargo / Rol Principal */}

@@ -7,21 +7,11 @@ export function ArticlesProvider({ children }) {
   const [articles, setArticles] = useState(getStoredArticles);
 
   useEffect(() => {
-    setArticles((prev) => {
-      const seenTypes = new Set();
-      const unique = [];
-      prev.forEach((a) => {
-        if (!seenTypes.has(a.type)) {
-          seenTypes.add(a.type);
-          unique.push(a);
-        }
+    try {
+      ['cga_articles_cms', 'cga_articles_cms_v1', 'cga_articles_cms_v2', 'cga_articles_cms_v3', 'cga_articles_cms_v4', 'cga_articles_cms_v5'].forEach((k) => {
+        try { localStorage.removeItem(k); } catch {}
       });
-      if (unique.length < prev.length) {
-        saveStoredArticles(unique);
-        return unique;
-      }
-      return prev;
-    });
+    } catch {}
   }, []);
 
   useEffect(() => {

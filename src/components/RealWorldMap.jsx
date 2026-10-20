@@ -24,6 +24,12 @@ const TILE_LAYERS = {
   },
 };
 
+// Encuadre continental que abarca América del Norte, Central, Sur y Europa sin zoom
+const CONTINENTS_BOUNDS = [
+  [-6.0, -125.0], // Suroeste: América del Sur / Colombia / Costa Rica / Pacífico
+  [64.0, 20.0],   // Noreste: Canadá / España / Europa
+];
+
 export const DEFAULT_SEDES = [
   {
     id: 'mexico',
@@ -120,25 +126,33 @@ export default function RealWorldMap({
 
     const initialSede = currentSedes.find((s) => s.id === currentActiveId) || currentSedes[0];
 
-    // Crear mapa centrado exactamente en la sede activa en ambas dimensiones
+    // Crear mapa enfocado en los continentes sin zoom
     const map = L.map(mapContainerRef.current, {
-      center: [initialSede.lat, initialSede.lon],
-      zoom: isCompact ? 3.8 : 4.2,
-      minZoom: 1.8,
-      maxZoom: 8,
+      center: [28.0, -52.0],
+      zoom: 2,
+      minZoom: 1.5,
+      maxZoom: 4.5,
+      zoomSnap: 0.1,
       zoomControl: false,
       attributionControl: false,
       scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      boxZoom: false,
+      keyboard: false,
     });
-
-    // Control de zoom en esquina inferior derecha
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     // Añadir capa base
     const tileLayer = L.tileLayer(TILE_LAYERS[currentLayerKey].url, {
       maxZoom: TILE_LAYERS[currentLayerKey].maxZoom,
       subdomains: 'abcd',
     }).addTo(map);
+
+    // Ajustar encuadre continental que enfoca América y Europa
+    map.fitBounds(CONTINENTS_BOUNDS, {
+      padding: [20, 20],
+      animate: false,
+    });
 
     mapInstanceRef.current = { map, tileLayer };
 
@@ -202,28 +216,24 @@ export default function RealWorldMap({
     });
   }, [currentSedes, currentActiveId, currentLayerKey]);
 
-  // Enfocar suavemente y volar a la sede activa
+  // Mantener el encuadre continental enfocado cuando cambia la vista compacta
   useEffect(() => {
-    if (!mapInstanceRef.current || !currentActiveId) return;
-    const activeSede = currentSedes.find((s) => s.id === currentActiveId);
-    if (activeSede) {
-      const { map } = mapInstanceRef.current;
-      const targetZoom = isCompact ? 3.8 : 4.2;
+    if (!mapInstanceRef.current) return;
+    const { map } = mapInstanceRef.current;
 
-      const timer = setTimeout(() => {
-        map.invalidateSize({ pan: false });
-        map.flyTo([activeSede.lat, activeSede.lon], targetZoom, {
-          animate: true,
-          duration: 0.9,
-          easeLinearity: 0.2,
-        });
-      }, 60);
+    const timer = setTimeout(() => {
+      map.invalidateSize({ pan: false });
+      map.fitBounds(CONTINENTS_BOUNDS, {
+        padding: [20, 20],
+        animate: true,
+        duration: 0.5,
+      });
+    }, 60);
 
-      return () => clearTimeout(timer);
-    }
-  }, [currentActiveId, currentSedes, isCompact]);
+    return () => clearTimeout(timer);
+  }, [isCompact]);
 
-  // Actualizar tamaño de Leaflet cuando el contenedor cambie de dimensión sin interrumpir el vuelo
+  // Actualizar tamaño de Leaflet cuando el contenedor cambie de dimensión manteniendo el encuadre continental
   useEffect(() => {
     if (!mapContainerRef.current || !mapInstanceRef.current) return;
     const { map } = mapInstanceRef.current;
@@ -233,6 +243,10 @@ export default function RealWorldMap({
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         map.invalidateSize({ pan: false });
+        map.fitBounds(CONTINENTS_BOUNDS, {
+          padding: [20, 20],
+          animate: false,
+        });
       }, 120);
     });
 

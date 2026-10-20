@@ -70,7 +70,7 @@ export default function About() {
       tag: 'Fundación del Consejo',
       location: 'Ciudad de México',
       title: 'Establecimiento en México',
-      desc: 'El 4 de febrero se establece el Consejo Global Ambiental en la Ciudad de México, con la finalidad de articular especialistas, instituciones y capacidades de cooperación ante desafíos ambientales que requieren una respuesta multidisciplinaria.',
+      desc: 'Conformación del organismo y articulación de su cuerpo colegiado fundador, estableciendo los marcos estatutarios para impulsar proyectos de gobernanza ecológica, investigación aplicada y alianzas de cooperación territorial.',
     },
     {
       year: '2023 - 2024',
@@ -103,7 +103,6 @@ export default function About() {
       <PageHero
         titleWhite="Conocimiento, cooperación y"
         titleGreen="acción territorial"
-        description="Fundado el 4 de febrero de 2020, el Consejo Global Ambiental es un organismo internacional con sede en la Ciudad de México dedicado a fortalecer la gobernanza ambiental y promover soluciones integrales para el desarrollo sostenible."
         bgImage="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1600&h=900&fit=crop"
       />
 
@@ -348,14 +347,11 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center max-w-3xl mx-auto mb-20 space-y-4"
+            className="text-center max-w-3xl mx-auto mb-16 sm:mb-20"
           >
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#2d2618]">
               Historia del <span className="italic text-[#4a5a22]">Consejo Global Ambiental</span>
             </h2>
-            <p className="text-[#6b6048] font-light text-sm sm:text-base leading-relaxed">
-              El CGA fue fundado el 4 de febrero de 2020 con la finalidad de articular especialistas, instituciones y capacidades de cooperación ante desafíos ambientales que requieren una respuesta multidisciplinaria. Su trayectoria ha incorporado acciones territoriales, desarrollo de proyectos y una agenda de vinculación internacional.
-            </p>
           </motion.div>
 
           {/* Línea de Tiempo: Alternada (Izquierda - Derecha - Izquierda) con Eje Central */}

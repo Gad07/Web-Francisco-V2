@@ -14,29 +14,9 @@ const SEDE_DETAILS = {
     },
     miembros: [
       {
-        name: 'Mtro. Luis D. García González',
-        role: { es: 'Presidente y Fundador', en: 'President & Founder' },
-        focus: { es: 'Biólogo y Mtro. en Cambio Climático · Conducción Estratégica', en: 'Biologist & M.Sc. in Climate Change · Strategic Leadership' },
-      },
-      {
-        name: 'Mtro. Francisco Solorio',
-        role: { es: 'Secretario Ejecutivo', en: 'Executive Secretary' },
-        focus: { es: 'Jurista UNAM · Coordinación Institucional y Alianzas Internacionales', en: 'UNAM Jurist · Institutional Coordination & International Alliances' },
-      },
-      {
-        name: 'Lic. Verónica González',
-        role: { es: 'Directora Nacional de Proyectos', en: 'National Projects Director' },
-        focus: { es: 'Gobierno y Administración Pública · Seguimiento Territorial', en: 'Government & Public Admin · Territorial Monitoring' },
-      },
-      {
-        name: 'Dr. Carlos Esquivel Lacroix',
-        role: { es: 'Consejero Honorífico', en: 'Honorary Councillor' },
-        focus: { es: 'Bienestar Animal y Protección de Especies · MVZ UNAM', en: 'Animal Welfare & Species Protection · UNAM' },
-      },
-      {
-        name: 'Dra. Erika Sánchez',
-        role: { es: 'Consejera Honorífica', en: 'Honorary Councillor' },
-        focus: { es: 'Educación Ambiental, Inclusión y Juventudes · Doctora en Educación', en: 'Environmental Education, Inclusion & Youth · Ph.D. in Education' },
+        name: 'Sede Central & Dirección Institucional',
+        role: { es: 'Coordinación General y Gobernanza', en: 'General Coordination & Governance' },
+        focus: { es: 'Conducción estratégica, articulación territorial de proyectos y vinculación institucional (Ciudad de México)', en: 'Strategic direction, territorial project coordination and institutional liaison (Mexico City)' },
       },
     ],
     proyectos: {
@@ -54,8 +34,8 @@ const SEDE_DETAILS = {
   canada: {
     address: { es: 'Toronto · Ottawa · Montreal', en: 'Toronto · Ottawa · Montreal' },
     desc: {
-      es: 'La agenda de Council for Green Action — Canada concentra acciones de acercamiento, intercambio de experiencias y exploración de cooperación en conservación urbana, restauración ecológica, participación comunitaria y sostenibilidad territorial. En 2026 se realizaron actividades de vinculación en Toronto, Ottawa y Montreal.',
-      en: 'The Council for Green Action — Canada agenda focuses on outreach, sharing experiences, and exploring cooperation in urban conservation, ecological restoration, community engagement, and territorial sustainability. In 2026, liaison activities took place in Toronto, Ottawa, and Montreal.',
+      es: 'La agenda de Council for Green Action — Canada concentra acciones de acercamiento, intercambio de experiencias y exploración de cooperación en conservación urbana, restauración ecológica, participación comunitaria y sostenibilidad territorial.',
+      en: 'The Council for Green Action — Canada agenda focuses on outreach, sharing experiences, and exploring cooperation in urban conservation, ecological restoration, community engagement, and territorial sustainability.',
     },
     miembros: [
       {
@@ -65,15 +45,15 @@ const SEDE_DETAILS = {
       },
     ],
     proyectos: {
-      es: 'Vinculación con iniciativas de conservación y participación comunitaria; diálogo en espacios de cooperación México–Canadá; antecedentes de actividades territoriales y reuniones institucionales en 2026.',
-      en: 'Liaison with conservation and community engagement initiatives; dialogue in Mexico-Canada cooperation spaces; background in territorial activities and institutional meetings in 2026.',
+      es: 'Vinculación con iniciativas de conservación y participación comunitaria, y diálogo continuo en espacios de cooperación bilateral México–Canadá.',
+      en: 'Liaison with conservation and community engagement initiatives, and ongoing dialogue in Mexico-Canada bilateral cooperation spaces.',
     },
     alianzas: {
       es: 'Exploración de sinergias institucionales y académicas',
       en: 'Exploration of institutional and academic synergies',
     },
     alianzasEmail: 'partnerships@councilforgreenaction.com',
-    metric: '2026',
+    metric: 'Bilateral',
     metricLabel: { es: 'agenda de vinculación bilateral activa', en: 'active bilateral liaison agenda' },
   },
   colombia: {
@@ -300,6 +280,34 @@ export default function GlobalPresence() {
             </div>
           </div>
 
+          {/* ─── BOTONES SELECTORES DE PAÍSES (ARRIBA DEL MAPA) ─── */}
+          <div className="flex items-center justify-center mb-10 px-2">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs overflow-x-auto max-w-full">
+              {sedesList.map((sede) => {
+                const isActive = activeCountryId === sede.id;
+                return (
+                  <button
+                    key={sede.id}
+                    type="button"
+                    onClick={() => handleSelectSede(sede.id)}
+                    className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all duration-200 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+                      isActive
+                        ? 'bg-[#3a4a18] text-white font-semibold shadow-xs'
+                        : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-[#f5efe3]/90 font-medium'
+                    }`}
+                  >
+                    <img
+                      src={`https://flagcdn.com/w40/${sede.code.toLowerCase()}.png`}
+                      alt={t(sede.country)}
+                      className="w-4 h-3 object-cover rounded-xs shadow-2xs shrink-0"
+                    />
+                    <span>{t(sede.country)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* ─── MAPA + PANEL DE SEDE (el mapa y el panel se animan en sincronía perfecta sin saltos) ─── */}
           <div className="mb-20 flex flex-col lg:flex-row gap-6 items-stretch overflow-hidden">
             <motion.div
@@ -357,11 +365,11 @@ export default function GlobalPresence() {
                           {t(info.desc)}
                         </p>
 
-                        {/* Miembros / Cuerpo Directivo y Representación */}
+                        {/* Mecanismo de Articulación y Enlace Institucional */}
                         {info.miembros && info.miembros.length > 0 && (
                           <div className="pt-2 border-t border-[#d8ceb6]/60 space-y-2">
                             <span className="font-serif italic text-xs text-[#4a5a22] block">
-                              {t({ es: 'Cuerpo directivo y representación:', en: 'Leadership & representation:' })}
+                              {t({ es: 'Articulación y enlace institucional:', en: 'Institutional coordination & liaison:' })}
                             </span>
                             <div className="space-y-2">
                               {info.miembros.map((m, idx) => (

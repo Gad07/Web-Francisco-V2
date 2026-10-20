@@ -85,7 +85,7 @@ export default function EditorialOverlay({
       title: { es: 'Arrecifes de Coral', en: 'Coral Reefs' },
       tag: { es: 'Océano Tropical', en: 'Tropical Ocean' },
       mediaType: 'video',
-      videoSrc: '/video/video loop.mp4',
+      videoSrc: '/video/gemini_generated_video_7df380fb.mp4',
       src: 'https://images.unsplash.com/photo-1623880132570-ab1b4297c8c2?w=1920&q=85&fit=crop&auto=format',
       cardImg: 'https://images.unsplash.com/photo-1623880132570-ab1b4297c8c2?w=700&h=900&fit=crop&auto=format',
       subtitle: {
@@ -189,13 +189,13 @@ export default function EditorialOverlay({
   const videoLoopRef = useRef(null);
   const canvasFrameRef = useRef(null);
 
-  // ✅ NUEVO: MotionValues creados manualmente, actualizados en el rAF loop
+  // MotionValues creados manualmente, actualizados en el rAF loop
   // de la sección `interdependencia`. Sin `useScroll` de Framer Motion.
   const interScrollMV = useMotionValue(0);
   const scrubTargetRef = useRef(0);
   const phaseRef = useRef(0);
   const framePosRef = useRef(0);
-  const TOTAL_VIDEO_FRAMES = 153;
+  const TOTAL_VIDEO_FRAMES = 169;
 
   // MotionValue para el hero branch (sigue usando scrollProgress externo)
   const fallbackMV = useMotionValue(scrollProgress ?? 0);
@@ -221,7 +221,6 @@ export default function EditorialOverlay({
   const stoneImgOpacity = useTransform(interScrollMV, [0, 0.05, 0.15], [1, 1, 0]);
   const reefTextOpacity = useTransform(interScrollMV, [0, 0.58, 0.64, 0.95, 1], [0, 0, 1, 1, 0]);
 
-  const [showFrames, setShowFrames] = useState(true);
   const [showLoopVideo, setShowLoopVideo] = useState(false);
   const [reefVisible, setReefVisible] = useState(false);
   const [stoneVisible, setStoneVisible] = useState(false);
@@ -237,16 +236,14 @@ export default function EditorialOverlay({
   const setPhase = (next) => {
     if (phaseRef.current === next) return;
     phaseRef.current = next;
-    if (next === 0 || next === 1) {
-      setShowFrames(true);
-      setShowLoopVideo(false);
-    } else {
-      setShowFrames(true); // Mantener fotograma final 153 como base estable mientras transiciona el video
+    if (next === 2) {
       setShowLoopVideo(true);
+    } else {
+      setShowLoopVideo(false);
     }
   };
 
-  // Asegurar reproducción fluida del video en bucle al activar la fase 2
+  // Control de reproducción del loop al activar la fase 2
   useEffect(() => {
     const video = videoLoopRef.current;
     if (!video) return;
@@ -313,7 +310,7 @@ export default function EditorialOverlay({
       let frame = 1 + Math.round(framePosRef.current * (TOTAL_VIDEO_FRAMES - 1));
       frame = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, frame));
 
-      // Notificar directamente al CanvasFrameSequence de forma imperativa (CERO re-renders de React)
+      // Notificar directamente al CanvasFrameSequence de forma imperativa (CERO re-renders de React, 60-120fps fluido)
       if (canvasFrameRef.current) {
         canvasFrameRef.current.setFrame(frame);
       }
@@ -344,12 +341,12 @@ export default function EditorialOverlay({
 
       if (cur !== next) {
         setPhase(next);
-        // Control del video del arrecife (solo al transicionar de fase)
         if (videoLoopRef.current) {
           if (next === 2) {
+            videoLoopRef.current.currentTime = 0;
             videoLoopRef.current.muted = true;
             const p = videoLoopRef.current.play();
-            if (p && typeof p.catch === 'function') p.catch(() => { });
+            if (p && typeof p.catch === 'function') p.catch(() => {});
           } else {
             videoLoopRef.current.pause();
           }
@@ -357,7 +354,7 @@ export default function EditorialOverlay({
       } else if (next === 2 && videoLoopRef.current && videoLoopRef.current.paused) {
         videoLoopRef.current.muted = true;
         const p = videoLoopRef.current.play();
-        if (p && typeof p.catch === 'function') p.catch(() => { });
+        if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
 
@@ -654,7 +651,7 @@ export default function EditorialOverlay({
 
           const texts = b.marqueeTexts && b.marqueeTexts.length > 0
             ? b.marqueeTexts
-            : [b.message || 'Inscripciones abiertas para diplomados internacionales 2026'];
+            : [b.message || 'Consejo Global Ambiental · Plataforma Institucional'];
 
           const images = b.marqueeImages && b.marqueeImages.length > 0
             ? b.marqueeImages
@@ -887,7 +884,7 @@ export default function EditorialOverlay({
                   el.playsInline = true;
                 }
               }}
-              src="/video/video_loop.mp4"
+              src="/video/gemini_loop_1080p.mp4"
               autoPlay
               loop
               muted
@@ -908,13 +905,12 @@ export default function EditorialOverlay({
                 objectPosition: 'center',
                 opacity: showLoopVideo ? 1 : 0,
                 visibility: showLoopVideo ? 'visible' : 'hidden',
-                transition: 'opacity 0.6s ease',
+                transition: 'opacity 0.4s ease',
                 pointerEvents: 'none',
                 zIndex: 10,
               }}
             >
-              <source src="/video/video_loop.mp4" type="video/mp4" />
-              <source src="/video/video loop.mp4" type="video/mp4" />
+              <source src="/video/gemini_loop_1080p.mp4" type="video/mp4" />
             </video>
           </div>
 

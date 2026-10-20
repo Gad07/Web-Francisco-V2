@@ -36,7 +36,7 @@ export default function StrategicLines() {
         { es: 'Incidencia ante poderes públicos', en: 'Advocacy before public authorities' },
         { es: 'Dictámenes técnicos vinculantes', en: 'Binding technical opinions' },
       ],
-      img: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=800&h=600&fit=crop&auto=format',
+      img: '/politica-gobierno.jpg',
     },
     {
       id: '02',
@@ -108,7 +108,7 @@ export default function StrategicLines() {
         { es: 'Sistemas de monitoreo e indicadores', en: 'Monitoring systems and indicators' },
         { es: 'Auditoría de cumplimiento ODS', en: 'SDG compliance auditing' },
       ],
-      img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop&auto=format',
+      img: '/agenda-2030-linea.jpg',
     },
     {
       id: '06',

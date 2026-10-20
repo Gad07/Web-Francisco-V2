@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageHero } from '../components/PageHero.jsx';
 import FooterNav from '../components/FooterNav.jsx';
@@ -7,10 +7,85 @@ import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 import { DEFAULT_GOVERNANCE_MEMBERS } from '../data/governanceData.js';
 import { formatDriveUrl } from '../utils/imageUtils.js';
 
+function getMemberSection(member) {
+  const cat = (member?.category || '').toLowerCase();
+  const roleText = (
+    (typeof member?.role?.es === 'string' ? member.role.es : '') + ' ' +
+    (typeof member?.role?.en === 'string' ? member.role.en : '') + ' ' +
+    (typeof member?.displayRole?.es === 'string' ? member.displayRole.es : '') + ' ' +
+    (typeof member?.displayRole?.en === 'string' ? member.displayRole.en : '') + ' ' +
+    (typeof member?.tag?.es === 'string' ? member.tag.es : '')
+  ).toLowerCase();
+
+  // 1. Gobierno (Secretaría Ejecutiva, Fundadores, etc.)
+  if (
+    cat === 'gobierno' ||
+    cat === 'founders' ||
+    member?.id === 'francisco-solorio' ||
+    roleText.includes('secretario ejecutivo') ||
+    roleText.includes('executive secretary') ||
+    roleText.includes('secretaría ejecutiva')
+  ) {
+    return 'gobierno';
+  }
+
+  // 2. Direcciones (Dirección Nacional, Proyectos, Director/a)
+  if (
+    cat === 'direcciones' ||
+    cat === 'direccion' ||
+    cat === 'dirección' ||
+    cat === 'proyectos' ||
+    member?.id === 'veronica-gonzalez' ||
+    roleText.includes('directora') ||
+    roleText.includes('director') ||
+    roleText.includes('dirección') ||
+    roleText.includes('direccion')
+  ) {
+    return 'direcciones';
+  }
+
+  // 3. Consejería (Consejeros honoríficos, consejos especializados)
+  return 'consejeria';
+}
+
+const GOVERNANCE_TABS = [
+  {
+    id: 'gobierno',
+    label: { es: 'Gobierno', en: 'Governance' },
+    badge: { es: 'Órgano Ejecutivo de Gobierno', en: 'Executive Governing Body' },
+    title: { es: 'Secretaría Ejecutiva', en: 'Executive Secretariat' },
+    desc: {
+      es: 'Coordinación ejecutiva plenaria, gestión técnica y articulación de acuerdos institucionales en territorio.',
+      en: 'Plenary executive coordination, technical management, and institutional agreements on the ground.'
+    }
+  },
+  {
+    id: 'direcciones',
+    label: { es: 'Direcciones', en: 'Directorates' },
+    badge: { es: 'Dirección Operativa & Proyectos', en: 'Operational & Project Directorate' },
+    title: { es: 'Dirección Nacional de Proyectos', en: 'National Directorate of Projects' },
+    desc: {
+      es: 'Diseño, coordinación y seguimiento técnico de iniciativas socioambientales en territorio y vinculación comunitaria.',
+      en: 'Design, coordination, and technical monitoring of territorial socio-environmental initiatives and community engagement.'
+    }
+  },
+  {
+    id: 'consejeria',
+    label: { es: 'Consejería', en: 'Councils' },
+    badge: { es: 'Cuerpo Consultivo y Científico', en: 'Advisory & Scientific Body' },
+    title: { es: 'Consejerías Honoríficas Especializadas', en: 'Specialized Honorary Councils' },
+    desc: {
+      es: 'Perspectivas especializadas, dictamen científico y orientación estratégica en bienestar animal, educación e inclusión.',
+      en: 'Specialized perspectives, scientific opinion, and strategic guidance in animal welfare, education, and inclusion.'
+    }
+  },
+];
+
 export default function Governance() {
   const { t } = useI18n();
   const { governanceMembers = [] } = useSiteSettings();
 
+  const [activeTab, setActiveTab] = useState('gobierno');
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeShareId, setActiveShareId] = useState(null);
@@ -20,8 +95,13 @@ export default function Governance() {
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
+    const handleOutsideClick = () => setActiveShareId(null);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('click', handleOutsideClick);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('click', handleOutsideClick);
+    };
   }, []);
 
   // Lista de miembros activa (sincronizada desde Admin o data oficial)
@@ -29,7 +109,7 @@ export default function Governance() {
     ? governanceMembers
     : DEFAULT_GOVERNANCE_MEMBERS;
 
-  // Identificar al Presidente (por id o cargo) para ubicarlo arriba del carrusel
+  // Identificar al Presidente (por id o cargo) para ubicarlo afuera arriba con protagonismo editorial
   const presidentMember = sourceMembers.find(
     (m) =>
       m.id === 'luis-garcia' ||
@@ -37,12 +117,21 @@ export default function Governance() {
       (typeof m.displayRole?.es === 'string' && m.displayRole.es.toLowerCase().includes('presidente'))
   ) || sourceMembers[0];
 
-  // Lista de miembros mostrada exclusivamente en el carrusel (sin el presidente)
-  const filteredMembers = sourceMembers.filter((m) => m.id !== presidentMember?.id);
+  // Miembros excluyendo al presidente (que se dividen por pestañas en el carrusel de abajo)
+  const nonPresidentMembers = useMemo(() => {
+    return sourceMembers.filter((m) => m.id !== presidentMember?.id);
+  }, [sourceMembers, presidentMember]);
+
+  // Filtrar miembros según la pestaña activa
+  const currentMembers = useMemo(() => {
+    return nonPresidentMembers.filter((m) => getMemberSection(m) === activeTab);
+  }, [nonPresidentMembers, activeTab]);
+
+  const currentTabInfo = GOVERNANCE_TABS.find((t) => t.id === activeTab) || GOVERNANCE_TABS[0];
 
   // Cálculo de tarjetas visibles según viewport
   const visibleCards = windowWidth >= 1024 ? 3 : windowWidth >= 640 ? 2 : 1;
-  const maxIndex = Math.max(0, filteredMembers.length - visibleCards);
+  const maxIndex = Math.max(0, currentMembers.length - visibleCards);
 
   const handlePrevSlide = () => {
     setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -52,11 +141,12 @@ export default function Governance() {
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
   };
 
-  const selectedMember = sourceMembers.find((m) => m.id === selectedMemberId);
+  const selectedMember = currentMembers.find((m) => m.id === selectedMemberId) || nonPresidentMembers.find((m) => m.id === selectedMemberId);
 
   const handleNextMember = () => {
-    const list = filteredMembers.length > 0 ? filteredMembers : sourceMembers;
+    const list = currentMembers.length > 0 ? currentMembers : nonPresidentMembers;
     const currentIdx = list.findIndex((m) => m.id === selectedMemberId);
+    if (currentIdx === -1) return;
     const nextIdx = (currentIdx + 1) % list.length;
     setSelectedMemberId(list[nextIdx].id);
     const newIdx = Math.min(maxIndex, Math.max(0, nextIdx - Math.floor(visibleCards / 2)));
@@ -64,8 +154,9 @@ export default function Governance() {
   };
 
   const handlePrevMember = () => {
-    const list = filteredMembers.length > 0 ? filteredMembers : sourceMembers;
+    const list = currentMembers.length > 0 ? currentMembers : nonPresidentMembers;
     const currentIdx = list.findIndex((m) => m.id === selectedMemberId);
+    if (currentIdx === -1) return;
     const prevIdx = (currentIdx - 1 + list.length) % list.length;
     setSelectedMemberId(list[prevIdx].id);
     const newIdx = Math.min(maxIndex, Math.max(0, prevIdx - Math.floor(visibleCards / 2)));
@@ -91,9 +182,9 @@ export default function Governance() {
           {/* Cabecera Editorial Unificada Centrada */}
           <div className="mb-12 sm:mb-14 max-w-5xl mx-auto text-center space-y-5">
             <h2 className="font-serif text-4xl sm:text-5xl lg:text-[52px] xl:text-[58px] font-light text-[#2d2618] leading-[1.08] tracking-tight">
-              {t({ es: 'Cuerpo de Gobernanza', en: 'Governance Body' })}{' '}
+              {t({ es: 'Gobierno y', en: 'Governance and' })}{' '}
               <span className="italic text-[#4a5a22] font-normal">
-                {t({ es: 'e Investigadores.', en: 'and Researchers.' })}
+                {t({ es: 'estructura institucional.', en: 'institutional structure.' })}
               </span>
             </h2>
             <p className="text-[#6b6048] font-sans text-sm sm:text-base font-light leading-relaxed max-w-3xl mx-auto">
@@ -104,7 +195,7 @@ export default function Governance() {
             </p>
           </div>
 
-          {/* ─── PRESIDENTE: DESTACADO SUPERIOR CON MÁXIMO PROTAGONISMO INSTITUCIONAL ─── */}
+          {/* ─── PRESIDENTE: DESTACADO SUPERIOR CON MÁXIMO PROTAGONISMO INSTITUCIONAL (ORIGINAL) ─── */}
           {presidentMember && (
             <div className="mb-16 sm:mb-20">
               <div className="relative bg-[#ffffff] rounded-3xl border-2 border-[#d8ceb6] shadow-[0_12px_45px_rgba(45,38,24,0.07)] overflow-hidden">
@@ -120,7 +211,7 @@ export default function Governance() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 relative z-10">
                   {/* ─── COLUMNA IZQUIERDA: FOTOGRAFÍA OFICIAL & CANALES DE CONTACTO DIRECTO ─── */}
                   <div className="lg:col-span-5 bg-[#fbf9f5] border-b lg:border-b-0 lg:border-r border-[#e8e2d4] p-6 sm:p-8 flex flex-col justify-between">
-                    {/* Fotografía de Alta Definición (ajuste fino: 5% menos de altura) */}
+                    {/* Fotografía de Alta Definición */}
                     <div>
                       <div className="relative aspect-[4/5.55] w-full rounded-2xl overflow-hidden shadow-md border-2 border-[#d8ceb6] bg-white group">
                         <img
@@ -144,9 +235,8 @@ export default function Governance() {
                       </div>
                     </div>
 
-                    {/* ─── CONTACTO Y REDES SOCIALES (LIMPIO, SIN CARDS, ESTRUCTURADO Y MODERNO) ─── */}
+                    {/* ─── CONTACTO Y REDES SOCIALES ─── */}
                     <div className="pt-4 border-t border-[#e2dcce] mt-4 space-y-4">
-                      {/* Título Editorial (~25% más chico con mayor separación inferior) */}
                       <div className="mb-4 sm:mb-5">
                         <h4 className="font-serif text-[15px] sm:text-base lg:text-[17px] text-[#2d2618] font-normal tracking-tight leading-snug">
                           {t({ es: 'Contacto', en: 'Contact' })}{' '}
@@ -156,7 +246,7 @@ export default function Governance() {
                         </h4>
                       </div>
 
-                      {/* Teléfonos México y Canadá: Más pequeños y proporcionados */}
+                      {/* Teléfonos México y Canadá */}
                       <div className="grid grid-cols-2 gap-4 sm:gap-5 pt-1">
                         <div>
                           <div className="text-[9px] sm:text-[10px] font-sans font-semibold uppercase tracking-wider text-[#7a6e58]">
@@ -183,9 +273,8 @@ export default function Governance() {
                         </div>
                       </div>
 
-                      {/* Canales Digitales y Redes: Iconos un 25% más chicos (w-4 h-4 / 16px) */}
+                      {/* Canales Digitales y Redes */}
                       <div className="flex items-center gap-4 sm:gap-4.5 pt-1.5 text-[#554e40]">
-                        {/* Correo Electrónico Institucional */}
                         {presidentMember.social?.email && (
                           <a
                             href={`mailto:${presidentMember.social.email}`}
@@ -199,7 +288,6 @@ export default function Governance() {
                           </a>
                         )}
 
-                        {/* WhatsApp Oficial */}
                         <a
                           href={
                             presidentMember.social?.whatsapp?.startsWith('http')
@@ -217,7 +305,6 @@ export default function Governance() {
                           </svg>
                         </a>
 
-                        {/* LinkedIn */}
                         <a
                           href={presidentMember.social?.linkedin || 'https://www.linkedin.com'}
                           target="_blank"
@@ -231,7 +318,6 @@ export default function Governance() {
                           </svg>
                         </a>
 
-                        {/* Facebook */}
                         <a
                           href={presidentMember.social?.facebook || 'https://www.facebook.com'}
                           target="_blank"
@@ -245,7 +331,6 @@ export default function Governance() {
                           </svg>
                         </a>
 
-                        {/* Instagram */}
                         <a
                           href={presidentMember.social?.instagram || 'https://www.instagram.com'}
                           target="_blank"
@@ -265,7 +350,6 @@ export default function Governance() {
                   {/* ─── COLUMNA DERECHA: CARGO, VISIÓN ESTRATÉGICA, SEMBLANZA Y ATRIBUCIONES ─── */}
                   <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-7 bg-white">
                     <div className="space-y-6">
-                      {/* Encabezado y Título Principal */}
                       <div className="space-y-1.5 border-b border-[#e5dfd3] pb-5">
                         <h3 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-light text-[#221e16] leading-[1.08] tracking-tight">
                           {presidentMember.name}
@@ -276,7 +360,6 @@ export default function Governance() {
                         </p>
                       </div>
 
-                      {/* Declaración de Misión / Cita de Presidencia (Estilo Editorial Limpio) */}
                       <blockquote className="pl-4 sm:pl-5 border-l-2 border-[#4a5a22] py-1">
                         <p className="font-serif italic text-sm sm:text-base text-[#3d3422] leading-relaxed">
                           {t({
@@ -286,7 +369,6 @@ export default function Governance() {
                         </p>
                       </blockquote>
 
-                      {/* Semblanza Institucional Extensa */}
                       <div className="space-y-2">
                         <h4 className="font-serif text-base font-normal text-[#2d2618]">
                           {t({ es: 'Semblanza y Trayectoria Institucional', en: 'Institutional Profile & Career' })}
@@ -304,7 +386,6 @@ export default function Governance() {
                         </div>
                       </div>
 
-                      {/* Atribuciones y Responsabilidades Directivas (Lista Editorial Limpia) */}
                       {presidentMember.responsibilities && presidentMember.responsibilities.length > 0 && (
                         <div className="space-y-2.5 pt-2">
                           <h4 className="font-serif text-base font-normal text-[#2d2618]">
@@ -325,7 +406,6 @@ export default function Governance() {
                       )}
                     </div>
 
-                    {/* Barra de Acciones Directas */}
                     <div className="pt-5 border-t border-[#e5dfd3] flex items-center justify-end">
                       {presidentMember.social?.email && (
                         <a
@@ -345,18 +425,56 @@ export default function Governance() {
             </div>
           )}
 
-          {/* ─── ENCABEZADO DE LA SECCIÓN DEL CARRUSEL COLEGIADO ─── */}
+          {/* ─── BOTONES DE CATEGORÍA: GOBIERNO · DIRECCIONES · CONSEJERÍA ─── */}
+          <div className="flex justify-center mb-8 sm:mb-10">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs">
+              {GOVERNANCE_TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                const count = nonPresidentMembers.filter((m) => getMemberSection(m) === tab.id).length;
+
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setSelectedMemberId(null);
+                      setCurrentIndex(0);
+                    }}
+                    className={`px-5 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all cursor-pointer flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-[#3a4a18] text-white font-semibold shadow-xs'
+                        : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-[#f5efe3]/80 font-medium'
+                    }`}
+                  >
+                    <span>{t(tab.label)}</span>
+                    <span
+                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-[#d8ceb6]/60 text-[#554e40]'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ─── ENCABEZADO EDITORIAL DE LA SECCIÓN ACTIVA ─── */}
           <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#d8ceb6] pb-5">
             <div>
+              <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#4a5a22] block mb-1">
+                {t(currentTabInfo.badge)}
+              </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2d2618]">
-                {t({ es: 'Secretaría Ejecutiva, Direcciones y Consejerías', en: 'Executive Secretariat, Directorates and Councils' })}
+                {t(currentTabInfo.title)}
               </h3>
             </div>
-            <p className="text-xs sm:text-[13px] text-[#7a6e58] font-sans max-w-md sm:text-right font-light">
-              {t({
-                es: 'Explora a los integrantes del cuerpo colegiado y selecciona cualquier ficha para conocer sus atribuciones.',
-                en: 'Explore the members of the collegial body and select any card to view their responsibilities.'
-              })}
+            <p className="text-xs sm:text-[13px] text-[#7a6e58] font-sans max-w-md sm:text-right font-light leading-relaxed">
+              {t(currentTabInfo.desc)}
             </p>
           </div>
 
@@ -366,7 +484,9 @@ export default function Governance() {
             {/* CARRUSEL Y TRACK DE TARJETAS */}
             <div className="overflow-hidden py-1 px-1 h-full">
               <motion.div
-                className="flex -mx-3 sm:-mx-4 h-full"
+                className={`flex -mx-3 sm:-mx-4 h-full ${
+                  selectedMemberId === null && currentMembers.length < visibleCards ? 'justify-center' : ''
+                }`}
                 animate={{
                   x: selectedMemberId === null ? `-${currentIndex * (100 / visibleCards)}%` : '0%',
                 }}
@@ -376,7 +496,7 @@ export default function Governance() {
                 }}
                 style={{ willChange: 'transform' }}
               >
-                {filteredMembers.map((member, index) => {
+                {currentMembers.map((member, index) => {
                   const isSelected = selectedMemberId === member.id;
                   const isAnySelected = selectedMemberId !== null;
                   
@@ -447,7 +567,7 @@ export default function Governance() {
                               className="absolute top-4 left-4 z-30 px-3 py-1.5 rounded-lg bg-[#2d2618]/90 hover:bg-[#3a4a18] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
                             >
                               <span className="font-bold text-sm">&larr;</span>
-                              <span>{t({ es: 'Volver al carrusel', en: 'Back to carousel' })}</span>
+                              <span>{t({ es: 'Volver', en: 'Back' })}</span>
                             </button>
                           )}
 
@@ -469,6 +589,12 @@ export default function Governance() {
                                 }
                                 if (member.id === 'francisco-solorio') {
                                   e.currentTarget.src = '/imports/Perfiles/FranciscoSolorio.png';
+                                } else if (member.id === 'veronica-gonzalez') {
+                                  e.currentTarget.src = '/imports/Perfiles/VeronicaGonzalez.png';
+                                } else if (member.id === 'carlos-esquivel') {
+                                  e.currentTarget.src = '/imports/Perfiles/CarlosEsquivel.png';
+                                } else if (member.id === 'erika-sanchez') {
+                                  e.currentTarget.src = '/imports/Perfiles/ErikaSanchez.png';
                                 } else {
                                   e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&auto=format';
                                 }
@@ -501,48 +627,83 @@ export default function Governance() {
                               <button
                                 type="button"
                                 onClick={() => setActiveShareId(activeShareId === member.id ? null : member.id)}
-                                className="w-8 h-8 flex items-center justify-center text-[#554e40] hover:text-[#4a5a22] hover:bg-[#f8f5ee] rounded-full transition-colors cursor-pointer"
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all duration-200 cursor-pointer ${
+                                  activeShareId === member.id
+                                    ? 'bg-[#3a4a18] text-white border-[#3a4a18] shadow-xs'
+                                    : 'border-[#d8ceb6] hover:border-[#4a5a22] bg-[#fbf9f5] hover:bg-white text-[#554e40] hover:text-[#4a5a22]'
+                                }`}
                                 title={t({ es: 'Contacto y Redes', en: 'Contact and Social Links' })}
+                                aria-expanded={activeShareId === member.id}
                               >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                                 </svg>
                               </button>
 
                               <AnimatePresence>
                                 {activeShareId === member.id && (
                                   <motion.div
-                                    initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 8, scale: 0.9 }}
-                                    transition={{ duration: 0.18 }}
-                                    className="absolute bottom-full right-0 mb-2 p-2 bg-[#2d2618] text-white rounded-lg shadow-xl flex items-center gap-2.5 z-30"
+                                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                                    transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                                    className="absolute bottom-full right-0 mb-2.5 z-40 flex flex-col items-end pointer-events-auto"
+                                    onClick={(e) => e.stopPropagation()}
                                   >
-                                    {member.social?.linkedin && (
-                                      <a
-                                        href={member.social.linkedin}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="p-1 hover:bg-white/20 rounded transition-colors text-white"
-                                        title="LinkedIn"
-                                      >
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                          <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.25c-.9 0-1.63.73-1.63 1.63 0 .9.73 1.63 1.63 1.63.9 0 1.63-.73 1.63-1.63 0-.9-.73-1.63-1.63-1.63Z" />
-                                        </svg>
-                                      </a>
-                                    )}
+                                    <div className="relative bg-[#ffffff] border border-[#d8ceb6] rounded-xl shadow-[0_10px_28px_rgba(45,38,24,0.12),0_2px_6px_rgba(45,38,24,0.04)] p-1.5 flex items-center gap-1">
+                                      {/* Caret / Flechita indicadora que apunta directo al botón */}
+                                      <div className="absolute -bottom-1.5 right-2.5 w-3 h-3 bg-white border-b border-r border-[#d8ceb6] rotate-45 pointer-events-none" />
 
-                                    {member.social?.email && (
-                                      <a
-                                        href={`mailto:${member.social.email}`}
-                                        className="p-1 hover:bg-white/20 rounded transition-colors text-white"
-                                        title="Email"
-                                      >
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                                        </svg>
-                                      </a>
-                                    )}
+                                      {/* LinkedIn */}
+                                      {member.social?.linkedin && (
+                                        <a
+                                          href={member.social.linkedin}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#554e40] hover:text-[#0077b5] hover:bg-[#0077b5]/10 active:scale-95 transition-all duration-200"
+                                          title="LinkedIn"
+                                          aria-label="LinkedIn"
+                                        >
+                                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.25c-.9 0-1.63.73-1.63 1.63 0 .9.73 1.63 1.63 1.63.9 0 1.63-.73 1.63-1.63 0-.9-.73-1.63-1.63-1.63Z" />
+                                          </svg>
+                                        </a>
+                                      )}
+
+                                      {/* WhatsApp */}
+                                      {member.social?.whatsapp && (
+                                        <a
+                                          href={
+                                            member.social.whatsapp.startsWith('http')
+                                              ? member.social.whatsapp
+                                              : `https://wa.me/${(member.social.whatsapp || '').replace(/\D/g, '')}`
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#554e40] hover:text-[#25d366] hover:bg-[#25d366]/10 active:scale-95 transition-all duration-200"
+                                          title="WhatsApp"
+                                          aria-label="WhatsApp"
+                                        >
+                                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                          </svg>
+                                        </a>
+                                      )}
+
+                                      {/* Email */}
+                                      {member.social?.email && (
+                                        <a
+                                          href={`mailto:${member.social.email}`}
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#554e40] hover:text-[#4a5a22] hover:bg-[#4a5a22]/10 active:scale-95 transition-all duration-200"
+                                          title={`Email: ${member.social.email}`}
+                                          aria-label="Email"
+                                        >
+                                          <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                          </svg>
+                                        </a>
+                                      )}
+                                    </div>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
@@ -627,47 +788,64 @@ export default function Governance() {
                   )}
 
                   {/* Pie de Ficha Editorial con Navegación y Contacto */}
-                  <div className="pt-3 border-t border-[#e5dfd3] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#7a6e58] font-sans shrink-0">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#5a6b2a]" />
-                      <span>
-                        {t(selectedMember.country) || 'México'} &bull;{' '}
-                        {t({ es: 'Órgano Colegiado CGA', en: 'CGA Collegial Body' })}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Controles de Navegación entre miembros */}
-                      <div className="flex items-center gap-1">
+                  <div className="pt-3 border-t border-[#e5dfd3] flex items-center justify-between gap-3 text-xs text-[#7a6e58] font-sans shrink-0">
+                    {/* Controles de Navegación entre miembros si hay más de 1 */}
+                    {currentMembers.length > 1 ? (
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={handlePrevMember}
-                          className="w-7 h-7 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center justify-center"
+                          className="px-2.5 py-1.5 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center gap-1 text-xs"
                           title={t({ es: 'Miembro anterior', en: 'Previous member' })}
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
                           </svg>
+                          <span className="hidden sm:inline">{t({ es: 'Anterior', en: 'Prev' })}</span>
                         </button>
                         <button
                           type="button"
                           onClick={handleNextMember}
-                          className="w-7 h-7 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center justify-center"
+                          className="px-2.5 py-1.5 rounded-lg bg-[#eae4d2]/80 hover:bg-[#3a4a18] hover:text-white text-[#2d2618] transition-colors border border-[#d8ceb6] cursor-pointer flex items-center gap-1 text-xs"
                           title={t({ es: 'Siguiente miembro', en: 'Next member' })}
                         >
+                          <span className="hidden sm:inline">{t({ es: 'Siguiente', en: 'Next' })}</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
                           </svg>
                         </button>
                       </div>
+                    ) : (
+                      <div />
+                    )}
 
-                      {/* Botón de Contacto Directo */}
+                    {/* Canales Directos de Contacto */}
+                    <div className="flex items-center gap-2">
+                      {selectedMember.social?.whatsapp && (
+                        <a
+                          href={
+                            selectedMember.social.whatsapp.startsWith('http')
+                              ? selectedMember.social.whatsapp
+                              : `https://wa.me/${(selectedMember.social.whatsapp || '').replace(/\D/g, '')}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-1.5 rounded-lg bg-[#25d366] hover:bg-[#20ba59] active:scale-95 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
+                          title="WhatsApp"
+                        >
+                          <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                          </svg>
+                          <span>WhatsApp</span>
+                        </a>
+                      )}
+
                       {selectedMember.social?.email && (
                         <a
                           href={`mailto:${selectedMember.social.email}`}
-                          className="px-3 py-1.5 rounded-lg bg-[#3a4a18] hover:bg-[#2d3a12] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+                          className="px-3.5 py-1.5 rounded-lg bg-[#3a4a18] hover:bg-[#2d3a12] active:scale-95 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3.5 h-3.5 fill-none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
                           <span>{t('nav.contacto') || 'Contacto'}</span>
