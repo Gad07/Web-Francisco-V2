@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import HeaderNav from '../components/HeaderNav.jsx';
 import FooterNav from '../components/FooterNav.jsx';
@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/index.jsx';
 import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 import { DEFAULT_GOVERNANCE_MEMBERS } from '../data/governanceData.js';
 import { formatDriveUrl } from '../utils/imageUtils.js';
+import PresidentBusinessCardModal from '../components/PresidentBusinessCardModal.jsx';
 
 /**
  * PÁGINA: Semblanza, Perfil e Información Directiva
@@ -17,6 +18,7 @@ export default function PresidentBusinessCard({ memberId }) {
   const { t } = useI18n();
   const location = useLocation();
   const { governanceMembers = [] } = useSiteSettings();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentPath = (location.pathname || '').toLowerCase();
   const isSolorio = memberId === 'francisco-solorio' || currentPath.includes('solorio');
@@ -43,7 +45,7 @@ export default function PresidentBusinessCard({ memberId }) {
   const roleName = member.displayRole ? t(member.displayRole) : (member.role ? t(member.role) : (isSolorio ? 'Secretario Ejecutivo' : 'Consejero Presidente'));
 
   // ─── DATOS PERSONALIZADOS POR PERFIL ───
-  const quoteData = isSolorio
+  const defaultQuoteData = isSolorio
     ? {
         quote: {
           es: '“La acción ambiental solo es legítima cuando echa raíces en el territorio: dialogando de frente con las comunidades, respaldando a los núcleos agrarios y convirtiendo la técnica en bienestar y sustentabilidad tangible.”',
@@ -58,6 +60,13 @@ export default function PresidentBusinessCard({ memberId }) {
         },
         author: 'Mtro. Luis García González — Consejero Presidente'
       };
+
+  const quoteData = (member?.quote && (member.quote.es || member.quote.en))
+    ? {
+        quote: member.quote,
+        author: `${member.name} — ${roleName}`
+      }
+    : defaultQuoteData;
 
   const bioSectionData = isSolorio
     ? {
@@ -265,7 +274,7 @@ export default function PresidentBusinessCard({ memberId }) {
             
             {/* Retrato Oficial limpio */}
             <div className="lg:col-span-5">
-              <div className="relative aspect-[4/5.2] w-full max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(40,34,22,0.12)] border border-[#d8ceb6] bg-white group">
+              <div className="relative aspect-[4/5.2] w-full max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(40,34,22,0.12)] border border-[#d8ceb6] bg-[#f5efe3] group">
                 <img
                   src={formatDriveUrl(member.img)}
                   alt={member.name}
@@ -282,7 +291,7 @@ export default function PresidentBusinessCard({ memberId }) {
                     }
                     e.currentTarget.src = defaultImgFallback;
                   }}
-                  className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-102"
+                  className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-102"
                 />
               </div>
             </div>
@@ -423,6 +432,27 @@ export default function PresidentBusinessCard({ memberId }) {
                       </svg>
                     </a>
                   </div>
+                </div>
+
+                {/* Botón para abrir Modal de Tarjeta de Presentación / vCard */}
+                <div className="pt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4a5a22] text-white hover:bg-[#3d4b1c] text-xs font-semibold shadow-sm transition-all hover:shadow cursor-pointer active:scale-98"
+                  >
+                    <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                    </svg>
+                    <span>{t({ es: 'Tarjeta Digital & vCard', en: 'Digital Card & vCard' })}</span>
+                  </button>
+
+                  <Link
+                    to="/gobernanza"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#ded7c8]/60 hover:bg-[#ded7c8] text-[#4a4030] text-xs font-medium transition-colors"
+                  >
+                    <span>← {t({ es: 'Volver a Gobernanza', en: 'Back to Governance' })}</span>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -628,6 +658,13 @@ export default function PresidentBusinessCard({ memberId }) {
         </section>
 
       </main>
+
+      {/* ─── MODAL TARJETA DE PRESENTACIÓN / VCARD ─── */}
+      <PresidentBusinessCardModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        member={member}
+      />
 
       {/* ─── FOOTER NAV ─── */}
       <FooterNav />

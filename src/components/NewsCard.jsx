@@ -40,7 +40,7 @@ export default function NewsCard({
           <img
             src={article.image}
             alt=""
-            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-1000 ease-out opacity-40 group-hover:opacity-55"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-1000 ease-out opacity-40 group-hover:opacity-55"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#141009] via-[#1c170e]/85 to-transparent" />
@@ -97,7 +97,7 @@ export default function NewsCard({
           <img
             src={article.image}
             alt=""
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             loading="lazy"
           />
         </div>

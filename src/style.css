@@ -674,10 +674,40 @@ body[data-lang="en"] svg.text-\[\#4a5a22\] {
   }
 }
 
-/* Images responsive by default */
+/* ─── Images Responsive & Container Coverage Guarantees ──────────────────── */
+/* Prevent inline font-baseline whitespace gaps below images */
 img {
-  max-width: 100%;
-  height: auto;
+  display: block;
+}
+
+/* Base responsive images: only default to height auto when no explicit height class is present */
+@layer base {
+  img:not([class*="h-"]):not([class*="inset-0"]) {
+    height: auto;
+    max-width: 100%;
+  }
+}
+
+/* Ensure images intended to cover containers completely fill both dimensions without whitespace gaps */
+img[class*="object-cover"] {
+  object-fit: cover !important;
+}
+
+img.h-full,
+img[class*="h-full"] {
+  height: 100% !important;
+}
+
+img.w-full,
+img[class*="w-full"] {
+  width: 100% !important;
+}
+
+img[class*="inset-0"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Prevent long words from breaking layouts on mobile */

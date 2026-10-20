@@ -160,18 +160,39 @@ try {
 
         case 'governance':
             if (is_array($data)) {
+                // Asegurar que las columnas extendidas existan en cga_governance
+                $colsToAdd = [
+                    'num'       => "VARCHAR(50) DEFAULT ''",
+                    'area_es'   => "VARCHAR(255) DEFAULT ''",
+                    'area_en'   => "VARCHAR(255) DEFAULT ''",
+                    'quote_es'  => "TEXT DEFAULT NULL",
+                    'quote_en'  => "TEXT DEFAULT NULL",
+                    'facebook'  => "VARCHAR(255) DEFAULT ''",
+                    'instagram' => "VARCHAR(255) DEFAULT ''",
+                    'twitter'   => "VARCHAR(255) DEFAULT ''"
+                ];
+                foreach ($colsToAdd as $col => $def) {
+                    try {
+                        $pdo->exec("ALTER TABLE `cga_governance` ADD COLUMN `$col` $def");
+                    } catch (Exception $e) {
+                        // Columna ya existe o base de datos no requiere alteración
+                    }
+                }
+
                 $pdo->exec("DELETE FROM `cga_governance_responsibilities`");
                 $pdo->exec("DELETE FROM `cga_governance`");
 
                 $insertGov = $pdo->prepare("
                     INSERT INTO `cga_governance` (
-                        `id`, `name`, `role_es`, `role_en`, `display_role_es`, `display_role_en`,
-                        `category`, `tag_es`, `tag_en`, `country_es`, `country_en`, `img`,
-                        `bio_es`, `bio_en`, `email`, `linkedin`, `whatsapp`, `phone_mx`, `phone_ca`, `sort_order`
+                        `id`, `num`, `name`, `role_es`, `role_en`, `display_role_es`, `display_role_en`,
+                        `category`, `tag_es`, `tag_en`, `area_es`, `area_en`, `country_es`, `country_en`, `img`,
+                        `bio_es`, `bio_en`, `quote_es`, `quote_en`, `email`, `linkedin`, `whatsapp`, `phone_mx`, `phone_ca`,
+                        `facebook`, `instagram`, `twitter`, `sort_order`
                     ) VALUES (
-                        :id, :name, :role_es, :role_en, :display_role_es, :display_role_en,
-                        :category, :tag_es, :tag_en, :country_es, :country_en, :img,
-                        :bio_es, :bio_en, :email, :linkedin, :whatsapp, :phone_mx, :phone_ca, :sort
+                        :id, :num, :name, :role_es, :role_en, :display_role_es, :display_role_en,
+                        :category, :tag_es, :tag_en, :area_es, :area_en, :country_es, :country_en, :img,
+                        :bio_es, :bio_en, :quote_es, :quote_en, :email, :linkedin, :whatsapp, :phone_mx, :phone_ca,
+                        :facebook, :instagram, :twitter, :sort
                     )
                 ");
 
@@ -189,32 +210,44 @@ try {
                     $displayRoleEn = is_array($m['displayRole'] ?? null) ? ($m['displayRole']['en'] ?? '') : $roleEn;
                     $tagEs = is_array($m['tag'] ?? null) ? ($m['tag']['es'] ?? '') : ($m['tag'] ?? '');
                     $tagEn = is_array($m['tag'] ?? null) ? ($m['tag']['en'] ?? '') : '';
+                    $areaEs = is_array($m['area'] ?? null) ? ($m['area']['es'] ?? '') : ($m['area'] ?? '');
+                    $areaEn = is_array($m['area'] ?? null) ? ($m['area']['en'] ?? '') : '';
                     $countryEs = is_array($m['country'] ?? null) ? ($m['country']['es'] ?? '') : ($m['country'] ?? '');
                     $countryEn = is_array($m['country'] ?? null) ? ($m['country']['en'] ?? '') : '';
                     $bioEs = is_array($m['bio'] ?? null) ? ($m['bio']['es'] ?? '') : ($m['bio'] ?? '');
                     $bioEn = is_array($m['bio'] ?? null) ? ($m['bio']['en'] ?? '') : '';
+                    $quoteEs = is_array($m['quote'] ?? null) ? ($m['quote']['es'] ?? '') : ($m['quote'] ?? '');
+                    $quoteEn = is_array($m['quote'] ?? null) ? ($m['quote']['en'] ?? '') : '';
                     $social = $m['social'] ?? [];
 
                     $insertGov->execute([
                         ':id'              => $mId,
+                        ':num'             => $m['num'] ?? ('0' . ($i + 1)),
                         ':name'            => $m['name'] ?? '',
                         ':role_es'         => $roleEs,
                         ':role_en'         => $roleEn,
                         ':display_role_es' => $displayRoleEs,
                         ':display_role_en' => $displayRoleEn,
-                        ':category'        => $m['category'] ?? 'directorio',
+                        ':category'        => $m['category'] ?? 'consejeria',
                         ':tag_es'          => $tagEs,
                         ':tag_en'          => $tagEn,
+                        ':area_es'         => $areaEs,
+                        ':area_en'         => $areaEn,
                         ':country_es'      => $countryEs,
                         ':country_en'      => $countryEn,
                         ':img'             => $m['img'] ?? '',
                         ':bio_es'          => $bioEs,
                         ':bio_en'          => $bioEn,
+                        ':quote_es'        => $quoteEs,
+                        ':quote_en'        => $quoteEn,
                         ':email'           => $social['email'] ?? ($m['email'] ?? ''),
                         ':linkedin'        => $social['linkedin'] ?? ($m['linkedin'] ?? ''),
                         ':whatsapp'        => $social['whatsapp'] ?? ($m['whatsapp'] ?? ''),
                         ':phone_mx'        => $social['phoneMx'] ?? ($m['phoneMx'] ?? ''),
                         ':phone_ca'        => $social['phoneCa'] ?? ($m['phoneCa'] ?? ''),
+                        ':facebook'        => $social['facebook'] ?? ($m['facebook'] ?? ''),
+                        ':instagram'       => $social['instagram'] ?? ($m['instagram'] ?? ''),
+                        ':twitter'         => $social['twitter'] ?? ($m['twitter'] ?? ''),
                         ':sort'            => $i
                     ]);
 

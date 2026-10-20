@@ -116,17 +116,18 @@ export default function FooterNav() {
                 <img
                   src={logoSrc}
                   alt={t('brand.name')}
-                  width="480"
-                  height="192"
+                  width="384"
+                  height="154"
                   style={{
-                    height: '192px',
-                    maxHeight: '220px',
+                    height: '154px',
+                    maxHeight: '176px',
                     width: 'auto',
-                    maxWidth: '480px',
+                    maxWidth: '384px',
                     objectFit: 'contain',
-                    display: 'block'
+                    display: 'block',
+                    filter: 'brightness(0) invert(1)',
                   }}
-                  className="h-28 sm:h-36 md:h-48 max-w-[280px] sm:max-w-[380px] md:max-w-[480px] w-auto object-contain drop-shadow-[0_6px_28px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="h-24 sm:h-28 md:h-[154px] max-w-[224px] sm:max-w-[304px] md:max-w-[384px] w-auto object-contain brightness-0 invert drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </Link>
             </Reveal>

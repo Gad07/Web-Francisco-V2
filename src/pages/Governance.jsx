@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageHero } from '../components/PageHero.jsx';
 import FooterNav from '../components/FooterNav.jsx';
@@ -213,7 +214,7 @@ export default function Governance() {
                   <div className="lg:col-span-5 bg-[#fbf9f5] border-b lg:border-b-0 lg:border-r border-[#e8e2d4] p-6 sm:p-8 flex flex-col justify-between">
                     {/* Fotografía de Alta Definición */}
                     <div>
-                      <div className="relative aspect-[4/5.55] w-full rounded-2xl overflow-hidden shadow-md border-2 border-[#d8ceb6] bg-white group">
+                      <div className="relative aspect-[4/5.55] w-full rounded-2xl overflow-hidden shadow-md border-2 border-[#d8ceb6] bg-[#fbf9f5] group">
                         <img
                           src={formatDriveUrl(presidentMember.img)}
                           alt={presidentMember.name}
@@ -230,7 +231,7 @@ export default function Governance() {
                             }
                             e.currentTarget.src = '/imports/Perfiles/LuisGarcia.png';
                           }}
-                          className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-700 ease-out"
+                          className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-700 ease-out"
                         />
                       </div>
                     </div>
@@ -362,7 +363,7 @@ export default function Governance() {
 
                       <blockquote className="pl-4 sm:pl-5 border-l-2 border-[#4a5a22] py-1">
                         <p className="font-serif italic text-sm sm:text-base text-[#3d3422] leading-relaxed">
-                          {t({
+                          {t(presidentMember.quote || {
                             es: '«La diplomacia ambiental y la ciencia deben traducirse en transformaciones territoriales tangibles para las comunidades de México y las naciones con las que construimos alianzas.»',
                             en: '“Environmental diplomacy and science must translate into tangible territorial transformations for communities across Mexico and allied nations.”'
                           })}
@@ -406,7 +407,17 @@ export default function Governance() {
                       )}
                     </div>
 
-                    <div className="pt-5 border-t border-[#e5dfd3] flex items-center justify-end">
+                    <div className="pt-5 border-t border-[#e5dfd3] flex flex-wrap items-center justify-end gap-3">
+                      <Link
+                        to="/luis-garcia"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4a5a22]/10 hover:bg-[#4a5a22]/20 text-[#3a4a18] text-xs font-semibold tracking-wide transition-all border border-[#4a5a22]/20 hover:border-[#4a5a22]/40"
+                      >
+                        <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                        </svg>
+                        <span>{t({ es: 'Ficha & Business Card', en: 'Profile & Business Card' })}</span>
+                      </Link>
+
                       {presidentMember.social?.email && (
                         <a
                           href={`mailto:${presidentMember.social.email}`}
@@ -820,7 +831,19 @@ export default function Governance() {
                     )}
 
                     {/* Canales Directos de Contacto */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {(selectedMember.id === 'francisco-solorio' || selectedMember.id === 'luis-garcia') && (
+                        <Link
+                          to={selectedMember.id === 'francisco-solorio' ? '/francisco-solorio' : '/luis-garcia'}
+                          className="px-3 py-1.5 rounded-lg bg-[#4a5a22]/10 hover:bg-[#4a5a22]/20 text-[#3a4a18] text-xs font-semibold flex items-center gap-1.5 transition-all border border-[#4a5a22]/20"
+                        >
+                          <svg className="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                          </svg>
+                          <span>{t({ es: 'Business Card', en: 'Business Card' })}</span>
+                        </Link>
+                      )}
+
                       {selectedMember.social?.whatsapp && (
                         <a
                           href={

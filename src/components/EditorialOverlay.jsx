@@ -1447,7 +1447,7 @@ export default function EditorialOverlay({
             <RevealItem index={0} className="h-full">
               <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 items-stretch h-full overflow-hidden group cursor-pointer">
                 <div className="sm:col-span-5 relative w-full h-72 sm:h-auto min-h-[280px] sm:min-h-full sm:self-stretch overflow-hidden bg-[#e0d6be] flex">
-                  <img src={luisGarciaImg} alt="Mtro. Luis García González" className="w-full h-full sm:absolute sm:inset-0 sm:w-full sm:h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+                  <img src={luisGarciaImg} alt="Mtro. Luis García González" className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
                   <div>
@@ -1466,7 +1466,7 @@ export default function EditorialOverlay({
             <RevealItem index={1} className="h-full">
               <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 items-stretch h-full overflow-hidden group cursor-pointer">
                 <div className="sm:col-span-5 relative w-full h-72 sm:h-auto min-h-[280px] sm:min-h-full sm:self-stretch overflow-hidden bg-[#e0d6be] flex">
-                  <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="w-full h-full sm:absolute sm:inset-0 sm:w-full sm:h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+                  <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
                   <div>

@@ -6320,6 +6320,18 @@ export default function Admin() {
                       </div>
 
                       <div className="flex items-center gap-1.5">
+                        {(member.id === 'luis-garcia' || member.id === 'francisco-solorio') && (
+                          <Link
+                            to={member.id === 'luis-garcia' ? '/luis-garcia' : '/francisco-solorio'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 rounded-lg bg-white border border-[#d8ceb6] hover:bg-[#4a5a22]/10 hover:border-[#4a5a22] text-[#4a5a22] text-xs font-semibold transition-all flex items-center gap-1 shadow-2xs"
+                            title="Ver Business Card / Perfil en vivo"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Ver Card</span>
+                          </Link>
+                        )}
                         <button
                           type="button"
                           onClick={() => setEditingGovMember(JSON.parse(JSON.stringify(member)))}
@@ -6787,6 +6799,35 @@ export default function Admin() {
                     }}
                     placeholder="Describe la trayectoria profesional y rol en el Consejo..."
                     className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] leading-relaxed"
+                  />
+                </div>
+
+                {/* Cita / Manifiesto de Liderazgo (Business Card & Semblanza) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
+                      Cita / Manifiesto de Liderazgo (Business Card & Semblanza)
+                    </label>
+                    <span className="text-[11px] text-[#8a7e68] font-mono">Visible en la Business Card</span>
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={
+                      typeof editingGovMember.quote === 'object'
+                        ? editingGovMember.quote?.es || ''
+                        : editingGovMember.quote || ''
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingGovMember({
+                        ...editingGovMember,
+                        quote: typeof editingGovMember.quote === 'object'
+                          ? { ...editingGovMember.quote, es: val }
+                          : { es: val, en: '' },
+                      });
+                    }}
+                    placeholder="«La misión trasciende fronteras: consolidar una gobernanza territorial rigurosa, científica y solidaria...»"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] italic leading-relaxed"
                   />
                 </div>
 

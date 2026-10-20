@@ -99,21 +99,27 @@ function getGovernanceRelational($pdo) {
             $id = $r['id'];
             $members[] = [
                 'id'               => $id,
+                'num'              => $r['num'] ?? '',
                 'name'             => $r['name'],
-                'role'             => ['es' => $r['role_es'], 'en' => $r['role_en']],
-                'displayRole'      => ['es' => $r['display_role_es'], 'en' => $r['display_role_en']],
-                'category'         => $r['category'],
-                'tag'              => ['es' => $r['tag_es'], 'en' => $r['tag_en']],
-                'country'          => ['es' => $r['country_es'], 'en' => $r['country_en']],
-                'img'              => $r['img'],
-                'bio'              => ['es' => $r['bio_es'], 'en' => $r['bio_en']],
+                'role'             => ['es' => $r['role_es'] ?? '', 'en' => $r['role_en'] ?? ''],
+                'displayRole'      => ['es' => $r['display_role_es'] ?? '', 'en' => $r['display_role_en'] ?? ''],
+                'category'         => $r['category'] ?? 'consejeria',
+                'tag'              => ['es' => $r['tag_es'] ?? '', 'en' => $r['tag_en'] ?? ''],
+                'area'             => ['es' => $r['area_es'] ?? '', 'en' => $r['area_en'] ?? ''],
+                'country'          => ['es' => $r['country_es'] ?? '', 'en' => $r['country_en'] ?? ''],
+                'img'              => $r['img'] ?? '',
+                'bio'              => ['es' => $r['bio_es'] ?? '', 'en' => $r['bio_en'] ?? ''],
+                'quote'            => ['es' => $r['quote_es'] ?? '', 'en' => $r['quote_en'] ?? ''],
                 'responsibilities' => isset($respByMember[$id]) ? $respByMember[$id] : [],
                 'social'           => [
-                    'email'    => $r['email'],
-                    'linkedin' => $r['linkedin'],
-                    'whatsapp' => $r['whatsapp'],
-                    'phoneMx'  => $r['phone_mx'],
-                    'phoneCa'  => $r['phone_ca']
+                    'email'     => $r['email'] ?? '',
+                    'linkedin'  => $r['linkedin'] ?? '',
+                    'whatsapp'  => $r['whatsapp'] ?? '',
+                    'phoneMx'   => $r['phone_mx'] ?? '',
+                    'phoneCa'   => $r['phone_ca'] ?? '',
+                    'facebook'  => $r['facebook'] ?? '',
+                    'instagram' => $r['instagram'] ?? '',
+                    'twitter'   => $r['twitter'] ?? ''
                 ]
             ];
         }

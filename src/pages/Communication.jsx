@@ -113,7 +113,7 @@ export default function Communication() {
                         <img
                           src={featuredStory.image}
                           alt=""
-                          className="w-full h-full lg:absolute lg:inset-0 lg:w-full lg:h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                         />
                       </div>
 

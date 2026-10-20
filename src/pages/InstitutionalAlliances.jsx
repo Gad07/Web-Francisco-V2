@@ -160,11 +160,11 @@ export default function InstitutionalAlliances() {
 
           <div className="lg:col-span-6">
             <Reveal delay={0.15}>
-              <div className="relative rounded-3xl overflow-hidden shadow-xl border border-[#d8ceb6]">
+              <div className="relative h-80 sm:h-96 rounded-3xl overflow-hidden shadow-xl border border-[#d8ceb6]">
                 <img
                   src="https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&fit=crop&auto=format"
                   alt={t({ es: 'Firma de Acuerdos Multilaterales', en: 'Multilateral Agreement Signing' })}
-                  className="w-full h-80 sm:h-96 object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2d2618]/85 via-[#2d2618]/30 to-transparent flex items-end p-6 sm:p-8">
                   <p className="text-[#f5efe3] text-sm sm:text-base font-light font-serif italic">

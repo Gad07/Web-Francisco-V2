@@ -145,7 +145,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
 
           {popup.image && (
             <div className="relative h-44 sm:h-52 w-full overflow-hidden bg-[#eae4d2]">
-              <img src={popup.image} alt="" className="w-full h-full object-cover" />
+              <img src={popup.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#f5efe3] via-transparent to-transparent" />
             </div>
           )}
@@ -205,7 +205,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
             <img
               src={popup.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&fit=crop'}
               alt=""
-              className="w-full h-full md:absolute md:inset-0 md:w-full md:h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
             />
           </div>
 
@@ -322,7 +322,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                         ? 'blur(4px)'
                         : 'none',
                   }}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 {/* Capa de contraste */}
                 {popup.bgOverlay === 'dark' && (

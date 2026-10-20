@@ -33,21 +33,24 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
   const website = 'www.consejocga.org';
   const roleName = member.displayRole ? t(member.displayRole) : (member.role ? t(member.role) : 'Consejero Presidente');
 
+  const memberName = member.name || 'Mtro. Luis García González';
+  const orgName = 'Consejo Global Ambiental';
+  const filename = `${memberName.replace(/[^a-zA-Z0-9]/g, '_')}_CGA.vcf`;
+
   // Generador de archivo vCard (.vcf) compatible con iOS, Android, Google Contacts y Outlook
   const handleDownloadVCard = () => {
     const vCardData = [
       'BEGIN:VCARD',
       'VERSION:3.0',
-      'N:García González;Luis;Mtro.;;',
-      'FN:Mtro. Luis García González',
-      'ORG:Consejo Global Agroalimentario;Presidencia del Consejo Directivo',
+      `FN:${memberName}`,
+      `ORG:${orgName};${roleName}`,
       `TITLE:${roleName}`,
       ...emailList.map((em, idx) => `EMAIL;TYPE=INTERNET${idx === 0 ? ',PREF' : ''}:${em}`),
       `TEL;TYPE=WORK,VOICE:${phoneMx}`,
       `TEL;TYPE=CELL,VOICE:${phoneCa}`,
       `URL;TYPE=WORK:https://${website}`,
       'ADR;TYPE=WORK:;;Sede Central;Ciudad de México;;;México',
-      `NOTE:Presidencia del Consejo Global Agroalimentario (CGA). WhatsApp: ${whatsappUrl}`,
+      `NOTE:${roleName} - ${orgName}. WhatsApp: ${whatsappUrl}`,
       'REV:' + new Date().toISOString(),
       'END:VCARD'
     ].join('\r\n');
@@ -56,7 +59,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'Luis_Garcia_Presidente_CGA.vcf');
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -66,7 +69,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
   // Copiar datos institucionales al portapapeles
   const handleCopyDetails = () => {
     const emailStr = emailList.length > 1 ? `Correos:\n${emailList.map(e => ` - ${e}`).join('\n')}` : `Correo: ${email}`;
-    const textToCopy = `Mtro. Luis García González\n${roleName}\nConsejo Global Agroalimentario (CGA)\n\nTeléfono México: ${phoneMx}\nTeléfono Canadá: ${phoneCa}\n${emailStr}\nWeb: https://${website}\nWhatsApp: ${whatsappUrl}`;
+    const textToCopy = `${memberName}\n${roleName}\n${orgName} (CGA)\n\nTeléfono México: ${phoneMx}\nTeléfono Canadá: ${phoneCa}\n${emailStr}\nWeb: https://${website}\nWhatsApp: ${whatsappUrl}`;
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2400);
@@ -267,14 +270,18 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                               Consejo Global
                             </span>
                             <span className="block text-[8px] sm:text-[9px] font-sans font-light tracking-widest text-[#7a6e58] uppercase">
-                              Agroalimentario
+                              Ambiental
                             </span>
                           </div>
                         </div>
 
                         <div className="text-right">
                           <span className="inline-block text-[8px] sm:text-[9px] font-mono uppercase tracking-widest text-[#7a6e58] border border-[#d8ceb6] px-2 py-0.5 rounded-full bg-white/70">
-                            PRESIDENCIA
+                            {member.id === 'francisco-solorio'
+                              ? 'SECRETARÍA EJECUTIVA'
+                              : (member.id === 'luis-garcia'
+                                ? 'PRESIDENCIA'
+                                : (typeof member.tag === 'object' ? member.tag.es : member.tag || 'GOBERNANZA'))}
                           </span>
                         </div>
                       </div>

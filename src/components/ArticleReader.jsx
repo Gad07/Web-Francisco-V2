@@ -118,7 +118,7 @@ export default function ArticleReader({
               <img
                 src={article.image}
                 alt=""
-                className="w-full h-full object-cover opacity-75 filter brightness-[0.78] contrast-[1.12] scale-105"
+                className="absolute inset-0 w-full h-full object-cover opacity-75 filter brightness-[0.78] contrast-[1.12] scale-105"
               />
               {/* Degradado superior para contraste con navbar */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/40 to-transparent" />
@@ -300,7 +300,7 @@ export default function ArticleReader({
               <img
                 src={article.image}
                 alt=""
-                className="w-full h-full lg:absolute lg:inset-0 lg:w-full lg:h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           </section>

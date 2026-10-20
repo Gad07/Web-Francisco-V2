@@ -77,20 +77,20 @@ function DropdownItem({ to, label, sub, delay, isDark = false }) {
     >
       <Link
         to={to}
-        className={`group flex items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors duration-200 ${
+        className={`group flex items-center justify-between gap-4 rounded-xl px-4.5 py-3 transition-colors duration-200 ${
           isDark
             ? 'hover:bg-white/10 text-[#e0d8c7]'
             : 'hover:bg-[#4a5a22]/8 text-[#4a5340]'
         }`}
       >
         <span>
-          <span className={`block text-[13px] font-medium transition-colors duration-200 ${
+          <span className={`block text-[13.5px] sm:text-[14px] font-medium transition-colors duration-200 ${
             isDark ? 'text-[#f5efe3] group-hover:text-white' : 'text-[#4a5340] group-hover:text-[#2d2618]'
           }`}>
             {label}
           </span>
           {sub && (
-            <span className={`mt-0.5 block text-[11px] font-light ${
+            <span className={`mt-0.5 block text-[11.5px] font-light ${
               isDark ? 'text-[#a8a090]' : 'text-[#8a7e68]'
             }`}>
               {sub}
@@ -118,7 +118,7 @@ function DropdownLanguageItem({ label, sub, active, onClick, delay, isDark = fal
       <button
         type="button"
         onClick={onClick}
-        className={`w-full group flex items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors duration-200 text-left cursor-pointer ${
+        className={`w-full group flex items-center justify-between gap-4 rounded-xl px-4.5 py-3 transition-colors duration-200 text-left cursor-pointer ${
           active
             ? isDark
               ? 'bg-white/10 text-white font-semibold'
@@ -129,7 +129,7 @@ function DropdownLanguageItem({ label, sub, active, onClick, delay, isDark = fal
         }`}
       >
         <span>
-          <span className={`block text-[13px] font-medium transition-colors duration-200 ${
+          <span className={`block text-[13.5px] sm:text-[14px] font-medium transition-colors duration-200 ${
             active
               ? isDark ? 'text-white' : 'text-[#4a5a22]'
               : isDark ? 'text-[#f5efe3] group-hover:text-white' : 'text-[#4a5340] group-hover:text-[#2d2618]'
@@ -137,7 +137,7 @@ function DropdownLanguageItem({ label, sub, active, onClick, delay, isDark = fal
             {label}
           </span>
           {sub && (
-            <span className={`mt-0.5 block text-[11px] font-light ${
+            <span className={`mt-0.5 block text-[11.5px] font-light ${
               isDark ? 'text-[#a8a090]' : 'text-[#8a7e68]'
             }`}>
               {sub}
@@ -163,7 +163,9 @@ function NavLink({ to, label, active, isDark = false }) {
   return (
     <Link
       to={to}
-      className={`group relative inline-flex h-9 shrink-0 items-center px-1 xl:px-2 2xl:px-2.5 font-sans text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium tracking-[0.02em] whitespace-nowrap transition-colors duration-300 ${
+      className={`group relative inline-flex h-10 shrink-0 items-center px-2.5 lg:px-3 xl:px-4 2xl:px-5 rounded-xl font-sans text-[13px] lg:text-[13.5px] xl:text-[15px] 2xl:text-[16px] font-medium tracking-[0.01em] whitespace-nowrap transition-all duration-200 hover:bg-black/[0.04] ${
+        isDark ? 'hover:bg-white/10' : ''
+      } ${
         active ? activeClass : idleClass
       }`}
     >
@@ -179,7 +181,9 @@ function DropdownTrigger({ label, open, onClick, active = false, isDark = false 
   return (
     <button
       onClick={onClick}
-      className={`group relative inline-flex h-9 shrink-0 items-center gap-1 xl:gap-1.5 px-1 xl:px-2 2xl:px-2.5 whitespace-nowrap font-sans text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium tracking-[0.02em] transition-colors duration-300 active:scale-[0.98] cursor-pointer ${
+      className={`group relative inline-flex h-10 shrink-0 items-center gap-1.5 xl:gap-2 px-2.5 lg:px-3 xl:px-4 2xl:px-5 rounded-xl whitespace-nowrap font-sans text-[13px] lg:text-[13.5px] xl:text-[15px] 2xl:text-[16px] font-medium tracking-[0.01em] transition-all duration-200 active:scale-[0.98] cursor-pointer hover:bg-black/[0.04] ${
+        isDark ? 'hover:bg-white/10' : ''
+      } ${
         open || active ? activeClass : idleClass
       }`}
     >
@@ -187,9 +191,9 @@ function DropdownTrigger({ label, open, onClick, active = false, isDark = false 
       <motion.span
         animate={{ rotate: open ? 180 : 0 }}
         transition={{ duration: 0.3, ease: EASE_LUX }}
-        className={`text-[10px] ${isDark ? 'text-[#d8eb96]' : 'opacity-60'}`}
+        className={`text-[11px] ${isDark ? 'text-[#d8eb96]' : 'opacity-60'}`}
       >
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
         </svg>
       </motion.span>
@@ -326,22 +330,22 @@ export default function HeaderNav({
         } ${
           isScrolled
             ? isDarkTheme
-              ? 'top-3 md:top-4 w-[96%] max-w-[1360px] h-[60px] md:h-[64px] rounded-full px-3.5 sm:px-5 md:px-7 bg-black/65 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_18px_45px_-16px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10'
-              : 'top-3 md:top-4 w-[96%] max-w-[1360px] h-[60px] md:h-[64px] rounded-full px-3.5 sm:px-5 md:px-7 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
+              ? 'top-3 md:top-4 w-[96%] max-w-[1540px] 2xl:max-w-[1640px] h-[66px] md:h-[70px] rounded-full px-4 sm:px-6 md:px-8 xl:px-9 bg-black/65 backdrop-blur-2xl backdrop-saturate-150 border border-white/20 shadow-[0_18px_45px_-16px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10'
+              : 'top-3 md:top-4 w-[96%] max-w-[1540px] 2xl:max-w-[1640px] h-[66px] md:h-[70px] rounded-full px-4 sm:px-6 md:px-8 xl:px-9 bg-[#f5efe3]/90 backdrop-blur-2xl backdrop-saturate-150 border border-[#d8ceb6]/85 shadow-[0_18px_45px_-16px_rgba(45,38,24,0.32)] ring-1 ring-inset ring-white/40'
             : isDarkTheme
-              ? 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-black/85 via-black/45 to-transparent border-0 border-transparent shadow-none'
-              : 'top-0 w-full max-w-none h-[76px] md:h-[80px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 bg-gradient-to-b from-[#f5efe3]/95 via-[#f5efe3]/75 to-transparent border-0 border-transparent shadow-none'
+              ? 'top-0 w-full max-w-none h-[80px] md:h-[88px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 bg-gradient-to-b from-black/85 via-black/45 to-transparent border-0 border-transparent shadow-none'
+              : 'top-0 w-full max-w-none h-[80px] md:h-[88px] rounded-none px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 bg-gradient-to-b from-[#f5efe3]/95 via-[#f5efe3]/75 to-transparent border-0 border-transparent shadow-none'
         } ${!isLoaded ? 'pointer-events-none' : ''}`}
       >
-        <div className="mx-auto flex w-full h-full items-center justify-between gap-2 sm:gap-4 xl:gap-6">
+        <div className="mx-auto flex w-full h-full items-center justify-between gap-3 sm:gap-5 xl:gap-8">
           {/* Cluster izquierdo: logo que se adapta a fondo claro u oscuro */}
           <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
             <Link
               to="/"
               className="group flex items-center flex-shrink-0 transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98] overflow-hidden"
               style={{
-                height: isScrolled ? '41px' : '55px',
-                maxHeight: isScrolled ? '41px' : '55px',
+                height: isScrolled ? '45px' : '60px',
+                maxHeight: isScrolled ? '45px' : '60px',
                 lineHeight: 0
               }}
               aria-label={t('a11y.home')}
@@ -349,17 +353,17 @@ export default function HeaderNav({
               <img
                 src={lang === 'en' ? '/logos/Logo%20EN.svg' : '/logos/Logo%20ES.svg'}
                 alt={t('brand.name') || 'Consejo Global Ambiental'}
-                width="240"
-                height="55"
+                width="264"
+                height="60"
                 style={{
-                  height: isScrolled ? '41px' : '55px',
-                  maxHeight: isScrolled ? '41px' : '55px',
+                  height: isScrolled ? '45px' : '60px',
+                  maxHeight: isScrolled ? '45px' : '60px',
                   width: 'auto',
-                  maxWidth: isScrolled ? '195px' : '250px',
+                  maxWidth: isScrolled ? '215px' : '275px',
                   objectFit: 'contain',
                   display: 'block'
                 }}
-                className={`h-10 md:h-[55px] w-auto max-h-10 md:max-h-[55px] max-w-[190px] md:max-w-[250px] object-contain transition-all duration-300 ease-out group-hover:scale-[1.03] ${
+                className={`h-11 md:h-[60px] w-auto max-h-11 md:max-h-[60px] max-w-[210px] md:max-w-[275px] object-contain transition-all duration-300 ease-out group-hover:scale-[1.03] ${
                   isDarkTheme ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]' : 'drop-shadow-none'
                 }`}
               />
@@ -368,7 +372,7 @@ export default function HeaderNav({
 
           {/* Navegación central (desktop) */}
           <nav
-            className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-3 flex-shrink-0"
+            className="hidden lg:flex items-center gap-2 lg:gap-3 xl:gap-5 2xl:gap-7 flex-shrink-0"
             onMouseLeave={scheduleClose}
           >
             {/* 1. EL CONSEJO */}
@@ -469,13 +473,13 @@ export default function HeaderNav({
           </nav>
 
           {/* Acciones derecha: Apoya al CGA · Contacto */}
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Link
               to="/apoya"
-              className={`group hidden xl:inline-flex h-9 items-center px-3.5 xl:px-4 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.08em] uppercase rounded-full transition-all duration-300 ring-1 ring-inset ${
+              className={`group hidden sm:inline-flex h-9.5 md:h-10 items-center px-3.5 sm:px-4 xl:px-5 font-sans text-xs xl:text-[12.5px] font-semibold tracking-[0.06em] uppercase rounded-full transition-all duration-300 ring-1 ring-inset active:scale-[0.97] ${
                 isDarkTheme
-                  ? 'text-[#f5efe3] ring-white/20 hover:bg-white/10'
-                  : 'text-[#4a5a22] ring-[#4a5a22]/30 hover:bg-[#4a5a22]/10'
+                  ? 'text-[#f5efe3] bg-white/10 hover:bg-white/20 ring-white/25 shadow-sm'
+                  : 'text-[#4a5a22] bg-[#4a5a22]/10 hover:bg-[#4a5a22]/20 ring-[#4a5a22]/30 shadow-sm'
               }`}
             >
               <span>{t('nav.apoyaCGA')}</span>
@@ -483,7 +487,7 @@ export default function HeaderNav({
 
             <Link
               to="/contacto"
-              className={`group hidden sm:inline-flex h-9 items-center gap-2 rounded-full px-3.5 xl:px-5 font-sans text-[11px] lg:text-[12px] font-semibold tracking-[0.1em] uppercase transition-all duration-500 ease-out active:scale-[0.97] ring-1 ring-inset ${
+              className={`group hidden sm:inline-flex h-9.5 md:h-10 items-center gap-2 rounded-full px-4 xl:px-5.5 font-sans text-xs xl:text-[12.5px] font-semibold tracking-[0.08em] uppercase transition-all duration-500 ease-out active:scale-[0.97] ring-1 ring-inset ${
                 isDarkTheme
                   ? isScrolled
                     ? 'bg-[#4a5a22] text-[#f5efe3] ring-white/15 shadow-[0_8px_24px_-10px_rgba(74,90,34,0.6)] hover:bg-[#5a6b2a]'
