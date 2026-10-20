@@ -1,10 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_ARTICLES, getStoredArticles, saveStoredArticles } from '../data/articlesData.js';
+import { fetchAllDbData, saveDbCollection } from '../utils/api.js';
 
 const ArticlesContext = createContext(null);
 
 export function ArticlesProvider({ children }) {
   const [articles, setArticles] = useState(getStoredArticles);
+
+  // Sincronización inicial con base de datos MySQL en Hostinger
+  useEffect(() => {
+    let isMounted = true;
+    fetchAllDbData().then((dbData) => {
+      if (!isMounted || !dbData || !dbData.success) return;
+      if (Array.isArray(dbData.articles) && dbData.articles.length > 0) {
+        setArticles(dbData.articles);
+        saveStoredArticles(dbData.articles);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     try {
@@ -16,6 +30,7 @@ export function ArticlesProvider({ children }) {
 
   useEffect(() => {
     saveStoredArticles(articles);
+    saveDbCollection('articles', articles);
   }, [articles]);
 
   const getArticle = (id) => {

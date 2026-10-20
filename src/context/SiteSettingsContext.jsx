@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DEFAULT_GOVERNANCE_MEMBERS } from '../data/governanceData.js';
+import { fetchAllDbData, saveDbCollection } from '../utils/api.js';
 
 const SETTINGS_STORAGE_KEY = 'cga_site_settings_v6';
 const POPUPS_STORAGE_KEY = 'cga_popups_list';
@@ -555,29 +556,63 @@ export function SiteSettingsProvider({ children }) {
     }
   }, []);
 
-  // Guardar en localStorage ante cambios
+  // Sincronización inicial automática desde MySQL en Hostinger (con fallback a local)
+  useEffect(() => {
+    let isMounted = true;
+    fetchAllDbData().then((dbData) => {
+      if (!isMounted || !dbData || !dbData.success) return;
+
+      if (dbData.siteSettings) {
+        setSiteSettings((prev) => ({ ...prev, ...dbData.siteSettings }));
+      }
+      if (Array.isArray(dbData.alliances) && dbData.alliances.length > 0) {
+        setAlliances(dbData.alliances);
+      }
+      if (Array.isArray(dbData.governanceMembers) && dbData.governanceMembers.length > 0) {
+        setGovernanceMembers(dbData.governanceMembers);
+      }
+      if (Array.isArray(dbData.popups) && dbData.popups.length > 0) {
+        setPopups(dbData.popups);
+      }
+      if (dbData.trainingData && typeof dbData.trainingData === 'object' && Object.keys(dbData.trainingData).length > 0) {
+        setTrainingData((prev) => ({ ...prev, ...dbData.trainingData }));
+      }
+      if (Array.isArray(dbData.applications) && dbData.applications.length > 0) {
+        setApplications(dbData.applications);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
+
+  // Guardar en localStorage y sincronizar con base de datos MySQL en Hostinger
   useEffect(() => {
     localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(popups));
+    saveDbCollection('popups', popups);
   }, [popups]);
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(siteSettings));
+    saveDbCollection('settings', siteSettings);
   }, [siteSettings]);
 
   useEffect(() => {
     localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(trainingData));
+    saveDbCollection('training', trainingData);
   }, [trainingData]);
 
   useEffect(() => {
     localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(applications));
+    saveDbCollection('applications', applications);
   }, [applications]);
 
   useEffect(() => {
     localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(alliances));
+    saveDbCollection('alliances', alliances);
   }, [alliances]);
 
   useEffect(() => {
     localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(governanceMembers));
+    saveDbCollection('governance', governanceMembers);
   }, [governanceMembers]);
 
   // Sincronización automática entre pestañas abiertas (Admin <-> Sitio Web)
