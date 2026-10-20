@@ -12,26 +12,13 @@ export function ArticlesProvider({ children }) {
     let isMounted = true;
     fetchAllDbData().then((dbData) => {
       if (!isMounted || !dbData || !dbData.success) return;
-      if (Array.isArray(dbData.articles) && dbData.articles.length > 0) {
+      if (Array.isArray(dbData.articles)) {
         setArticles(dbData.articles);
         saveStoredArticles(dbData.articles);
       }
     });
     return () => { isMounted = false; };
   }, []);
-
-  useEffect(() => {
-    try {
-      ['cga_articles_cms', 'cga_articles_cms_v1', 'cga_articles_cms_v2', 'cga_articles_cms_v3', 'cga_articles_cms_v4', 'cga_articles_cms_v5'].forEach((k) => {
-        try { localStorage.removeItem(k); } catch {}
-      });
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    saveStoredArticles(articles);
-    saveDbCollection('articles', articles);
-  }, [articles]);
 
   const getArticle = (id) => {
     return articles.find((a) => a.id === id || a.aliasId === id);
@@ -48,6 +35,7 @@ export function ArticlesProvider({ children }) {
         updated = [articleData, ...prev];
       }
       saveStoredArticles(updated);
+      saveDbCollection('articles', updated);
       return updated;
     });
   };
@@ -56,6 +44,7 @@ export function ArticlesProvider({ children }) {
     setArticles((prev) => {
       const updated = prev.filter((a) => a.id !== id);
       saveStoredArticles(updated);
+      saveDbCollection('articles', updated);
       return updated;
     });
   };
@@ -63,7 +52,9 @@ export function ArticlesProvider({ children }) {
   const resetToDefaults = () => {
     setArticles(INITIAL_ARTICLES);
     saveStoredArticles(INITIAL_ARTICLES);
+    saveDbCollection('articles', INITIAL_ARTICLES);
   };
+
 
   return (
     <ArticlesContext.Provider

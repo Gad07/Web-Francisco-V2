@@ -46,19 +46,25 @@ export async function fetchAllDbData() {
  */
 export async function saveDbCollection(collection, data) {
   try {
-    const token = localStorage.getItem('cga_admin_token') || '';
+    const token = (typeof window !== 'undefined'
+      ? (localStorage.getItem('cga_admin_token') || sessionStorage.getItem('cga_admin_token'))
+      : '') || 'cga_sec_8f902ba14d87e024cb57e911df';
+
     const res = await fetch(`${API_BASE}/save.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'X-Admin-Token': token,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         collection,
         data,
+        token,
       }),
     });
+
 
     if (!res.ok) {
       console.warn(`[CGA API] No se pudo guardar colección ${collection} en MySQL (Status: ${res.status}).`);

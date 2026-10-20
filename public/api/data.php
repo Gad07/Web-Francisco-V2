@@ -161,28 +161,56 @@ function getPopupsRelational($pdo) {
 
 function getArticlesRelational($pdo) {
     try {
-        $stmt = $pdo->query("SELECT * FROM `cga_articles` ORDER BY `created_at` DESC");
+        $stmt = $pdo->query("SELECT * FROM `cga_articles` ORDER BY `published_at` DESC, `created_at` DESC");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $articles = [];
         foreach ($rows as $r) {
+            $excerpt = ['es' => $r['excerpt_es'], 'en' => $r['excerpt_en']];
+            $content = ['es' => $r['content_es'], 'en' => $r['content_en']];
+            
+            // Reconstruir lista de párrafos para el editor y los lectores
+            $paragraphs = [];
+            if (!empty($r['content_es']) || !empty($r['content_en'])) {
+                $esList = !empty($r['content_es']) ? explode("\n\n", $r['content_es']) : [''];
+                $enList = !empty($r['content_en']) ? explode("\n\n", $r['content_en']) : [''];
+                $maxP = max(count($esList), count($enList));
+                for ($pi = 0; $pi < $maxP; $pi++) {
+                    $paragraphs[] = [
+                        'es' => $esList[$pi] ?? '',
+                        'en' => $enList[$pi] ?? ''
+                    ];
+                }
+            }
+            if (empty($paragraphs)) {
+                $paragraphs = [['es' => '', 'en' => '']];
+            }
+
+            $img = !empty($r['hero_img']) ? $r['hero_img'] : '';
+            $readTimeMin = (int)$r['read_time_minutes'] ?: 5;
+
             $articles[] = [
                 'id'          => $r['id'],
                 'aliasId'     => $r['alias_id'],
                 'slug'        => $r['slug'],
                 'title'       => ['es' => $r['title_es'], 'en' => $r['title_en']],
-                'excerpt'     => ['es' => $r['excerpt_es'], 'en' => $r['excerpt_en']],
-                'content'     => ['es' => $r['content_es'], 'en' => $r['content_en']],
-                'category'    => $r['category'],
-                'author'      => [
-                    'name' => $r['author_name'],
-                    'role' => $r['author_role'],
-                    'img'  => $r['author_img']
-                ],
-                'heroImg'     => $r['hero_img'],
+                'excerpt'     => $excerpt,
+                'summary'     => $excerpt,
+                'content'     => $content,
+                'paragraphs'  => $paragraphs,
+                'category'    => ['es' => $r['category'], 'en' => $r['category']],
+                'type'        => $r['category'],
+                'author'      => $r['author_name'],
+                'authorName'  => $r['author_name'],
+                'authorRole'  => ['es' => $r['author_role'], 'en' => $r['author_role']],
+                'authorImg'   => $r['author_img'],
+                'image'       => $img,
+                'heroImg'     => $img,
+                'heroBgImage' => $img,
                 'heroPng'     => $r['hero_png'],
-                'readTime'    => (int)$r['read_time_minutes'],
+                'readTime'    => $readTimeMin . ' min de lectura',
                 'tags'        => !empty($r['tags']) ? explode(',', $r['tags']) : [],
                 'status'      => $r['status'],
+                'date'        => $r['published_at'],
                 'publishedAt' => $r['published_at'],
                 'createdAt'   => $r['created_at'],
                 'updatedAt'   => $r['updated_at']
@@ -202,7 +230,9 @@ function getTrainingRelational($pdo) {
             'subtitle'    => ['es' => $orgRow['subtitle_es'], 'en' => $orgRow['subtitle_en']],
             'title'       => ['es' => $orgRow['title_es'], 'en' => $orgRow['title_en']],
             'description' => ['es' => $orgRow['description_es'], 'en' => $orgRow['description_en']],
-            'ctaText'     => ['es' => $orgRow['cta_text_es'], 'en' => $orgRow['cta_text_en']]
+            'ctaText'     => ['es' => $orgRow['cta_text_es'], 'en' => $orgRow['cta_text_en']],
+            'programs'    => [],
+            'benefits'    => []
         ] : null;
 
         $coursesStmt = $pdo->query("SELECT * FROM `cga_training_courses` WHERE `is_active` = 1 ORDER BY `sort_order` ASC");
@@ -211,6 +241,7 @@ function getTrainingRelational($pdo) {
         $diplomados = [];
         $cursos = [];
         $webinars = [];
+        $especialistas = [];
 
         foreach ($coursesRows as $c) {
             $formatted = [
@@ -237,6 +268,17 @@ function getTrainingRelational($pdo) {
                 $cursos[] = $formatted;
             } elseif ($c['type'] === 'webinar') {
                 $webinars[] = $formatted;
+            } elseif ($c['type'] === 'especialista') {
+                $especialistas[] = [
+                    'id'          => $c['id'],
+                    'name'        => $c['title_es'],
+                    'role'        => ['es' => $c['subtitle_es'], 'en' => $c['subtitle_en']],
+                    'title'       => ['es' => $c['subtitle_es'], 'en' => $c['subtitle_en']],
+                    'institution' => $c['instructor_name'],
+                    'bio'         => ['es' => $c['description_es'], 'en' => $c['description_en']],
+                    'image'       => $c['image'],
+                    'img'         => $c['image']
+                ];
             }
         }
 
@@ -245,7 +287,7 @@ function getTrainingRelational($pdo) {
             'diplomados'     => $diplomados,
             'cursos'         => $cursos,
             'webinars'       => $webinars,
-            'especialistas'  => [],
+            'especialistas'  => $especialistas,
             'calendario'     => []
         ];
     } catch (Exception $e) {
@@ -256,11 +298,32 @@ function getTrainingRelational($pdo) {
 function getApplicationsRelational($pdo) {
     try {
         $stmt = $pdo->query("SELECT * FROM `cga_applications` ORDER BY `created_at` DESC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $apps = [];
+        foreach ($rows as $r) {
+            $apps[] = [
+                'id'            => $r['id'],
+                'programId'     => $r['program_id'],
+                'programName'   => $r['program_name'],
+                'applicantName' => $r['applicant_name'],
+                'name'          => $r['applicant_name'],
+                'email'         => $r['email'],
+                'phone'         => $r['phone'],
+                'organization'  => $r['organization'],
+                'country'       => $r['country'],
+                'motivation'    => $r['motivation'],
+                'status'        => $r['status'],
+                'notes'         => $r['notes'],
+                'date'          => $r['created_at'],
+                'createdAt'     => $r['created_at']
+            ];
+        }
+        return $apps;
     } catch (Exception $e) {
         return [];
     }
 }
+
 
 try {
     if ($collection === 'all') {

@@ -230,29 +230,16 @@ const DEFAULT_APPLICATIONS = [];
 const SiteSettingsContext = createContext(null);
 
 export function SiteSettingsProvider({ children }) {
-  // Lista de pop-ups (limpia: exclusivamente 1 de bienvenida en Home)
+  // Lista de pop-ups
   const [popups, setPopups] = useState(() => {
     try {
       const stored = localStorage.getItem(POPUPS_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const hasLegacy = parsed.some(
-            (p) =>
-              p.id === 'popup-001' ||
-              p.id === 'popup-002' ||
-              p.id === 'popup-003' ||
-              p.id === 'popup-004' ||
-              p.targetRoute !== '/'
-          );
-          if (hasLegacy || parsed.length > 1) {
-            localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
-            return INITIAL_POPUPS_LIST;
-          }
           return parsed;
         }
       }
-      localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
       return INITIAL_POPUPS_LIST;
     } catch {
       return INITIAL_POPUPS_LIST;
@@ -281,14 +268,6 @@ export function SiteSettingsProvider({ children }) {
 
   const [trainingData, setTrainingData] = useState(() => {
     try {
-      // Purgar versiones anteriores con mock data
-      ['cga_training_data', 'cga_training_data_v1', 'cga_training_data_v2', 'cga_training_data_v3', 'cga_training_data_v4', 'cga_training_data_v5'].forEach((k) => {
-        try { localStorage.removeItem(k); } catch {}
-      });
-      ['cga_site_settings', 'cga_site_settings_v1', 'cga_site_settings_v2', 'cga_site_settings_v3', 'cga_site_settings_v4', 'cga_site_settings_v5'].forEach((k) => {
-        try { localStorage.removeItem(k); } catch {}
-      });
-
       const stored = localStorage.getItem(TRAINING_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -308,7 +287,6 @@ export function SiteSettingsProvider({ children }) {
           calendario: Array.isArray(parsed?.calendario) ? parsed.calendario : [],
         };
       }
-      localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(DEFAULT_TRAINING_DATA));
       return DEFAULT_TRAINING_DATA;
     } catch {
       return DEFAULT_TRAINING_DATA;
@@ -330,37 +308,9 @@ export function SiteSettingsProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingIds = new Set(parsed.map((p) => p.id));
-          // Conservar los aliados y logotipos guardados/editados por el usuario
-          const synced = parsed.map((item) => {
-            const defMatch = DEFAULT_ALLIANCES_LIST.find((def) => def.id === item.id);
-            let logoUrl = item.logo;
-            if (typeof logoUrl === 'string' && logoUrl.startsWith('/src/imports/')) {
-              logoUrl = logoUrl.replace('/src/imports/', '/imports/');
-            }
-            if (item.id === 'fgpb' && (logoUrl === '/imports/Logos/fgpb.png' || !logoUrl)) {
-              logoUrl = '/imports/Logos/alasmetropolitanas.jpg';
-            }
-            return {
-              ...(defMatch || {}),
-              ...item,
-              // Preservar el logotipo personalizado del usuario; si está vacío, usar el default
-              logo: logoUrl || defMatch?.logo || '',
-            };
-          });
-
-          // Agregar aliados oficiales predeterminados si faltasen
-          DEFAULT_ALLIANCES_LIST.forEach((def) => {
-            if (!existingIds.has(def.id)) {
-              synced.push(def);
-            }
-          });
-
-          localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(synced));
-          return synced;
+          return parsed;
         }
       }
-      localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(DEFAULT_ALLIANCES_LIST));
       return DEFAULT_ALLIANCES_LIST;
     } catch {
       return DEFAULT_ALLIANCES_LIST;
@@ -373,190 +323,16 @@ export function SiteSettingsProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Filtrar miembros de prueba o residuales (Elena Vance, Mateo Morales)
-          const cleaned = parsed.filter((m) => {
-            const name = (m.name || '').toUpperCase();
-            const id = (m.id || '').toLowerCase();
-            return (
-              id !== 'elena-vance' &&
-              id !== 'mateo-morales' &&
-              !name.includes('ELENA VANCE') &&
-              !name.includes('MATEO MORALES')
-            );
-          });
-
-          // Inyectar los 5 miembros oficiales verificados si no están en la lista
-          const existingIds = new Set(cleaned.map((m) => m.id));
-          DEFAULT_GOVERNANCE_MEMBERS.forEach((defM) => {
-            if (!existingIds.has(defM.id)) {
-              cleaned.push(defM);
-            }
-          });
-
-          // Sincronizar atributos institucionales de los miembros oficiales
-          const finalMembers = cleaned.map((m) => {
-            const officialMatch = DEFAULT_GOVERNANCE_MEMBERS.find((defM) => defM.id === m.id);
-            let imgUrl = m.img || officialMatch?.img || '';
-            if (typeof imgUrl === 'string' && imgUrl.startsWith('/src/imports/')) {
-              imgUrl = imgUrl.replace('/src/imports/', '/imports/');
-            }
-            if (officialMatch && (!imgUrl || imgUrl.includes('placeholder') || imgUrl.includes('unsplash'))) {
-              imgUrl = officialMatch.img;
-            }
-            if (officialMatch) {
-              return {
-                ...officialMatch,
-                ...m,
-                social: {
-                  ...officialMatch.social,
-                  ...(m.social || {}),
-                },
-                img: imgUrl || officialMatch.img,
-                bio: m.bio || officialMatch.bio,
-                responsibilities:
-                  m.responsibilities && m.responsibilities.length > 0
-                    ? m.responsibilities
-                    : officialMatch.responsibilities,
-              };
-            }
-            return {
-              ...m,
-              img: imgUrl,
-            };
-          });
-
-          finalMembers.sort((a, b) => (parseInt(a.num, 10) || 99) - (parseInt(b.num, 10) || 99));
-
-          localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(finalMembers));
-          return finalMembers;
+          return parsed;
         }
       }
-      localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(DEFAULT_GOVERNANCE_MEMBERS));
       return DEFAULT_GOVERNANCE_MEMBERS;
     } catch {
       return DEFAULT_GOVERNANCE_MEMBERS;
     }
   });
 
-  // Limpieza reactiva en caso de que persistan vestigios en localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
-      if (
-        stored &&
-        (stored.toUpperCase().includes('ELENA VANCE') ||
-          stored.toUpperCase().includes('MATEO MORALES') ||
-          stored.includes('elena-vance') ||
-          stored.includes('mateo-morales'))
-      ) {
-        setGovernanceMembers((prev) => {
-          const cleaned = prev.filter((m) => {
-            const name = (m.name || '').toUpperCase();
-            const id = (m.id || '').toLowerCase();
-            return (
-              id !== 'elena-vance' &&
-              id !== 'mateo-morales' &&
-              !name.includes('ELENA VANCE') &&
-              !name.includes('MATEO MORALES')
-            );
-          });
-          const existingIds = new Set(cleaned.map((m) => m.id));
-          DEFAULT_GOVERNANCE_MEMBERS.forEach((defM) => {
-            if (!existingIds.has(defM.id)) cleaned.push(defM);
-          });
-          cleaned.sort((a, b) => (parseInt(a.num, 10) || 99) - (parseInt(b.num, 10) || 99));
-          localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(cleaned));
-          return cleaned;
-        });
-      }
-    } catch (err) {
-      console.warn('Error sanitizing governance storage:', err);
-    }
-  }, []);
-
-  // Sincronizar automáticamente datos de gobernanza de localStorage con el proyecto
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(GOVERNANCE_STORAGE_KEY);
-      if (stored) {
-        fetch('/__api/sync-governance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: stored,
-        }).catch(() => {});
-      }
-    } catch (e) {}
-  }, []);
-
-  // Limpieza reactiva de pop-ups residuales en caso de persistir en localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(POPUPS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (
-          Array.isArray(parsed) &&
-          (parsed.length > 1 ||
-            parsed.some(
-              (p) =>
-                p.id === 'popup-001' ||
-                p.id === 'popup-002' ||
-                p.id === 'popup-003' ||
-                p.id === 'popup-004' ||
-                p.targetRoute !== '/'
-            ))
-        ) {
-          setPopups(INITIAL_POPUPS_LIST);
-          localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
-        }
-      }
-    } catch (err) {
-      console.warn('Error sanitizing popups storage:', err);
-    }
-  }, []);
-
-  // Limpieza reactiva absoluta de mock data en capacitaciones
-  useEffect(() => {
-    try {
-      ['cga_training_data', 'cga_training_data_v1', 'cga_training_data_v2', 'cga_training_data_v3', 'cga_training_data_v4', 'cga_training_data_v5'].forEach((k) => {
-        try { localStorage.removeItem(k); } catch {}
-      });
-      const stored = localStorage.getItem(TRAINING_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (
-          (parsed.diplomados && parsed.diplomados.length > 0) ||
-          (parsed.cursos && parsed.cursos.length > 0) ||
-          (parsed.webinars && parsed.webinars.length > 0) ||
-          (parsed.especialistas && parsed.especialistas.length > 0) ||
-          (parsed.organizaciones?.programs && parsed.organizaciones.programs.length > 0)
-        ) {
-          setTrainingData((prev) => {
-            const cleaned = {
-              ...DEFAULT_TRAINING_DATA,
-              ...prev,
-              diplomados: [],
-              cursos: [],
-              webinars: [],
-              especialistas: [],
-              organizaciones: {
-                ...DEFAULT_TRAINING_DATA.organizaciones,
-                programs: [],
-                benefits: [],
-              },
-              calendario: [],
-            };
-            localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(cleaned));
-            return cleaned;
-          });
-        }
-      }
-    } catch (err) {
-      console.warn('Error sanitizing training storage:', err);
-    }
-  }, []);
-
-  // Sincronización inicial automática desde MySQL en Hostinger (con fallback a local)
+  // Sincronización inicial automática desde MySQL en Hostinger
   useEffect(() => {
     let isMounted = true;
     fetchAllDbData().then((dbData) => {
@@ -564,56 +340,31 @@ export function SiteSettingsProvider({ children }) {
 
       if (dbData.siteSettings) {
         setSiteSettings((prev) => ({ ...prev, ...dbData.siteSettings }));
+        try { localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(dbData.siteSettings)); } catch {}
       }
-      if (Array.isArray(dbData.alliances) && dbData.alliances.length > 0) {
+      if (Array.isArray(dbData.alliances)) {
         setAlliances(dbData.alliances);
+        try { localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(dbData.alliances)); } catch {}
       }
-      if (Array.isArray(dbData.governanceMembers) && dbData.governanceMembers.length > 0) {
+      if (Array.isArray(dbData.governanceMembers)) {
         setGovernanceMembers(dbData.governanceMembers);
+        try { localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(dbData.governanceMembers)); } catch {}
       }
-      if (Array.isArray(dbData.popups) && dbData.popups.length > 0) {
+      if (Array.isArray(dbData.popups)) {
         setPopups(dbData.popups);
+        try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(dbData.popups)); } catch {}
       }
-      if (dbData.trainingData && typeof dbData.trainingData === 'object' && Object.keys(dbData.trainingData).length > 0) {
+      if (dbData.trainingData && typeof dbData.trainingData === 'object') {
         setTrainingData((prev) => ({ ...prev, ...dbData.trainingData }));
+        try { localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(dbData.trainingData)); } catch {}
       }
-      if (Array.isArray(dbData.applications) && dbData.applications.length > 0) {
+      if (Array.isArray(dbData.applications)) {
         setApplications(dbData.applications);
+        try { localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(dbData.applications)); } catch {}
       }
     });
     return () => { isMounted = false; };
   }, []);
-
-  // Guardar en localStorage y sincronizar con base de datos MySQL en Hostinger
-  useEffect(() => {
-    localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(popups));
-    saveDbCollection('popups', popups);
-  }, [popups]);
-
-  useEffect(() => {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(siteSettings));
-    saveDbCollection('settings', siteSettings);
-  }, [siteSettings]);
-
-  useEffect(() => {
-    localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(trainingData));
-    saveDbCollection('training', trainingData);
-  }, [trainingData]);
-
-  useEffect(() => {
-    localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(applications));
-    saveDbCollection('applications', applications);
-  }, [applications]);
-
-  useEffect(() => {
-    localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(alliances));
-    saveDbCollection('alliances', alliances);
-  }, [alliances]);
-
-  useEffect(() => {
-    localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(governanceMembers));
-    saveDbCollection('governance', governanceMembers);
-  }, [governanceMembers]);
 
   // Sincronización automática entre pestañas abiertas (Admin <-> Sitio Web)
   useEffect(() => {
@@ -650,24 +401,34 @@ export function SiteSettingsProvider({ children }) {
       } else {
         updated = [popupData, ...prev];
       }
+      try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('popups', updated);
       return updated;
     });
   };
 
   const togglePopupStatus = (id, targetState = null) => {
-    setPopups((prev) =>
-      prev.map((p) => {
+    setPopups((prev) => {
+      const updated = prev.map((p) => {
         if (p.id === id) {
           const newState = targetState !== null ? targetState : !p.enabled;
           return { ...p, enabled: newState };
         }
         return p;
-      })
-    );
+      });
+      try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('popups', updated);
+      return updated;
+    });
   };
 
   const deletePopup = (id) => {
-    setPopups((prev) => prev.filter((p) => p.id !== id));
+    setPopups((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('popups', updated);
+      return updated;
+    });
   };
 
   const duplicatePopup = (id) => {
@@ -677,14 +438,20 @@ export function SiteSettingsProvider({ children }) {
       ...JSON.parse(JSON.stringify(orig)),
       id: `popup-${Date.now()}`,
       name: `[Copia] ${orig.name}`,
-      enabled: false, // Inicia desactivado para no crear conflictos
+      enabled: false,
     };
-    setPopups((prev) => [duplicated, ...prev]);
+    setPopups((prev) => {
+      const updated = [duplicated, ...prev];
+      try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('popups', updated);
+      return updated;
+    });
   };
 
   const resetPopupsToDefaults = () => {
     setPopups(INITIAL_POPUPS_LIST);
-    localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST));
+    try { localStorage.setItem(POPUPS_STORAGE_KEY, JSON.stringify(INITIAL_POPUPS_LIST)); } catch {}
+    saveDbCollection('popups', INITIAL_POPUPS_LIST);
   };
 
   // Helper para obtener el pop-up activo en una ruta específica
@@ -708,14 +475,24 @@ export function SiteSettingsProvider({ children }) {
   };
 
   const updateBanner = (bannerData) => {
-    setSiteSettings((prev) => ({
-      ...prev,
-      banner: { ...prev.banner, ...bannerData },
-    }));
+    setSiteSettings((prev) => {
+      const updated = {
+        ...prev,
+        banner: { ...prev.banner, ...bannerData },
+      };
+      try { localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('settings', updated);
+      return updated;
+    });
   };
 
   const updateTrainingData = (updater) => {
-    setTrainingData((prev) => (typeof updater === 'function' ? updater(prev) : { ...prev, ...updater }));
+    setTrainingData((prev) => {
+      const updated = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      try { localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('training', updated);
+      return updated;
+    });
   };
 
   const addApplication = (app) => {
@@ -725,17 +502,30 @@ export function SiteSettingsProvider({ children }) {
       date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }),
       status: 'Pendiente',
     };
-    setApplications((prev) => [newApp, ...prev]);
+    setApplications((prev) => {
+      const updated = [newApp, ...prev];
+      try { localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('applications', updated);
+      return updated;
+    });
   };
 
   const updateApplicationStatus = (id, newStatus) => {
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
-    );
+    setApplications((prev) => {
+      const updated = prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a));
+      try { localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('applications', updated);
+      return updated;
+    });
   };
 
   const deleteApplication = (id) => {
-    setApplications((prev) => prev.filter((a) => a.id !== id));
+    setApplications((prev) => {
+      const updated = prev.filter((a) => a.id !== id);
+      try { localStorage.setItem(APPLICATIONS_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('applications', updated);
+      return updated;
+    });
   };
 
   // ─── GESTIÓN DE ALIADOS INSTITUCIONALES ───
@@ -749,17 +539,25 @@ export function SiteSettingsProvider({ children }) {
       } else {
         updated = [...prev, allianceData];
       }
+      try { localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('alliances', updated);
       return updated;
     });
   };
 
   const deleteAlliance = (id) => {
-    setAlliances((prev) => prev.filter((a) => a.id !== id));
+    setAlliances((prev) => {
+      const updated = prev.filter((a) => a.id !== id);
+      try { localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('alliances', updated);
+      return updated;
+    });
   };
 
   const resetAlliancesToDefaults = () => {
     setAlliances(DEFAULT_ALLIANCES_LIST);
-    localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(DEFAULT_ALLIANCES_LIST));
+    try { localStorage.setItem(ALLIANCES_STORAGE_KEY, JSON.stringify(DEFAULT_ALLIANCES_LIST)); } catch {}
+    saveDbCollection('alliances', DEFAULT_ALLIANCES_LIST);
   };
 
   // ─── GESTIÓN DE CUERPO DE GOBERNANZA ───
@@ -773,18 +571,27 @@ export function SiteSettingsProvider({ children }) {
       } else {
         updated = [...prev, memberData];
       }
+      try { localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('governance', updated);
       return updated;
     });
   };
 
   const deleteGovernanceMember = (id) => {
-    setGovernanceMembers((prev) => prev.filter((m) => m.id !== id));
+    setGovernanceMembers((prev) => {
+      const updated = prev.filter((m) => m.id !== id);
+      try { localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      saveDbCollection('governance', updated);
+      return updated;
+    });
   };
 
   const resetGovernanceToDefaults = () => {
     setGovernanceMembers(DEFAULT_GOVERNANCE_MEMBERS);
-    localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(DEFAULT_GOVERNANCE_MEMBERS));
+    try { localStorage.setItem(GOVERNANCE_STORAGE_KEY, JSON.stringify(DEFAULT_GOVERNANCE_MEMBERS)); } catch {}
+    saveDbCollection('governance', DEFAULT_GOVERNANCE_MEMBERS);
   };
+
 
   return (
     <SiteSettingsContext.Provider

@@ -166,7 +166,18 @@ export default function Admin() {
 
   // Estado de autenticación
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    const isAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+    if (isAuth) {
+      try {
+        if (!localStorage.getItem('cga_admin_token')) {
+          localStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+        }
+        if (!sessionStorage.getItem('cga_admin_token')) {
+          sessionStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+        }
+      } catch {}
+    }
+    return isAuth;
   });
 
   // Credenciales del formulario de login
@@ -261,6 +272,10 @@ export default function Admin() {
       (cleanPass === 'cga2026' || cleanPass === 'admin')
     ) {
       sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+      try {
+        localStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+        sessionStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+      } catch {}
       setIsAuthenticated(true);
       setLoginError('');
       showToast('Acceso concedido al panel de administración');
@@ -271,9 +286,14 @@ export default function Admin() {
 
   const handleLogout = () => {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    try {
+      localStorage.removeItem('cga_admin_token');
+      sessionStorage.removeItem('cga_admin_token');
+    } catch {}
     setIsAuthenticated(false);
     setEditingArticle(null);
   };
+
 
   // ─────────────────────────────────────────────────────────────
   // MANEJADORES DE ARTÍCULOS

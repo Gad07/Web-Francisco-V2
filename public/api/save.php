@@ -14,18 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'error' => 'Método no permitido. Usa POST.'], 405);
 }
 
-// Control estricto de acceso de administrador
-if (!checkAdminAuth()) {
+$input = getJsonInput();
+
+// Control estricto de acceso de administrador (con fallback a token en cuerpo JSON)
+if (!checkAdminAuth($input)) {
     jsonResponse(['success' => false, 'error' => 'Acceso denegado. Se requiere autenticación de administrador.'], 401);
 }
 
-$input = getJsonInput();
 $collection = isset($input['collection']) ? trim($input['collection']) : '';
 $data = isset($input['data']) ? $input['data'] : null;
 
 if (empty($collection) || $data === null) {
     jsonResponse(['success' => false, 'error' => 'Faltan parámetros obligatorios: collection y data.'], 400);
 }
+
 
 $pdo = getDb();
 
@@ -302,26 +304,95 @@ try {
                     $author = $art['author'] ?? [];
                     $tags = isset($art['tags']) && is_array($art['tags']) ? implode(',', $art['tags']) : ($art['tags'] ?? '');
                     
+                    // Autor (objeto o string simple)
+                    $authorName = '';
+                    $authorRole = '';
+                    $authorImg = '';
+                    if (is_array($author)) {
+                        $authorName = $author['name'] ?? ($art['authorName'] ?? 'Consejo Global Ambiental');
+                        $authorRoleRaw = $author['role'] ?? ($art['authorRole'] ?? '');
+                        $authorRole = is_array($authorRoleRaw) ? ($authorRoleRaw['es'] ?? '') : (string)$authorRoleRaw;
+                        $authorImg = $author['img'] ?? ($art['authorImg'] ?? '');
+                    } else {
+                        $authorName = (string)$author ?: ($art['authorName'] ?? 'Consejo Global Ambiental');
+                        $authorRoleRaw = $art['authorRole'] ?? '';
+                        $authorRole = is_array($authorRoleRaw) ? ($authorRoleRaw['es'] ?? '') : (string)$authorRoleRaw;
+                        $authorImg = $art['authorImg'] ?? '';
+                    }
+
+                    // Resumen / Excerpt
+                    $excerptEs = '';
+                    $excerptEn = '';
+                    if (isset($art['excerpt']) && is_array($art['excerpt'])) {
+                        $excerptEs = $art['excerpt']['es'] ?? '';
+                        $excerptEn = $art['excerpt']['en'] ?? '';
+                    } elseif (isset($art['summary']) && is_array($art['summary'])) {
+                        $excerptEs = $art['summary']['es'] ?? '';
+                        $excerptEn = $art['summary']['en'] ?? '';
+                    } elseif (is_string($art['excerpt'] ?? null)) {
+                        $excerptEs = $art['excerpt'];
+                    } elseif (is_string($art['summary'] ?? null)) {
+                        $excerptEs = $art['summary'];
+                    }
+
+                    // Contenido (a partir de content, paragraphs o blocks)
+                    $contentEs = '';
+                    $contentEn = '';
+                    if (isset($art['content']) && is_array($art['content'])) {
+                        $contentEs = $art['content']['es'] ?? '';
+                        $contentEn = $art['content']['en'] ?? '';
+                    } elseif (is_string($art['content'] ?? null)) {
+                        $contentEs = $art['content'];
+                    } elseif (!empty($art['paragraphs']) && is_array($art['paragraphs'])) {
+                        $esP = [];
+                        $enP = [];
+                        foreach ($art['paragraphs'] as $p) {
+                            if (is_array($p)) {
+                                if (!empty($p['es'])) $esP[] = $p['es'];
+                                if (!empty($p['en'])) $enP[] = $p['en'];
+                            } elseif (is_string($p)) {
+                                $esP[] = $p;
+                            }
+                        }
+                        $contentEs = implode("\n\n", $esP);
+                        $contentEn = implode("\n\n", $enP);
+                    }
+
+                    // Imagen de portada
+                    $heroImg = $art['heroImg'] ?? ($art['image'] ?? ($art['heroBgImage'] ?? ''));
+
+                    // Categoría / Tipo
+                    $category = 'noticias';
+                    if (isset($art['category'])) {
+                        $category = is_array($art['category']) ? ($art['category']['es'] ?? 'noticias') : (string)$art['category'];
+                    } elseif (!empty($art['type'])) {
+                        $category = (string)$art['type'];
+                    }
+
+                    // Tiempo de lectura numérico
+                    $readTimeRaw = (string)($art['readTime'] ?? ($art['readTimeMinutes'] ?? 5));
+                    $readTimeNum = (int)preg_replace('/[^0-9]/', '', $readTimeRaw) ?: 5;
+
                     $insert->execute([
                         ':id'           => $art['id'] ?? ('art-' . uniqid()),
                         ':alias'        => $art['aliasId'] ?? null,
-                        ':slug'         => $art['slug'] ?? '',
+                        ':slug'         => $art['slug'] ?? ($art['id'] ?? ''),
                         ':title_es'     => is_array($art['title'] ?? null) ? ($art['title']['es'] ?? '') : ($art['title'] ?? ''),
                         ':title_en'     => is_array($art['title'] ?? null) ? ($art['title']['en'] ?? '') : '',
-                        ':excerpt_es'   => is_array($art['excerpt'] ?? null) ? ($art['excerpt']['es'] ?? '') : ($art['excerpt'] ?? ''),
-                        ':excerpt_en'   => is_array($art['excerpt'] ?? null) ? ($art['excerpt']['en'] ?? '') : '',
-                        ':content_es'   => is_array($art['content'] ?? null) ? ($art['content']['es'] ?? '') : ($art['content'] ?? ''),
-                        ':content_en'   => is_array($art['content'] ?? null) ? ($art['content']['en'] ?? '') : '',
-                        ':category'     => $art['category'] ?? 'general',
-                        ':author_name'  => $author['name'] ?? ($art['authorName'] ?? 'Consejo Global Ambiental'),
-                        ':author_role'  => $author['role'] ?? '',
-                        ':author_img'   => $author['img'] ?? '',
-                        ':hero_img'     => $art['heroImg'] ?? '',
+                        ':excerpt_es'   => $excerptEs,
+                        ':excerpt_en'   => $excerptEn,
+                        ':content_es'   => $contentEs,
+                        ':content_en'   => $contentEn,
+                        ':category'     => $category,
+                        ':author_name'  => $authorName,
+                        ':author_role'  => $authorRole,
+                        ':author_img'   => $authorImg,
+                        ':hero_img'     => $heroImg,
                         ':hero_png'     => $art['heroPng'] ?? '',
-                        ':read_time'    => (int)($art['readTime'] ?? ($art['readTimeMinutes'] ?? 5)),
+                        ':read_time'    => $readTimeNum,
                         ':tags'         => $tags,
                         ':status'       => $art['status'] ?? 'published',
-                        ':published_at' => $art['publishedAt'] ?? date('Y-m-d H:i:s')
+                        ':published_at' => $art['publishedAt'] ?? ($art['date'] ?? date('Y-m-d H:i:s'))
                     ]);
                 }
             }
@@ -363,8 +434,13 @@ try {
                     ]);
                 }
 
-                // 2. Guardar cursos, diplomados, webinars
-                $types = ['diplomados' => 'diplomado', 'cursos' => 'curso', 'webinars' => 'webinar'];
+                // 2. Guardar cursos, diplomados, webinars y especialistas
+                $types = [
+                    'diplomados'    => 'diplomado',
+                    'cursos'        => 'curso',
+                    'webinars'      => 'webinar',
+                    'especialistas' => 'especialista'
+                ];
                 foreach ($types as $key => $typeVal) {
                     if (isset($data[$key]) && is_array($data[$key])) {
                         $del = $pdo->prepare("DELETE FROM `cga_training_courses` WHERE `type` = :type");
@@ -385,26 +461,35 @@ try {
                         ");
 
                         foreach ($data[$key] as $idx => $c) {
+                            $titleEs = is_array($c['title'] ?? null) ? ($c['title']['es'] ?? '') : ($c['title'] ?? ($c['name'] ?? ''));
+                            $titleEn = is_array($c['title'] ?? null) ? ($c['title']['en'] ?? '') : '';
+                            $subEs = is_array($c['subtitle'] ?? null) ? ($c['subtitle']['es'] ?? '') : ($c['subtitle'] ?? (is_array($c['role'] ?? null) ? ($c['role']['es'] ?? '') : ($c['role'] ?? '')));
+                            $subEn = is_array($c['subtitle'] ?? null) ? ($c['subtitle']['en'] ?? '') : (is_array($c['role'] ?? null) ? ($c['role']['en'] ?? '') : '');
+                            $descEs = is_array($c['description'] ?? null) ? ($c['description']['es'] ?? '') : ($c['description'] ?? (is_array($c['bio'] ?? null) ? ($c['bio']['es'] ?? '') : ($c['bio'] ?? '')));
+                            $descEn = is_array($c['description'] ?? null) ? ($c['description']['en'] ?? '') : (is_array($c['bio'] ?? null) ? ($c['bio']['en'] ?? '') : '');
+                            $instructor = $c['instructorName'] ?? ($c['institution'] ?? '');
+                            $img = $c['image'] ?? ($c['img'] ?? '');
+
                             $insCourse->execute([
                                 ':id'               => $c['id'] ?? ($typeVal . '-' . ($idx + 1)),
                                 ':type'             => $typeVal,
                                 ':code'             => $c['code'] ?? '',
-                                ':title_es'         => is_array($c['title'] ?? null) ? ($c['title']['es'] ?? '') : ($c['title'] ?? ''),
-                                ':title_en'         => is_array($c['title'] ?? null) ? ($c['title']['en'] ?? '') : '',
-                                ':subtitle_es'      => is_array($c['subtitle'] ?? null) ? ($c['subtitle']['es'] ?? '') : ($c['subtitle'] ?? ''),
-                                ':subtitle_en'      => is_array($c['subtitle'] ?? null) ? ($c['subtitle']['en'] ?? '') : '',
-                                ':description_es'   => is_array($c['description'] ?? null) ? ($c['description']['es'] ?? '') : ($c['description'] ?? ''),
-                                ':description_en'   => is_array($c['description'] ?? null) ? ($c['description']['en'] ?? '') : '',
+                                ':title_es'         => $titleEs,
+                                ':title_en'         => $titleEn,
+                                ':subtitle_es'      => $subEs,
+                                ':subtitle_en'      => $subEn,
+                                ':description_es'   => $descEs,
+                                ':description_en'   => $descEn,
                                 ':duration_hours'   => (int)($c['durationHours'] ?? 0),
                                 ':modality'         => $c['modality'] ?? 'online',
                                 ':start_date'       => !empty($c['startDate']) ? $c['startDate'] : null,
                                 ':end_date'         => !empty($c['endDate']) ? $c['endDate'] : null,
-                                ':instructor_name'  => $c['instructorName'] ?? '',
+                                ':instructor_name'  => $instructor,
                                 ':instructor_title' => $c['instructorTitle'] ?? '',
                                 ':badge'            => $c['badge'] ?? '',
                                 ':price'            => (float)($c['price'] ?? 0),
                                 ':currency'         => $c['currency'] ?? 'MXN',
-                                ':image'            => $c['image'] ?? '',
+                                ':image'            => $img,
                                 ':sort'             => $idx
                             ]);
                         }
@@ -412,6 +497,7 @@ try {
                 }
             }
             break;
+
 
         case 'applications':
             if (is_array($data)) {

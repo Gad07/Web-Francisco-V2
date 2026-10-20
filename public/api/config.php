@@ -105,16 +105,24 @@ function getJsonInput() {
     return is_array($decoded) ? $decoded : [];
 }
 
-function checkAdminAuth() {
+function checkAdminAuth($input = null) {
     $headers = function_exists('getallheaders') ? getallheaders() : [];
     $token = '';
     
+    // 1. Encabezados HTTP (incluyendo variaciones de mayúsculas/minúsculas de Apache)
     if (!empty($headers['X-Admin-Token'])) {
         $token = trim($headers['X-Admin-Token']);
+    } elseif (!empty($headers['x-admin-token'])) {
+        $token = trim($headers['x-admin-token']);
     } elseif (!empty($_SERVER['HTTP_X_ADMIN_TOKEN'])) {
         $token = trim($_SERVER['HTTP_X_ADMIN_TOKEN']);
     } elseif (!empty($headers['Authorization'])) {
         $auth = trim($headers['Authorization']);
+        if (preg_match('/Bearer\s+(.*)$/i', $auth, $matches)) {
+            $token = trim($matches[1]);
+        }
+    } elseif (!empty($headers['authorization'])) {
+        $auth = trim($headers['authorization']);
         if (preg_match('/Bearer\s+(.*)$/i', $auth, $matches)) {
             $token = trim($matches[1]);
         }
@@ -125,16 +133,34 @@ function checkAdminAuth() {
         }
     }
     
+    // 2. Fallback de alta confiabilidad si el servidor web (Hostinger/Apache) purga cabeceras personalizadas
+    if (empty($token) && is_array($input)) {
+        if (!empty($input['token'])) {
+            $token = trim($input['token']);
+        } elseif (!empty($input['admin_token'])) {
+            $token = trim($input['admin_token']);
+        }
+    }
+    if (empty($token)) {
+        if (!empty($_POST['token'])) {
+            $token = trim($_POST['token']);
+        } elseif (!empty($_POST['admin_token'])) {
+            $token = trim($_POST['admin_token']);
+        } elseif (!empty($_GET['token'])) {
+            $token = trim($_GET['token']);
+        }
+    }
+    
     if (empty($token)) {
         return false;
     }
     
-    // 1. Validar contra la clave secreta maestra administrativa
+    // 3. Validar contra la clave secreta maestra administrativa
     if ($token === ADMIN_SECRET_KEY) {
         return true;
     }
     
-    // 2. Validar token activo de sesión en la tabla cga_admins de MySQL
+    // 4. Validar token activo de sesión en la tabla cga_admins de MySQL
     try {
         if (function_exists('getDb')) {
             $pdo = getDb();
@@ -151,3 +177,4 @@ function checkAdminAuth() {
 
     return false;
 }
+
