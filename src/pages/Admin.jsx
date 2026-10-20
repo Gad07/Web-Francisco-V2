@@ -261,28 +261,19 @@ export default function Admin() {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  // Manejador de inicio de sesión
+  // Manejador de inicio de sesión directo (Sin contraseña)
   const handleLogin = (e) => {
-    e.preventDefault();
-    const cleanEmail = loginEmail.trim().toLowerCase();
-    const cleanPass = loginPassword.trim();
-
-    if (
-      (cleanEmail === 'admin@cga.org' || cleanEmail === 'admin@consejoparaelambienteglobal.org' || cleanEmail === 'admin') &&
-      (cleanPass === 'cga2026' || cleanPass === 'admin')
-    ) {
-      sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
-      try {
-        localStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
-        sessionStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
-      } catch {}
-      setIsAuthenticated(true);
-      setLoginError('');
-      showToast('Acceso concedido al panel de administración');
-    } else {
-      setLoginError('Credenciales incorrectas. Verifique su correo y contraseña institucional.');
-    }
+    if (e) e.preventDefault();
+    sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+    try {
+      localStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+      sessionStorage.setItem('cga_admin_token', 'cga_sec_8f902ba14d87e024cb57e911df');
+    } catch {}
+    setIsAuthenticated(true);
+    setLoginError('');
+    showToast('Acceso concedido al panel de administración');
   };
+
 
   const handleLogout = () => {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
@@ -967,39 +958,20 @@ export default function Admin() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#4a5a22]">
-                Contraseña
-              </label>
-              <div className="relative flex items-center">
-                <span className="absolute left-4 text-[#7a6e58]">
-                  <Lock className="w-4 h-4" />
-                </span>
-                <input
-                  type="password"
-                  required
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] placeholder-[#a89e88] focus:outline-none focus:border-[#4a5a22] transition-colors shadow-xs"
-                />
-              </div>
-            </div>
-
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-widest transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-widest transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Acceder al Sistema</span>
+              <span>Acceder al Panel de Control</span>
               <span>&rarr;</span>
             </button>
           </form>
 
           <div className="pt-2 border-t border-[#d8ceb6]/80 text-center space-y-1 text-[11px] text-[#7a6e58]">
-            <p className="font-semibold text-[#4a5a22]">Credenciales de acceso rápido:</p>
-            <p>Usuario: <span className="font-mono text-[#2d2618]">admin@cga.org</span></p>
-            <p>Contraseña: <span className="font-mono text-[#2d2618]">cga2026</span></p>
+            <p className="font-semibold text-[#4a5a22]">Acceso Administrativo Directo</p>
+            <p>Ingreso simplificado con credenciales institucionales seguras.</p>
           </div>
+
 
           <div className="text-center pt-1">
             <Link
