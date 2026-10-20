@@ -14,6 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'error' => 'Método no permitido. Usa POST.'], 405);
 }
 
+// Control estricto de acceso de administrador
+if (!checkAdminAuth()) {
+    jsonResponse(['success' => false, 'error' => 'Acceso denegado. Se requiere autenticación de administrador.'], 401);
+}
+
 $input = getJsonInput();
 $collection = isset($input['collection']) ? trim($input['collection']) : '';
 $data = isset($input['data']) ? $input['data'] : null;

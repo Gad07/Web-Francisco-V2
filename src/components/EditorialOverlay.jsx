@@ -1445,9 +1445,9 @@ export default function EditorialOverlay({
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <RevealItem index={0} className="h-full">
-              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
-                <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
-                  <img src={luisGarciaImg} alt="Mtro. Luis García González" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 items-stretch h-full overflow-hidden group cursor-pointer">
+                <div className="sm:col-span-5 relative w-full h-72 sm:h-auto min-h-[280px] sm:min-h-full sm:self-stretch overflow-hidden bg-[#e0d6be] flex">
+                  <img src={luisGarciaImg} alt="Mtro. Luis García González" className="w-full h-full sm:absolute sm:inset-0 sm:w-full sm:h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
                   <div>
@@ -1464,9 +1464,9 @@ export default function EditorialOverlay({
             </RevealItem>
 
             <RevealItem index={1} className="h-full">
-              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 overflow-hidden group cursor-pointer">
-                <div className="sm:col-span-5 h-64 sm:h-full min-h-[260px] relative overflow-hidden bg-[#e0d6be]">
-                  <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+              <div className="rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6]/80 hover:bg-[#f5efe3]/40 hover:backdrop-blur-xl hover:backdrop-saturate-150 hover:border-[#d8ceb6]/60 hover:shadow-[0_8px_30px_rgba(45,38,24,0.06)] hover:-translate-y-1.5 transition-all duration-300 grid grid-cols-1 sm:grid-cols-12 items-stretch h-full overflow-hidden group cursor-pointer">
+                <div className="sm:col-span-5 relative w-full h-72 sm:h-auto min-h-[280px] sm:min-h-full sm:self-stretch overflow-hidden bg-[#e0d6be] flex">
+                  <img src={franciscoSolorioImg} alt="Mtro. Francisco Solorio" className="w-full h-full sm:absolute sm:inset-0 sm:w-full sm:h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="sm:col-span-7 p-8 sm:p-9 flex flex-col justify-between">
                   <div>
@@ -1510,16 +1510,16 @@ export default function EditorialOverlay({
               <div className="relative mx-auto w-full max-w-[620px]">
                 <div className="orb orb-bone orb-drift w-[74%] h-[74%] -top-[9%] -right-[9%] opacity-80" aria-hidden />
                 <div
-                  className="relative overflow-hidden shadow-[0_40px_90px_-45px_rgba(45,38,24,0.55)]"
-                  style={{ borderRadius: '60% 42% 16% 14% / 48% 44% 14% 18%', minHeight: '470px' }}
+                  className="relative w-full h-[500px] sm:h-[540px] md:h-[580px] overflow-hidden shadow-[0_40px_90px_-45px_rgba(45,38,24,0.55)]"
+                  style={{ borderRadius: '60% 42% 16% 14% / 48% 44% 14% 18%' }}
                 >
                   <img
                     src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=85&fit=crop&auto=format"
                     alt={t({ es: 'Trabajo de campo de conservación territorial', en: 'Territorial conservation fieldwork' })}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                   />
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(45,38,24,0.82) 0%, rgba(45,38,24,0.22) 42%, transparent 70%)' }} />
-                  <div className="absolute inset-x-0 bottom-0 px-[10%] md:px-[11%] pb-[17%]">
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(20,16,10,0.75) 0%, rgba(20,16,10,0.25) 35%, transparent 65%)' }} />
+                  <div className="absolute inset-x-0 bottom-0 px-[10%] md:px-[11%] pb-[17%] pointer-events-none">
                     <p className="font-serif text-xl md:text-2xl lg:text-[26px] text-[#f5efe3] font-light leading-snug max-w-md" style={{ textShadow: '0 1px 14px rgba(45,38,24,0.45)' }}>
                       {t({ es: '«El territorio se mide con recorridos, semillas y manos que siembran.»', en: '“A territory is measured in walks, in seeds and in hands that sow.”' })}
                     </p>

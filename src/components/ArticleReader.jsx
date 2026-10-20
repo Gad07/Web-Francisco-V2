@@ -243,7 +243,7 @@ export default function ArticleReader({
           className="w-full bg-[#f5efe3]"
         >
           {/* Hero Split 50/50 */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh] border-b border-[#d8ceb6] pt-20 lg:pt-0">
+          <section className="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-[80vh] border-b border-[#d8ceb6] pt-20 lg:pt-0">
             {/* Columna de texto */}
             <div className="order-2 lg:order-1 flex items-center px-6 sm:px-10 lg:px-16 py-14 lg:py-24 bg-[#f5efe3]">
               <div className="max-w-xl space-y-7">
@@ -296,11 +296,11 @@ export default function ArticleReader({
             </div>
 
             {/* Columna de foto a altura completa */}
-            <div className="order-1 lg:order-2 relative min-h-[320px] lg:min-h-full overflow-hidden bg-[#2d2618]">
+            <div className="order-1 lg:order-2 relative w-full h-72 sm:h-96 lg:h-auto min-h-[320px] lg:min-h-full overflow-hidden bg-[#2d2618] flex lg:self-stretch">
               <img
                 src={article.image}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover"
+                className="w-full h-full lg:absolute lg:inset-0 lg:w-full lg:h-full object-cover"
               />
             </div>
           </section>

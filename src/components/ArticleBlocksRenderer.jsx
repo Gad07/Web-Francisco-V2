@@ -178,7 +178,7 @@ export default function ArticleBlocksRenderer({ blocks = [], template = 'classic
 
                         {colType === 'image' && col.image && (
                           <div className="rounded-xl overflow-hidden border border-[#d8ceb6] bg-[#2d2618]">
-                            <img src={col.image} alt={colCaption || ''} className="w-full h-40 object-cover" />
+                            <img src={formatDriveUrl(col.image)} alt={colCaption || ''} className="w-full h-40 object-cover" loading="lazy" />
                             {colCaption && (
                               <p className="text-[11px] text-[#7a6e58] italic p-2 text-center">
                                 {colCaption}

@@ -281,8 +281,8 @@ export default function GlobalPresence() {
           </div>
 
           {/* ─── BOTONES SELECTORES DE PAÍSES (ARRIBA DEL MAPA) ─── */}
-          <div className="flex items-center justify-center mb-10 px-2">
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs overflow-x-auto max-w-full">
+          <div className="flex items-center justify-start sm:justify-center mb-10 px-0 sm:px-2">
+            <div className="country-tabs-scroll inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs w-full sm:w-auto">
               {sedesList.map((sede) => {
                 const isActive = activeCountryId === sede.id;
                 return (
@@ -290,7 +290,7 @@ export default function GlobalPresence() {
                     key={sede.id}
                     type="button"
                     onClick={() => handleSelectSede(sede.id)}
-                    className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all duration-200 cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+                    className={`px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all duration-200 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 ${
                       isActive
                         ? 'bg-[#3a4a18] text-white font-semibold shadow-xs'
                         : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-[#f5efe3]/90 font-medium'

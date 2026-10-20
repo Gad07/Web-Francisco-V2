@@ -355,16 +355,16 @@ export default function Contact() {
                           {t({ es: 'Teléfono', en: 'Telephone' })}
                         </span>
                         <a
-                          href="tel:+525545691548"
+                          href="tel:+525530831032"
                           className="text-xs sm:text-sm font-semibold text-[#221e16] hover:text-[#4a5a22] transition-colors truncate block"
                         >
-                          (+52) 55 4569 1548
+                          (+52) 55 3083 1032
                         </a>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleCopy('+52 55 4569 1548', 'phoneMx')}
+                      onClick={() => handleCopy('+52 55 3083 1032', 'phoneMx')}
                       className="p-1.5 rounded-lg text-[#6b6048] hover:text-[#2d2618] hover:bg-white transition-colors cursor-pointer shrink-0 ml-2"
                       title="Copiar teléfono"
                     >

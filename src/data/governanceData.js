@@ -21,9 +21,9 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
     ],
     social: {
       email: 'presidencia@consejocga.org',
-      phoneMx: '+52 55 4569 1548',
+      phoneMx: '+52 55 3083 1032',
       phoneCa: '+1 437 290 8820',
-      whatsapp: 'https://wa.me/525545691548',
+      whatsapp: 'https://wa.me/525530831032',
       linkedin: 'https://www.linkedin.com/in/luis-garcia-cga',
       facebook: 'https://www.facebook.com/luisgarcia.cga',
       instagram: 'https://www.instagram.com/luisgarcia_cga',
@@ -53,9 +53,9 @@ export const DEFAULT_GOVERNANCE_MEMBERS = [
     ],
     social: {
       email: 'secretaria@consejocga.org',
-      phoneMx: '+52 55 4569 1548',
+      phoneMx: '+52 55 3083 1032',
       phoneCa: '+1 437 290 8820',
-      whatsapp: 'https://wa.me/525545691548',
+      whatsapp: 'https://wa.me/525530831032',
       linkedin: 'https://linkedin.com',
       facebook: 'https://facebook.com',
       instagram: 'https://instagram.com',

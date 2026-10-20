@@ -31,8 +31,15 @@
   <script>
     (function () {
       try {
+        var host = (window.location.hostname || '').toLowerCase();
+        var isEnDomain = host.indexOf('councilforgreenaction.com') !== -1 || host.indexOf('en.') === 0;
         var saved = localStorage.getItem('cga:lang');
-        var lang = saved === 'en' || saved === 'es' ? saved : (navigator.language || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
+        var lang;
+        if (isEnDomain) {
+          lang = (saved === 'es') ? 'es' : 'en';
+        } else {
+          lang = (saved === 'en' || saved === 'es') ? saved : ((navigator.language || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'es');
+        }
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-lang', lang);
       } catch (e) {}

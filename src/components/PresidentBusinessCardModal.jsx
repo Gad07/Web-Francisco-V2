@@ -14,17 +14,22 @@ import { useI18n } from '../i18n/index.jsx';
  * 5. Copiado rápido de datos institucionales al portapapeles.
  */
 export default function PresidentBusinessCardModal({ isOpen, onClose, member }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const logoSrc = lang === 'en' ? '/logos/Logo%20EN.svg' : '/logos/Logo%20ES.svg';
   const [isFlipped, setIsFlipped] = useState(false);
   const [activeTab, setActiveTab] = useState('interactive'); // 'interactive' | 'print'
   const [copied, setCopied] = useState(false);
 
   if (!isOpen || !member) return null;
 
-  const phoneMx = member.social?.phoneMx || '+52 55 4569 1548';
+  const phoneMx = member.social?.phoneMx || '+52 55 3083 1032';
   const phoneCa = member.social?.phoneCa || '+1 437 290 8820';
-  const email = member.social?.email || 'presidencia@consejocga.org';
-  const whatsappUrl = member.social?.whatsapp || 'https://wa.me/525545691548';
+  const rawEmails = member.social?.emails || member.social?.email || 'presidencia@consejocga.org';
+  const emailList = (Array.isArray(rawEmails) ? rawEmails : String(rawEmails).split(/[\n,;]+/))
+    .map(e => e.trim())
+    .filter(Boolean);
+  const email = emailList[0] || 'presidencia@consejocga.org';
+  const whatsappUrl = member.social?.whatsapp || 'https://wa.me/525530831032';
   const website = 'www.consejocga.org';
   const roleName = member.displayRole ? t(member.displayRole) : (member.role ? t(member.role) : 'Consejero Presidente');
 
@@ -37,7 +42,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
       'FN:Mtro. Luis García González',
       'ORG:Consejo Global Agroalimentario;Presidencia del Consejo Directivo',
       `TITLE:${roleName}`,
-      `EMAIL;TYPE=INTERNET,PREF:${email}`,
+      ...emailList.map((em, idx) => `EMAIL;TYPE=INTERNET${idx === 0 ? ',PREF' : ''}:${em}`),
       `TEL;TYPE=WORK,VOICE:${phoneMx}`,
       `TEL;TYPE=CELL,VOICE:${phoneCa}`,
       `URL;TYPE=WORK:https://${website}`,
@@ -60,7 +65,8 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
 
   // Copiar datos institucionales al portapapeles
   const handleCopyDetails = () => {
-    const textToCopy = `Mtro. Luis García González\n${roleName}\nConsejo Global Agroalimentario (CGA)\n\nTeléfono México: ${phoneMx}\nTeléfono Canadá: ${phoneCa}\nCorreo: ${email}\nWeb: https://${website}\nWhatsApp: ${whatsappUrl}`;
+    const emailStr = emailList.length > 1 ? `Correos:\n${emailList.map(e => ` - ${e}`).join('\n')}` : `Correo: ${email}`;
+    const textToCopy = `Mtro. Luis García González\n${roleName}\nConsejo Global Agroalimentario (CGA)\n\nTeléfono México: ${phoneMx}\nTeléfono Canadá: ${phoneCa}\n${emailStr}\nWeb: https://${website}\nWhatsApp: ${whatsappUrl}`;
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2400);
@@ -252,7 +258,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                       <div className="relative z-10 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <img
-                            src="/logos/logo-cga-header.webp"
+                            src={logoSrc}
                             alt="CGA"
                             className="h-8 sm:h-9 w-auto object-contain"
                           />
@@ -298,9 +304,13 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                             <span className="text-[8px] font-sans font-semibold uppercase text-[#7a6e58] w-6">CA</span>
                             <span className="font-semibold">{phoneCa}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-[#554e40]">
-                            <span className="text-[8px] font-sans font-semibold uppercase text-[#7a6e58] w-6">MAIL</span>
-                            <span>{email}</span>
+                          <div className="flex items-start gap-2 text-[9px] sm:text-[10px] text-[#554e40]">
+                            <span className="text-[8px] font-sans font-semibold uppercase text-[#7a6e58] w-6 shrink-0 mt-0.5">MAIL</span>
+                            <div className="flex flex-col gap-0.5">
+                              {emailList.map((em, idx) => (
+                                <span key={idx} className="truncate max-w-[160px] sm:max-w-[200px] block">{em}</span>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
@@ -340,7 +350,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                       {/* Centro: Logotipo blanco/dorado y Manifiesto */}
                       <div className="relative z-10 my-auto text-center py-2 flex flex-col items-center">
                         <img
-                          src="/logos/logo-cga-footer.webp"
+                          src={logoSrc}
                           alt="CGA Crest"
                           className="h-10 sm:h-12 w-auto object-contain mb-3 drop-shadow-[0_2px_10px_rgba(216,235,150,0.25)]"
                         />
@@ -476,7 +486,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                       <div className="w-full max-w-[440px] aspect-[85/55] bg-[#fcfbf8] border border-[#d8ceb6] rounded-lg p-5 flex flex-col justify-between shadow-xs">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-2.5">
-                            <img src="/logos/logo-cga-header.webp" alt="CGA" className="h-7 w-auto object-contain" />
+                            <img src={logoSrc} alt="CGA" className="h-7 w-auto object-contain" />
                             <div className="border-l border-[#d8ceb6] pl-2">
                               <span className="block text-[7.5px] font-sans font-bold tracking-widest text-[#4a5a22] uppercase">Consejo Global</span>
                               <span className="block text-[7.5px] font-sans font-light tracking-widest text-[#7a6e58] uppercase">Agroalimentario</span>
@@ -500,10 +510,14 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                         </div>
 
                         <div className="pt-2 border-t border-[#e8e2d4] flex items-end justify-between">
-                          <div className="space-y-0.5 text-[9.5px] font-mono text-[#3a352a]">
+                          <div className="space-y-0.5 text-[9px] font-mono text-[#3a352a]">
                             <div>MX: {phoneMx}</div>
                             <div>CA: {phoneCa}</div>
-                            <div className="text-[#554e40]">{email}</div>
+                            <div className="text-[#554e40] space-y-0.5">
+                              {emailList.map((em, idx) => (
+                                <div key={idx} className="truncate max-w-[200px]">{em}</div>
+                              ))}
+                            </div>
                           </div>
                           <div className="bg-white p-1 rounded border border-[#d8ceb6]">
                             <img src={qrImageUrl} alt="QR" className="w-10 h-10 object-contain" />
@@ -537,7 +551,7 @@ export default function PresidentBusinessCardModal({ isOpen, onClose, member }) 
                         </div>
 
                         <div className="my-auto text-center py-1 flex flex-col items-center">
-                          <img src="/logos/logo-cga-footer.webp" alt="CGA Crest" className="h-9 w-auto object-contain mb-2" />
+                          <img src={logoSrc} alt="CGA Crest" className="h-9 w-auto object-contain mb-2" />
                           <p className="font-serif italic text-xs text-[#f5efe3] max-w-xs leading-snug">
                             “Liderazgo institucional, soberanía agroalimentaria y gobernanza ambiental para las generaciones futuras.”
                           </p>

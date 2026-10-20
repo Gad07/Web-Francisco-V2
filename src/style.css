@@ -650,3 +650,132 @@ body[data-lang="en"] svg.text-\[\#4a5a22\] {
 .cga-marquee-track:hover {
   animation-play-state: paused;
 }
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS — Global fixes for small screens
+   ========================================================================== */
+
+/* Prevent horizontal overflow on all pages */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Safe touch targets — minimum 44×44px for all interactive elements */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Allow smaller icons/links to keep their visual size, just expand touch area */
+  button.touch-sm, a.touch-sm {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
+
+/* Images responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent long words from breaking layouts on mobile */
+p, h1, h2, h3, h4, h5, h6, li, span, a {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Ensure modals/overlays don't overflow on tiny screens */
+@media (max-width: 640px) {
+  .modal-full-mobile {
+    inset: 0 !important;
+    border-radius: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto;
+  }
+}
+
+/* ─── Carousel / Slider touch friendliness ───────────────────────────────── */
+.cga-carousel-track {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.cga-carousel-track > * {
+  scroll-snap-align: start;
+}
+
+/* ─── Global section padding fix on mobile ─────────────────────────────────*/
+@media (max-width: 480px) {
+  .section-pad {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ─── Text size clamp for very small phones ────────────────────────────────*/
+@media (max-width: 360px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* ─── Safe area insets for notched phones (iPhone X+) ─────────────────────*/
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* WhatsApp button — safe positioning with notch support */
+.whatsapp-floating-wrapper {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Country tab bar (GlobalPresence) — horizontal scrollable pills ────── */
+.country-tabs-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+.country-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Governance carousel swipe indicators on mobile ───────────────────────*/
+.swipe-hint {
+  display: none;
+}
+@media (max-width: 767px) {
+  .swipe-hint {
+    display: flex;
+  }
+}
+
+/* ─── Map container min-height on mobile ───────────────────────────────────*/
+@media (max-width: 768px) {
+  .map-container {
+    min-height: 320px;
+    max-height: 50vh;
+  }
+}
+
+/* ─── Training main content padding on mobile ──────────────────────────────*/
+@media (max-width: 640px) {
+  .training-main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ─── ODS grid on Agenda2030 — single col on mobile ────────────────────────*/
+@media (max-width: 640px) {
+  .ods-grid .ods-wide {
+    grid-column: span 1 !important;
+  }
+}

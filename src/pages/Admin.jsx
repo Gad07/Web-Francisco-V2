@@ -1020,18 +1020,29 @@ export default function Admin() {
          ══════════════════════════════════════════════════════════════════ */}
       <header className="sticky top-0 z-40 bg-[#f5efe3]/95 border-b border-[#d8ceb6] backdrop-blur-xl transition-all shadow-xs">
         {/* FILA PRINCIPAL: LOGO + NAVEGACIÓN EDITORIAL ESTILO SITIO PÚBLICO + CERRAR SESIÓN */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-6">
           {/* Cluster Izquierdo: Logotipo Oficial CGA */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center shrink-0" style={{ height: '46px', maxHeight: '46px' }}>
             <Link
               to="/"
-              className="flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+              style={{ height: '44px', maxHeight: '44px', width: 'auto' }}
               title="Consejo Global Ambiental"
             >
               <img
-                src="/logos/logo-cga-header.webp"
+                src="/logos/Logo%20ES.svg"
                 alt="Consejo Global Ambiental"
-                className="h-10 sm:h-12 w-auto object-contain"
+                width="195"
+                height="44"
+                style={{
+                  height: '44px',
+                  maxHeight: '44px',
+                  width: 'auto',
+                  maxWidth: '210px',
+                  objectFit: 'contain',
+                  display: 'block'
+                }}
+                className="h-11 w-auto max-h-11 max-w-[210px] object-contain"
               />
             </Link>
           </div>
@@ -6820,10 +6831,10 @@ export default function Admin() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Correo Electrónico
+                      Correo(s) Institucional(es) (puedes separar varios con coma)
                     </label>
                     <input
-                      type="email"
+                      type="text"
                       value={editingGovMember.social?.email || ''}
                       onChange={(e) =>
                         setEditingGovMember({
@@ -6831,7 +6842,7 @@ export default function Admin() {
                           social: { ...(editingGovMember.social || {}), email: e.target.value },
                         })
                       }
-                      placeholder="nombre@consejocga.org"
+                      placeholder="presidencia@consejocga.org, despacho@consejocga.org"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
                     />
                   </div>
@@ -6865,7 +6876,7 @@ export default function Admin() {
                           social: { ...(editingGovMember.social || {}), phoneMx: e.target.value },
                         })
                       }
-                      placeholder="+52 55 4569 1548"
+                      placeholder="+52 55 3083 1032"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
                     />
                   </div>

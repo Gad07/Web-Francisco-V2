@@ -111,12 +111,12 @@ export default function Training() {
 
       {/* PESTAÑAS INTERACTIVAS (GRID PERFECTO SIN DESBORDAMIENTOS) */}
       <section className="py-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-4 lg:grid-cols-8 gap-1 sm:gap-1.5 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1 sm:gap-1.5 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-sm">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full py-2.5 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs xl:text-xs font-sans font-medium text-center transition-all ${
+              className={`w-full py-2.5 px-1 sm:px-2 rounded-xl text-[10px] xs:text-[11px] sm:text-xs font-sans font-medium text-center transition-all leading-snug ${
                 activeTab === tab.id
                   ? 'bg-[#4a5a22] text-[#f5efe3] shadow-md font-semibold'
                   : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-[#f5efe3]/80'
@@ -129,7 +129,7 @@ export default function Training() {
       </section>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className="py-12 sm:py-16 px-6 sm:px-12 md:px-20 max-w-7xl mx-auto min-h-[600px]">
+      <main className="py-8 sm:py-12 md:py-16 px-4 sm:px-8 md:px-12 lg:px-20 max-w-7xl mx-auto min-h-[600px]">
         {/* 1. OFERTA ACADÉMICA GENERAL */}
         {activeTab === 'oferta' && (
           <div className="space-y-16">

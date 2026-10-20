@@ -31,10 +31,15 @@ export default function PresidentBusinessCard({ memberId }) {
       : (m.id === 'luis-garcia' || (typeof m.role?.es === 'string' && m.role.es.toLowerCase().includes('presidente')))
   ) || (isSolorio ? sourceMembers.find(m => m.id === 'francisco-solorio') : sourceMembers[0]);
 
-  const phoneMx = member.social?.phoneMx || '+52 55 4569 1548';
+  const phoneMx = member.social?.phoneMx || '+52 55 3083 1032';
   const phoneCa = member.social?.phoneCa || '+1 437 290 8820';
-  const email = member.social?.email || (isSolorio ? 'secretaria@consejocga.org' : 'presidencia@consejocga.org');
-  const whatsappUrl = member.social?.whatsapp || 'https://wa.me/525545691548';
+  const rawEmails = member.social?.emails || member.social?.email || (isSolorio ? 'secretaria@consejocga.org' : 'presidencia@consejocga.org');
+  const emailList = (Array.isArray(rawEmails) ? rawEmails : String(rawEmails).split(/[\n,;]+/))
+    .map(e => e.trim())
+    .filter(Boolean);
+  const primaryEmail = emailList[0] || (isSolorio ? 'secretaria@consejocga.org' : 'presidencia@consejocga.org');
+  const email = primaryEmail;
+  const whatsappUrl = member.social?.whatsapp || 'https://wa.me/525530831032';
   const roleName = member.displayRole ? t(member.displayRole) : (member.role ? t(member.role) : (isSolorio ? 'Secretario Ejecutivo' : 'Consejero Presidente'));
 
   // ─── DATOS PERSONALIZADOS POR PERFIL ───
@@ -335,14 +340,22 @@ export default function PresidentBusinessCard({ memberId }) {
                 <div className="pt-2 text-xs flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-[#7a6e58] block">
-                      {t(isSolorio ? { es: 'Secretaría Ejecutiva', en: 'Executive Secretariat' } : { es: 'Despacho Institucional', en: 'Institutional Office' })}
+                      {t(isSolorio 
+                        ? { es: emailList.length > 1 ? 'Secretaría Ejecutiva (Correos Oficiales)' : 'Secretaría Ejecutiva', en: emailList.length > 1 ? 'Executive Secretariat (Official Emails)' : 'Executive Secretariat' } 
+                        : { es: emailList.length > 1 ? 'Despacho Institucional (Correos Oficiales)' : 'Despacho Institucional', en: emailList.length > 1 ? 'Institutional Office (Official Emails)' : 'Institutional Office' }
+                      )}
                     </span>
-                    <a
-                      href={`mailto:${email}`}
-                      className="font-mono text-sm font-semibold text-[#282216] hover:text-[#4a5a22] transition-colors block mt-0.5"
-                    >
-                      {email}
-                    </a>
+                    <div className="space-y-1 mt-0.5">
+                      {emailList.map((em, idx) => (
+                        <a
+                          key={idx}
+                          href={`mailto:${em}`}
+                          className="font-mono text-xs sm:text-sm font-semibold text-[#282216] hover:text-[#4a5a22] transition-colors block leading-tight"
+                        >
+                          {em}
+                        </a>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Redes Sociales y Canales Directos Unificados en Iconos */}

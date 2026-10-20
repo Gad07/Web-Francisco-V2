@@ -109,25 +109,45 @@ function checkAdminAuth() {
     $headers = function_exists('getallheaders') ? getallheaders() : [];
     $token = '';
     
-    if (isset($headers['X-Admin-Token'])) {
+    if (!empty($headers['X-Admin-Token'])) {
         $token = trim($headers['X-Admin-Token']);
-    } elseif (isset($_SERVER['HTTP_X_ADMIN_TOKEN'])) {
+    } elseif (!empty($_SERVER['HTTP_X_ADMIN_TOKEN'])) {
         $token = trim($_SERVER['HTTP_X_ADMIN_TOKEN']);
-    } elseif (isset($headers['Authorization'])) {
+    } elseif (!empty($headers['Authorization'])) {
         $auth = trim($headers['Authorization']);
         if (preg_match('/Bearer\s+(.*)$/i', $auth, $matches)) {
-            $token = $matches[1];
+            $token = trim($matches[1]);
         }
-    } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    } elseif (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
         $auth = trim($_SERVER['HTTP_AUTHORIZATION']);
         if (preg_match('/Bearer\s+(.*)$/i', $auth, $matches)) {
-            $token = $matches[1];
+            $token = trim($matches[1]);
         }
     }
     
-    // Validar token contra clave administrativa o longitud mínima
-    if ($token && ($token === ADMIN_SECRET_KEY || strlen($token) >= 32)) {
+    if (empty($token)) {
+        return false;
+    }
+    
+    // 1. Validar contra la clave secreta maestra administrativa
+    if ($token === ADMIN_SECRET_KEY) {
         return true;
     }
+    
+    // 2. Validar token activo de sesión en la tabla cga_admins de MySQL
+    try {
+        if (function_exists('getDb')) {
+            $pdo = getDb();
+            $stmt = $pdo->prepare("SELECT `id`, `username`, `role` FROM `cga_admins` WHERE `token` = :token AND `token` IS NOT NULL AND `token` != '' LIMIT 1");
+            $stmt->execute([':token' => $token]);
+            $admin = $stmt->fetch();
+            if ($admin && !empty($admin['id'])) {
+                return true;
+            }
+        }
+    } catch (Exception $e) {
+        // En caso de error de conexión en verificación silenciosa
+    }
+
     return false;
 }

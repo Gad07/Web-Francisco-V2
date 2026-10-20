@@ -14,19 +14,64 @@ const DICTIONARIES = { es, en };
 
 const I18nContext = createContext(null);
 
+// Dominios o patrones que inician directamente en inglés
+export const ENGLISH_DOMAINS = [
+  'councilforgreenaction.com',
+  'www.councilforgreenaction.com',
+  'global',
+  'international',
+  'en.',
+];
+
 function isSupported(code) {
   return Object.prototype.hasOwnProperty.call(DICTIONARIES, code);
 }
 
 function detectLang() {
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved && isSupported(saved)) return saved;
-  } catch {
-    // localStorage bloqueado (modo privado) — se usa la deteccion del navegador
+  if (typeof window !== 'undefined') {
+    // 1. Parámetro explícito en la URL: ?lang=en o ?lang=es
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang');
+      if (urlLang && isSupported(urlLang.toLowerCase())) {
+        return urlLang.toLowerCase();
+      }
+    } catch {}
+
+    // 2. Dominio fijo en inglés: councilforgreenaction.com (y subdominios)
+    try {
+      const host = (window.location.hostname || '').toLowerCase();
+      const isCouncilEn = host === 'councilforgreenaction.com' || 
+                          host === 'www.councilforgreenaction.com' ||
+                          host.endsWith('.councilforgreenaction.com') ||
+                          host.startsWith('en.');
+
+      if (isCouncilEn) {
+        // En councilforgreenaction.com el idioma por defecto SIEMPRE es inglés
+        const saved = window.localStorage.getItem(STORAGE_KEY + ':councilforgreenaction');
+        if (saved && isSupported(saved)) return saved;
+        return 'en';
+      }
+
+      // Otros dominios con prefijo de inglés
+      if (ENGLISH_DOMAINS.some((pattern) => host.includes(pattern))) {
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved && isSupported(saved)) return saved;
+        return 'en';
+      }
+    } catch {}
+
+    // 3. Preferencia guardada en localStorage
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved && isSupported(saved)) return saved;
+    } catch {}
+
+    // 4. Idioma del navegador del visitante
+    const nav = typeof navigator !== 'undefined' ? navigator.language : '';
+    if (typeof nav === 'string' && nav.toLowerCase().startsWith('en')) return 'en';
   }
-  const nav = typeof navigator !== 'undefined' ? navigator.language : '';
-  if (typeof nav === 'string' && nav.toLowerCase().startsWith('en')) return 'en';
+
   return DEFAULT_LANG;
 }
 
@@ -45,6 +90,10 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, lang);
+      const host = (window.location.hostname || '').toLowerCase();
+      if (host.includes('councilforgreenaction.com')) {
+        window.localStorage.setItem(STORAGE_KEY + ':councilforgreenaction', lang);
+      }
     } catch {
       // sin persistencia disponible — el cambio de idioma sigue funcionando en sesion
     }

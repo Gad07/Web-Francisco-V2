@@ -141,7 +141,7 @@ try {
             ':bio_es' => 'Especialista en gobernanza socioambiental y derecho ecológico con más de 18 años de trayectoria en organismos multilaterales y proyectos de conservación de biomas.',
             ':bio_en' => 'Specialist in socio-environmental governance and ecological law with over 18 years of experience in multilateral organizations and biome conservation.',
             ':email' => 'presidencia@consejocga.org', ':linkedin' => 'https://www.linkedin.com',
-            ':whatsapp' => '+52 55 4569 1548', ':phone_mx' => '+52 55 4569 1548', ':phone_ca' => '+1 437 290 8820',
+            ':whatsapp' => '+52 55 3083 1032', ':phone_mx' => '+52 55 3083 1032', ':phone_ca' => '+1 437 290 8820',
             ':sort' => 0
         ]);
 
@@ -155,7 +155,7 @@ try {
             ':bio_es' => 'Investigador en gestión territorial, sustentabilidad y vinculación comunitaria. Impulsor del modelo de gobernanza territorial participativa.',
             ':bio_en' => 'Researcher in territorial management, sustainability and community engagement. Driver of the participatory territorial governance model.',
             ':email' => 'secretaria@consejocga.org', ':linkedin' => 'https://www.linkedin.com',
-            ':whatsapp' => '+52 55 4569 1548', ':phone_mx' => '+52 55 4569 1548', ':phone_ca' => '',
+            ':whatsapp' => '+52 55 3083 1032', ':phone_mx' => '+52 55 3083 1032', ':phone_ca' => '',
             ':sort' => 1
         ]);
 

@@ -338,16 +338,29 @@ export default function HeaderNav({
           <div className="flex items-center gap-4 min-w-0 flex-shrink-0">
             <Link
               to="/"
-              className="group flex items-center flex-shrink-0 transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
+              className="group flex items-center flex-shrink-0 transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98] overflow-hidden"
+              style={{
+                height: isScrolled ? '41px' : '55px',
+                maxHeight: isScrolled ? '41px' : '55px',
+                lineHeight: 0
+              }}
               aria-label={t('a11y.home')}
             >
               <img
-                src={isDarkTheme ? '/logos/logo-cga-footer.webp' : '/logos/logo-cga-header.webp'}
+                src={lang === 'en' ? '/logos/Logo%20EN.svg' : '/logos/Logo%20ES.svg'}
                 alt={t('brand.name') || 'Consejo Global Ambiental'}
-                className={`w-auto object-contain transition-all duration-500 ease-out group-hover:scale-[1.04] ${
-                  isDarkTheme ? 'drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]' : 'drop-shadow-none'
-                } ${
-                  isScrolled ? 'h-[36px] md:h-[40px]' : 'h-[50px] md:h-[56px] lg:h-[58px]'
+                width="240"
+                height="55"
+                style={{
+                  height: isScrolled ? '41px' : '55px',
+                  maxHeight: isScrolled ? '41px' : '55px',
+                  width: 'auto',
+                  maxWidth: isScrolled ? '195px' : '250px',
+                  objectFit: 'contain',
+                  display: 'block'
+                }}
+                className={`h-10 md:h-[55px] w-auto max-h-10 md:max-h-[55px] max-w-[190px] md:max-w-[250px] object-contain transition-all duration-300 ease-out group-hover:scale-[1.03] ${
+                  isDarkTheme ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]' : 'drop-shadow-none'
                 }`}
               />
             </Link>

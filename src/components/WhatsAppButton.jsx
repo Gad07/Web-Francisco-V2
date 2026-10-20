@@ -5,7 +5,7 @@ import React from 'react';
  * suavemente a cápsula al pasar el cursor (hover).
  */
 export default function WhatsAppButton({
-  phoneNumber = '525545691548',
+  phoneNumber = '525530831032',
   message = 'Hola, me gustaría solicitar información sobre el Consejo Global Agroalimentario.',
 }) {
   const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');

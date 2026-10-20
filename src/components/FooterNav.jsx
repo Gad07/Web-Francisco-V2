@@ -37,7 +37,8 @@ const TERRITORY_PHOTO =
   'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80&fit=crop&auto=format';
 
 export default function FooterNav() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const logoSrc = lang === 'en' ? '/logos/Logo%20EN.svg' : '/logos/Logo%20ES.svg';
 
   return (
     <footer className="relative overflow-hidden bg-[#241f16] text-[#d8d2c2] font-sans">
@@ -78,7 +79,7 @@ export default function FooterNav() {
       {/* Contenido único del footer */}
       <div className="relative max-w-7xl mx-auto px-6 sm:px-12 md:px-20">
         {/* Cabecera de cierre: Titular arriba y Botón abajo unificados */}
-        <div className="pt-36 sm:pt-48 md:pt-56 pb-16 md:pb-24 border-b border-[#f5efe3]/15">
+        <div className="pt-20 sm:pt-36 md:pt-48 lg:pt-56 pb-16 md:pb-24 border-b border-[#f5efe3]/15">
           <div className="flex flex-col items-start gap-8 sm:gap-10 max-w-4xl">
             <Reveal delay={0.08}>
               <h2
@@ -113,9 +114,19 @@ export default function FooterNav() {
             <Reveal>
               <Link to="/" className="group inline-flex items-center" aria-label={t('a11y.home')}>
                 <img
-                  src="/logos/logo-cga-footer.webp"
+                  src={logoSrc}
                   alt={t('brand.name')}
-                  className="h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 w-auto object-contain drop-shadow-[0_4px_24px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-[1.03]"
+                  width="480"
+                  height="192"
+                  style={{
+                    height: '192px',
+                    maxHeight: '220px',
+                    width: 'auto',
+                    maxWidth: '480px',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }}
+                  className="h-28 sm:h-36 md:h-48 max-w-[280px] sm:max-w-[380px] md:max-w-[480px] w-auto object-contain drop-shadow-[0_6px_28px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </Link>
             </Reveal>

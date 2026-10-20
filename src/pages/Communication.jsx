@@ -109,11 +109,11 @@ export default function Communication() {
                   <section className="relative rounded-3xl bg-[#eae4d2]/60 border border-[#d8ceb6] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500">
                     <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
                       {/* IMAGEN DE PORTADA */}
-                      <div className="lg:col-span-7 relative min-h-[320px] lg:min-h-[460px] overflow-hidden bg-[#2d2618]">
+                      <div className="lg:col-span-7 relative w-full h-72 sm:h-96 lg:h-auto min-h-[280px] lg:min-h-full overflow-hidden bg-[#2d2618] flex lg:self-stretch">
                         <img
                           src={featuredStory.image}
                           alt=""
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                          className="w-full h-full lg:absolute lg:inset-0 lg:w-full lg:h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                         />
                       </div>
 

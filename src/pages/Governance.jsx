@@ -253,10 +253,10 @@ export default function Governance() {
                             {t({ es: 'México', en: 'Mexico' })}
                           </div>
                           <a
-                            href={`tel:${(presidentMember.social?.phoneMx || '+52 55 4569 1548').replace(/\s+/g, '')}`}
+                            href={`tel:${(presidentMember.social?.phoneMx || '+52 55 3083 1032').replace(/\s+/g, '')}`}
                             className="font-mono text-[11px] sm:text-xs font-semibold text-[#2d2618] hover:text-[#4a5a22] transition-colors block mt-0.5 tracking-tight"
                           >
-                            {presidentMember.social?.phoneMx || '+52 55 4569 1548'}
+                            {presidentMember.social?.phoneMx || '+52 55 3083 1032'}
                           </a>
                         </div>
 
@@ -292,7 +292,7 @@ export default function Governance() {
                           href={
                             presidentMember.social?.whatsapp?.startsWith('http')
                               ? presidentMember.social.whatsapp
-                              : `https://wa.me/${(presidentMember.social?.whatsapp || presidentMember.social?.phoneMx || '525545691548').replace(/\D/g, '')}`
+                              : `https://wa.me/${(presidentMember.social?.whatsapp || presidentMember.social?.phoneMx || '525530831032').replace(/\D/g, '')}`
                           }
                           target="_blank"
                           rel="noopener noreferrer"
@@ -426,8 +426,8 @@ export default function Governance() {
           )}
 
           {/* ─── BOTONES DE CATEGORÍA: GOBIERNO · DIRECCIONES · CONSEJERÍA ─── */}
-          <div className="flex justify-center mb-8 sm:mb-10">
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs">
+          <div className="flex justify-start sm:justify-center mb-8 sm:mb-10 -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="country-tabs-scroll inline-flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs w-full sm:w-auto">
               {GOVERNANCE_TABS.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const count = nonPresidentMembers.filter((m) => getMemberSection(m) === tab.id).length;
@@ -441,7 +441,7 @@ export default function Governance() {
                       setSelectedMemberId(null);
                       setCurrentIndex(0);
                     }}
-                    className={`px-5 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all cursor-pointer flex items-center gap-2 ${
+                    className={`px-4 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-sans transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 flex-1 sm:flex-none justify-center ${
                       isActive
                         ? 'bg-[#3a4a18] text-white font-semibold shadow-xs'
                         : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-[#f5efe3]/80 font-medium'
@@ -479,7 +479,7 @@ export default function Governance() {
           </div>
 
           {/* ─── CONTENEDOR PRINCIPAL INTERACTIVO CON ANIMACIÓN TRANSLATE OPTIMIZADA ─── */}
-          <div className="relative min-h-[580px] lg:h-[580px]">
+          <div className="relative min-h-[420px] sm:min-h-[520px] lg:h-[580px]">
             
             {/* CARRUSEL Y TRACK DE TARJETAS */}
             <div className="overflow-hidden py-1 px-1 h-full">
@@ -599,7 +599,7 @@ export default function Governance() {
                                   e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&auto=format';
                                 }
                               }}
-                              className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-500 ease-out"
+                              className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-500 ease-out"
                             />
 
                             {!isAnySelected && (
@@ -924,6 +924,16 @@ export default function Governance() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* ─── SWIPE HINT para mobile ─── */}
+          {selectedMemberId === null && currentMembers.length > 1 && (
+            <div className="swipe-hint items-center justify-center gap-2 pt-3 text-[10px] uppercase tracking-[0.2em] text-[#8a7e68] font-sans">
+              <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span>{t({ es: 'Usa las flechas para navegar', en: 'Use arrows to navigate' })}</span>
+            </div>
+          )}
 
         </section>
       </div>

@@ -30,13 +30,18 @@ if (empty($applicantName) || empty($email)) {
     jsonResponse(['success' => false, 'error' => 'Nombre y correo electrónico son campos obligatorios.'], 400);
 }
 
-// Sanitizar entradas
-$applicantName = htmlspecialchars($applicantName, ENT_QUOTES, 'UTF-8');
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    jsonResponse(['success' => false, 'error' => 'El formato del correo electrónico es inválido.'], 400);
+}
+
+// Sanitizar entradas y limitar longitud para prevenir sobrecargas
+$applicantName = mb_substr(htmlspecialchars($applicantName, ENT_QUOTES, 'UTF-8'), 0, 150);
 $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-$phone = htmlspecialchars($phone, ENT_QUOTES, 'UTF-8');
-$organization = htmlspecialchars($organization, ENT_QUOTES, 'UTF-8');
-$country = htmlspecialchars($country, ENT_QUOTES, 'UTF-8');
-$notes = htmlspecialchars($notes, ENT_QUOTES, 'UTF-8');
+$phone = mb_substr(htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'), 0, 50);
+$organization = mb_substr(htmlspecialchars($organization, ENT_QUOTES, 'UTF-8'), 0, 150);
+$country = mb_substr(htmlspecialchars($country, ENT_QUOTES, 'UTF-8'), 0, 80);
+$motivation = mb_substr(htmlspecialchars($motivation, ENT_QUOTES, 'UTF-8'), 0, 2000);
+$notes = mb_substr(htmlspecialchars($notes, ENT_QUOTES, 'UTF-8'), 0, 1000);
 
 $pdo = getDb();
 $appId = 'app-' . time() . '-' . rand(100, 999);

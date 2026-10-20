@@ -191,7 +191,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-2xl sm:max-w-3xl rounded-3xl bg-[#f5efe3] text-[#2d2618] border border-[#d8ceb6] shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12"
+          className="relative w-full max-w-2xl sm:max-w-3xl rounded-3xl bg-[#f5efe3] text-[#2d2618] border border-[#d8ceb6] shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 items-stretch"
         >
           <button
             onClick={onClose}
@@ -200,12 +200,12 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
             <X className="w-4 h-4" />
           </button>
 
-          {/* Columna Izquierda: Imagen limpia sin sobreimpresiones */}
-          <div className="md:col-span-5 relative h-48 md:h-full min-h-[220px] bg-[#eae4d2] overflow-hidden">
+          {/* Columna Izquierda: Imagen limpia que cubre el 100% de la altura de la tarjeta */}
+          <div className="md:col-span-5 relative w-full h-56 md:h-auto min-h-[240px] md:min-h-full overflow-hidden bg-[#eae4d2] flex md:self-stretch">
             <img
               src={popup.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&fit=crop'}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full md:absolute md:inset-0 md:w-full md:h-full object-cover"
             />
           </div>
 
