@@ -753,9 +753,6 @@ export default function Projects() {
               ================================================================= */}
           <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#2d2618] text-[#f5efe3] flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
             <div className="space-y-2 max-w-2xl text-center md:text-left">
-              <span className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6]">
-                {t({ es: 'Rendición de Cuentas y Metodología', en: 'Accountability & Methodology' })}
-              </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-light leading-snug">
                 {t({
                   es: 'Proyectos que convierten diagnósticos en resultados verificables',

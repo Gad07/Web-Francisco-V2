@@ -1084,8 +1084,8 @@ export default function EditorialOverlay({
                   : activeTabWess === 1
                     ? "https://images.unsplash.com/photo-1511497584788-87676104235f?w=1800&h=1400&fit=crop&auto=format"
                     : activeTabWess === 2
-                      ? "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1800&h=1400&fit=crop&auto=format"
-                      : "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1800&h=1400&fit=crop&auto=format"
+                      ? "https://lh3.googleusercontent.com/d/1MfXp9e1Kw7ahGf3wJG-eZuN5jZbD3d6M"
+                      : "https://lh3.googleusercontent.com/d/1LzeshVWZJBn4Sfn1RKqD8x-fAbmZWCHN"
               }
               alt={t({ es: 'Proyecto Insignia Gobernanza Ambiental', en: 'Flagship Environmental Governance Project' })}
               initial={{ opacity: 0, scale: 1.03 }}
@@ -1093,6 +1093,16 @@ export default function EditorialOverlay({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
               className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                const currentSrc = e.currentTarget.src;
+                if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                  e.currentTarget.dataset.retried = 'true';
+                  const fileId = currentSrc.split('/d/')[1]?.split('?')[0];
+                  if (fileId) {
+                    e.currentTarget.src = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                  }
+                }
+              }}
             />
           </AnimatePresence>
 

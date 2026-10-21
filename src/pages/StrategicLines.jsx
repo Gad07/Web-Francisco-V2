@@ -224,9 +224,6 @@ export default function StrategicLines() {
         {/* ─── CABECERA EDITORIAL + SELECTOR DE ÁMBITOS ─── */}
         <section className="pt-16 sm:pt-24 pb-20 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full">
           <div className="pb-8 border-b border-[#d8ceb6]/70 mb-10 text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-              {t({ es: 'Acción Territorial en 10 Dimensiones', en: 'Territorial Action in 10 Dimensions' })}
-            </span>
             <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light leading-[1.14]">
               {t({ es: 'Diez líneas, un mismo', en: 'Ten lines, one shared' })}{' '}
               <span className="italic text-[#4a5a22] font-normal">
@@ -394,9 +391,6 @@ export default function StrategicLines() {
           {/* ─── CIERRE EDITORIAL ─── */}
           <div className="mt-20 p-8 sm:p-12 rounded-3xl bg-[#2d2618] text-[#f5efe3] flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
             <div className="space-y-2 max-w-2xl text-center md:text-left">
-              <span className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6]">
-                {t({ es: 'Operatividad y Territorio', en: 'Operations & Territory' })}
-              </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-light leading-snug">
                 {t({
                   es: 'Un marco vivo que se traduce en proyectos territoriales verificables',

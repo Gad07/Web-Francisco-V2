@@ -16,9 +16,6 @@ export default function SupportCGA() {
       <section className="py-20 sm:py-28 px-6 sm:px-12 md:px-20 max-w-5xl mx-auto">
         <div className="bg-[#ece4d0]/60 rounded-3xl p-8 sm:p-14 border border-[#d8ceb6] shadow-sm space-y-8">
           <div className="space-y-3">
-            <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22]">
-              Compromiso y Transparencia
-            </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
               Apoya iniciativas ambientales con una aportación económica
             </h2>

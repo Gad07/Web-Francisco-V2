@@ -134,10 +134,7 @@ export default function Training() {
         {activeTab === 'oferta' && (
           <div className="space-y-16">
             <div className="text-center max-w-3xl mx-auto">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Modelo Pedagógico CGA', en: 'CGA Pedagogical Framework' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#2d2618] font-light mt-3 mb-6">
+              <h3 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#2d2618] font-light mb-6">
                 {t({ es: 'Formación de Vanguardia para la Acción Climática y Territorial', en: 'Cutting-Edge Education for Climate & Territorial Action' })}
               </h3>
               <p className="text-[#6b6048] font-light text-base sm:text-lg leading-relaxed">
@@ -212,10 +209,7 @@ export default function Training() {
         {activeTab === 'diplomados' && (
           <div className="space-y-10">
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Programas de Alta Especialización', en: 'High Specialization Programs' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
                 {t({ es: 'Diplomados Ejecutivos e Internacionales', en: 'Executive & International Diplomas' })}
               </h3>
             </div>
@@ -293,10 +287,7 @@ export default function Training() {
         {activeTab === 'cursos' && (
           <div className="space-y-8">
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Educación Continua & Habilidades Técnicas', en: 'Continuing Education & Technical Skills' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
                 {t({ es: 'Cursos Cortos y Talleres Especializados', en: 'Short Courses & Specialized Workshops' })}
               </h3>
             </div>
@@ -348,10 +339,7 @@ export default function Training() {
         {activeTab === 'webinars' && (
           <div className="space-y-8">
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Diálogo Abierto & Divulgación', en: 'Open Dialogue & Outreach' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
                 {t({ es: 'Conferencias Magistrales & Foros Globales', en: 'Keynotes & Global Forums' })}
               </h3>
             </div>
@@ -407,9 +395,6 @@ export default function Training() {
             <div className="space-y-12 max-w-6xl mx-auto">
               {/* Encabezado Principal */}
               <div className="text-center max-w-3xl mx-auto space-y-3">
-                <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                  {t(org.subtitle || { es: 'Soluciones Institucionales a Medida', en: 'Tailored Institutional Solutions' })}
-                </span>
                 <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light leading-tight">
                   {t(org.title || { es: 'Programas para Organizaciones, Gobiernos y Empresas', en: 'Custom Programs for Organizations, Governments & Corporations' })}
                 </h3>
@@ -517,10 +502,7 @@ export default function Training() {
         {activeTab === 'especialistas' && (
           <div className="space-y-10">
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Cuerpo Docente de Excelencia', en: 'Faculty of Excellence' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
                 {t({ es: 'Catedráticos, Investigadores y Juristas Internacionales', en: 'International Professors, Researchers & Jurists' })}
               </h3>
             </div>
@@ -605,9 +587,6 @@ export default function Training() {
             <div className="space-y-8 max-w-6xl mx-auto">
               {/* Encabezado del Calendario */}
               <div className="text-center max-w-3xl mx-auto space-y-2">
-                <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                  {t({ es: 'Cronograma Oficial 2026', en: 'Official 2026 Schedule' })}
-                </span>
                 <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#2d2618] font-light">
                   {t({ es: 'Calendario Académico y Convocatorias', en: 'Academic Calendar & Calls' })}
                 </h3>
@@ -968,10 +947,7 @@ export default function Training() {
         {activeTab === 'inscripciones' && (
           <div className="max-w-3xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#f5efe3] border border-[#d8ceb6] shadow-lg">
             <div className="text-center mb-8">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Proceso de Admisión', en: 'Admission Process' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2 mb-3">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mb-3">
                 {t({ es: 'Inscripción y Solicitud de Becas de Excelencia', en: 'Enrollment & Scholarship Application' })}
               </h3>
               <p className="text-xs text-[#6b6048] max-w-lg mx-auto font-light">

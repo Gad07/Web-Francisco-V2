@@ -126,10 +126,7 @@ export default function InstitutionalAlliances() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6">
             <Reveal>
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Cooperación Estratégica', en: 'Strategic Cooperation' })}
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light leading-[1.15] mt-3 mb-6">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light leading-[1.15] mb-6">
                 {t({
                   es: 'El poder de la sinergia para la gobernanza planetaria',
                   en: 'The power of synergy for planetary governance',
@@ -185,10 +182,7 @@ export default function InstitutionalAlliances() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
             <div>
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22]">
-                {t({ es: 'Ecosistema de Cooperación', en: 'Cooperation Ecosystem' })}
-              </span>
-              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light mt-2">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#2d2618] font-light">
                 {t({ es: 'Nuestros Aliados Institucionales', en: 'Our Institutional Partners' })}
               </h3>
             </div>
@@ -280,9 +274,6 @@ export default function InstitutionalAlliances() {
           {/* ─── CAJA DE CONTACTO Y CONVENIOS INSTITUCIONALES ─── */}
           <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-[#2d2618] text-[#f5efe3] flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
             <div className="max-w-xl space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.24em] font-semibold text-[#cdd2a6]">
-                {t({ es: 'Red Global', en: 'Global Network' })}
-              </span>
               <h4 className="font-serif text-2xl sm:text-3xl font-light">
                 {t({
                   es: '¿Deseas sumar a tu institución a nuestra red de impacto?',

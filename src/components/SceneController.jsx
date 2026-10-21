@@ -86,17 +86,16 @@ export default function SceneController({
 
   return (
     <>
-      {/* Strong ambient — ilumina uniformemente la cara visible, evita planeta negro */}
+      {/* Ambient equilibrada — ilumina con riqueza cromática sin lavar los contrastes */}
       <ambientLight
-        intensity={isLoader ? 1.8 : isHero ? 1.6 : 0.3}
+        intensity={isLoader ? 1.2 : isHero ? 1.5 : 0.3}
         color="#ffffff"
       />
 
       {/* Sol principal — posición casi FRONTAL ligeramente desplazado arriba-derecha */}
-      {/* Frontal garantiza que la cara que mira la cámara sea la más iluminada */}
       <directionalLight
         position={[4, 3, 10]}
-        intensity={isLoader ? 2.2 : isHero ? 2.2 : 1.2}
+        intensity={isLoader ? 1.6 : isHero ? 2.0 : 1.2}
         color="#fffaf2"
         castShadow
       />

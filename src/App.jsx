@@ -48,63 +48,101 @@ export default function App() {
   const isHomePage = location.pathname === '/';
   const safePct = Number.isFinite(loadingProgress) ? Math.max(0, Math.min(100, Math.floor(loadingProgress))) : 0;
 
-  // ─── ROBUST REAL ASSET PRELOADER (Resilient to StrictMode, Smooth 0 → 100%) ───
-  useEffect(() => {
-    let isCancelled = false;
-    let loadedCount = 0;
-    let displayProgress = 0;
-    let animFrame;
+  const worldReadyRef = useRef(false);
+  const planetReadyRef = useRef(false);
 
+  // ─── REAL ASSET PRELOADER BASADO EN RECURSOS REALES (EL PLANETA ES LO PRIMERO) ───
+  useEffect(() => {
+    if (!isHomePage) {
+      setLoaderVisible(false);
+      setIsLoaded(true);
+      setLoadingProgress(100);
+      return;
+    }
+
+    let isCancelled = false;
+    let animFrame;
+    let displayProgress = 0;
+
+    // Recursos críticos estrictamente necesarios para renderizar el inicio visual:
+    // 4 texturas locales de la Tierra 3D + primer fotograma del canvas + logotipo oficial
     const criticalAssets = [
-      // Texturas de la Tierra 3D (NASA) — PRIMERO, el mundo es lo primero que carga
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
-      '/imagenes/Rama 1.svg',
-      '/imagenes/Rama 2.svg',
+      '/textures/planets/earth_atmos_2048.jpg',
+      '/textures/planets/earth_normal_2048.jpg',
+      '/textures/planets/earth_specular_2048.jpg',
+      '/textures/planets/earth_clouds_1024.png',
       '/VideoFrames/frame_001.jpg',
-      // Primeros 15 fotogramas clave
-      ...Array.from({ length: 15 }, (_, i) => `/VideoFrames/frame_${String(i + 1).padStart(3, '0')}.jpg`),
+      '/logos/Logo%20ES.svg'
     ];
 
+    let loadedAssets = 0;
     const totalAssets = criticalAssets.length;
-    let realProgress = 0;
+    let fontsReady = false;
+
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        fontsReady = true;
+      }).catch(() => {
+        fontsReady = true;
+      });
+    } else {
+      fontsReady = true;
+    }
 
     const onAssetDone = () => {
       if (isCancelled) return;
-      loadedCount++;
-      realProgress = Math.min(100, (loadedCount / totalAssets) * 100);
+      loadedAssets++;
     };
 
-    // Precarga real de activos en paralelo
+    // Precargar recursos en paralelo. Si ya están en caché del navegador se marcan al instante
     criticalAssets.forEach((src) => {
       const img = new Image();
-      img.onload = onAssetDone;
-      img.onerror = onAssetDone;
+      if (img.complete) {
+        loadedAssets++;
+      } else {
+        img.onload = onAssetDone;
+        img.onerror = onAssetDone;
+      }
       img.src = src;
     });
 
     const startTime = performance.now();
-    const maxDuration = 3000; // El contador tarda 3 segundos en llegar a 100%
+    // Tiempo de seguridad máximo para garantizar que el usuario nunca quede bloqueado
+    const maxSafetyTimeout = 2500;
 
     const update = (now) => {
       if (isCancelled) return;
-      if (!Number.isFinite(displayProgress)) displayProgress = 0;
 
       const elapsed = now - startTime;
-      const timeRatio = Math.min(1, elapsed / maxDuration);
+      const assetRatio = Math.min(1, loadedAssets / totalAssets);
+      const isPlanetReady = planetReadyRef.current;
+      const fontRatio = fontsReady ? 1 : 0;
 
-      // El objetivo es el máximo entre los recursos reales descargados y la curva base de tiempo
-      const baseline = Math.pow(timeRatio, 0.7) * 100;
-      const target = Math.max(baseline, Number.isFinite(realProgress) ? realProgress : 0);
+      // REGLA CRÍTICA: Lo primero que debe de cargar y estar visible es el planeta detrás del loader.
+      // Mientras el planeta no esté listo en el canvas 3D, el progreso no supera el 20%.
+      let realTarget;
+      if (!isPlanetReady && elapsed < 2000) {
+        realTarget = Math.min(20, Math.max(5, assetRatio * 20));
+      } else {
+        // Una vez que el planeta está montado y rotando en el fondo, avanza fluidamente hacia el 100%
+        realTarget = 20 + (assetRatio * 70) + (fontRatio * 10);
+      }
 
-      const step = Math.max(1.4, (target - displayProgress) * 0.18);
-      displayProgress = Math.min(target, displayProgress + step);
+      if ((isPlanetReady && loadedAssets >= totalAssets) || elapsed >= maxSafetyTimeout) {
+        realTarget = 100;
+      }
 
-      if (displayProgress >= 99.5 || elapsed >= maxDuration) {
+      // Interpolación fluida hacia el porcentaje real sin saltos bruscos
+      const diff = realTarget - displayProgress;
+      const step = Math.max(1.5, diff * 0.18);
+      displayProgress = Math.min(realTarget, displayProgress + step);
+
+      if (displayProgress >= 99.5 || (realTarget === 100 && displayProgress >= 98)) {
         setLoadingProgress(100);
-        triggerFastZoom();
+        // Micro-pausa breve de 100ms para apreciar el 100% y proceder con el zoom suave
+        window.setTimeout(() => {
+          if (!isCancelled) triggerFastZoom();
+        }, 100);
         return;
       }
 
@@ -118,28 +156,28 @@ export default function App() {
       isCancelled = true;
       if (animFrame) cancelAnimationFrame(animFrame);
     };
-  }, []);
+  }, [isHomePage]);
 
   const triggerFastZoom = () => {
     if (zoomTriggeredRef.current) return;
     zoomTriggeredRef.current = true;
-    // Espera 2s mostrando el mundo y 100%, luego desvanece el loader y dispara el zoom
-    window.setTimeout(() => {
-      setLoaderVisible(false);
-      const zStart = performance.now();
-      const zDur = 800;
-      const zFrame = (t) => {
-        const p = Math.min(1, (t - zStart) / zDur);
-        const eased = 1 - Math.pow(1 - p, 3);
-        setZoomProgress(eased);
-        if (p < 1) {
-          requestAnimationFrame(zFrame);
-        } else {
-          setIsLoaded(true);
-        }
-      };
-      requestAnimationFrame(zFrame);
-    }, 2000);
+
+    // Desvanecer el loader inmediatamente (sin esperas artificiales)
+    setLoaderVisible(false);
+
+    const zStart = performance.now();
+    const zDur = 650;
+    const zFrame = (t) => {
+      const p = Math.min(1, (t - zStart) / zDur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setZoomProgress(eased);
+      if (p < 1) {
+        requestAnimationFrame(zFrame);
+      } else {
+        setIsLoaded(true);
+      }
+    };
+    requestAnimationFrame(zFrame);
   };
 
   // El modo claro/oscuro solo depende de un umbral, asi que solo re-renderiza
@@ -191,7 +229,10 @@ export default function App() {
             >
               <Canvas
                 frameloop={!isLoaded ? 'always' : 'never'}
-                onCreated={() => setWorldReady(true)}
+                onCreated={() => {
+                  worldReadyRef.current = true;
+                  setWorldReady(true);
+                }}
                 gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
                 camera={{ position: [0, 0, 12], fov: 45, near: 0.1, far: 200 }}
                 style={{ background: !isLoaded ? '#f5efe3' : isLightMode ? '#ffffff' : '#000000' }}
@@ -204,6 +245,9 @@ export default function App() {
                 <Earth3D
                   zoomProgress={zoomProgress}
                   isLoaded={isLoaded}
+                  onReady={() => {
+                    planetReadyRef.current = true;
+                  }}
                 />
                 <OceanAbyss3D isLoaded={isLoaded} />
               </Canvas>
@@ -216,12 +260,10 @@ export default function App() {
               <motion.div
                 key="loader"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: worldReady ? 1 : 0 }}
-                exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
-                transition={{ duration: 0.5 }}
-                className={`fixed inset-0 z-50 flex flex-col items-center justify-center select-none overflow-hidden ${
-                  worldReady ? 'pointer-events-auto' : 'pointer-events-none'
-                }`}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+                transition={{ duration: 0.25 }}
+                className="fixed inset-0 z-50 flex flex-col items-center justify-center select-none overflow-hidden pointer-events-auto"
                 style={{ background: 'transparent' }}
               >
                 <div className="relative flex flex-col items-center text-center">
@@ -230,7 +272,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className="font-serif font-light text-white leading-none tabular-nums drop-shadow-[0_3px_2px_rgba(0,0,0,0.55)] drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]"
+                    className="font-serif font-light text-white leading-none tabular-nums drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
                     style={{ fontSize: 'clamp(2.75rem, 6vw, 4rem)' }}
                   >
                     <AnimatePresence mode="popLayout" initial={false}>
@@ -245,7 +287,7 @@ export default function App() {
                         {safePct}
                       </motion.span>
                     </AnimatePresence>
-                    <span className="align-baseline text-[0.3em] text-[#4a5a22]/80">%</span>
+                    <span className="align-baseline text-[0.3em] text-[#a4c264] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-0.5 font-bold">%</span>
                   </motion.div>
                 </div>
               </motion.div>

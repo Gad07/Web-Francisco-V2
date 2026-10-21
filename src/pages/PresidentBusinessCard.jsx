@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import HeaderNav from '../components/HeaderNav.jsx';
 import FooterNav from '../components/FooterNav.jsx';
@@ -6,7 +6,6 @@ import { useI18n } from '../i18n/index.jsx';
 import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 import { DEFAULT_GOVERNANCE_MEMBERS } from '../data/governanceData.js';
 import { formatDriveUrl } from '../utils/imageUtils.js';
-import PresidentBusinessCardModal from '../components/PresidentBusinessCardModal.jsx';
 
 /**
  * PÁGINA: Semblanza, Perfil e Información Directiva
@@ -18,7 +17,6 @@ export default function PresidentBusinessCard({ memberId }) {
   const { t } = useI18n();
   const location = useLocation();
   const { governanceMembers = [] } = useSiteSettings();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentPath = (location.pathname || '').toLowerCase();
   const isSolorio = memberId === 'francisco-solorio' || currentPath.includes('solorio');
@@ -370,17 +368,6 @@ export default function PresidentBusinessCard({ memberId }) {
                   {/* Redes Sociales y Canales Directos Unificados en Iconos */}
                   <div className="flex items-center gap-4 text-[#554e40]">
                     <a
-                      href={`mailto:${email}`}
-                      className="text-[#554e40] hover:text-[#4a5a22] hover:scale-115 transition-all"
-                      title={t(isSolorio ? { es: 'Escribir a Secretaría Ejecutiva', en: 'Write to Executive Secretariat' } : { es: 'Escribir a Presidencia', en: 'Write to Presidency' })}
-                      aria-label="Email"
-                    >
-                      <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                    </a>
-
-                    <a
                       href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -432,27 +419,6 @@ export default function PresidentBusinessCard({ memberId }) {
                       </svg>
                     </a>
                   </div>
-                </div>
-
-                {/* Botón para abrir Modal de Tarjeta de Presentación / vCard */}
-                <div className="pt-4 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4a5a22] text-white hover:bg-[#3d4b1c] text-xs font-semibold shadow-sm transition-all hover:shadow cursor-pointer active:scale-98"
-                  >
-                    <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                    </svg>
-                    <span>{t({ es: 'Tarjeta Digital & vCard', en: 'Digital Card & vCard' })}</span>
-                  </button>
-
-                  <Link
-                    to="/gobernanza"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#ded7c8]/60 hover:bg-[#ded7c8] text-[#4a4030] text-xs font-medium transition-colors"
-                  >
-                    <span>← {t({ es: 'Volver a Gobernanza', en: 'Back to Governance' })}</span>
-                  </Link>
                 </div>
               </div>
             </div>
@@ -658,13 +624,6 @@ export default function PresidentBusinessCard({ memberId }) {
         </section>
 
       </main>
-
-      {/* ─── MODAL TARJETA DE PRESENTACIÓN / VCARD ─── */}
-      <PresidentBusinessCardModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        member={member}
-      />
 
       {/* ─── FOOTER NAV ─── */}
       <FooterNav />

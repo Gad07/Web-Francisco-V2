@@ -113,10 +113,6 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Columna Izquierda: Mensaje Editorial Oficial */}
           <div className="lg:col-span-7 space-y-6">
-            <span className="text-xs uppercase tracking-[0.24em] font-semibold text-[#4a5a22] block">
-              Identidad Institucional
-            </span>
-            
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-light text-[#2d2618] leading-[1.15]">
               Quiénes somos en el{' '}
               <span className="italic text-[#4a5a22] font-normal">
@@ -181,9 +177,6 @@ export default function About() {
             </span>
 
             <div className="relative z-10 space-y-4">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22] block">
-                Propósito Fundamental
-              </span>
               <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2d2618] font-light">
                 Nuestra <span className="italic text-[#4a5a22] font-normal">Misión</span>
               </h3>
@@ -204,9 +197,6 @@ export default function About() {
             </span>
 
             <div className="relative z-10 space-y-4">
-              <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.24em] text-[#4a5a22] block">
-                Horizonte Institucional
-              </span>
               <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2d2618] font-light">
                 Nuestra <span className="italic text-[#4a5a22] font-normal">Visión</span>
               </h3>
@@ -256,9 +246,6 @@ export default function About() {
             {/* Columna Izquierda: Índice Completo de Principios (Sin Scroll Interno) */}
             <div className="lg:col-span-6 space-y-6">
               <div className="space-y-3">
-                <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#4a5a22]">
-                  Marco Ético Institucional
-                </span>
                 <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#2d2618] leading-[1.12]">
                   Principios <span className="italic text-[#4a5a22]">Institucionales.</span>
                 </h2>

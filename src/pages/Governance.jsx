@@ -477,9 +477,6 @@ export default function Governance() {
           {/* ─── ENCABEZADO EDITORIAL DE LA SECCIÓN ACTIVA ─── */}
           <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#d8ceb6] pb-5">
             <div>
-              <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#4a5a22] block mb-1">
-                {t(currentTabInfo.badge)}
-              </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-light text-[#2d2618]">
                 {t(currentTabInfo.title)}
               </h3>
