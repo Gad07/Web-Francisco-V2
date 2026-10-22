@@ -1,15 +1,15 @@
 const en = {
   brand: {
-    name: 'Global Environmental Council',
+    name: 'Council for Green Action',
     home: 'Home',
   },
 
   meta: {
-    title: 'Global Environmental Council — The Living Voice of the Earth',
+    title: 'Council for Green Action — Knowledge, Cooperation and Territorial Action',
     description:
-      'An immersive cinematic experience about the balance and interdependence of the biosphere and the ocean.',
+      'International organization dedicated to environmental governance, strategic cooperation and sustainable development.',
     ogDescription:
-      'International body dedicated to socio-environmental governance, biome conservation and the 2030 Agenda.',
+      'International organization dedicated to environmental governance, strategic cooperation and sustainable development.',
     ogLocale: 'en_US',
   },
 
@@ -29,7 +29,7 @@ const en = {
 
     presenciaGlobal: 'Global Presence',
 
-    capacitacion: 'Training & Academy',
+    capacitacion: 'Training',
     ofertaAcademica: 'Academic Programs',
     diplomados: 'Executive Diplomas',
     cursosTalleres: 'Courses & Workshops',
@@ -70,30 +70,30 @@ const en = {
     closeMenu: 'Close menu',
     selectLanguage: 'Select language',
     language: 'Language',
-    home: 'Global Environmental Council — Home',
+    home: 'Council for Green Action — Home',
   },
 
   hero: {
-    line1: 'Transforming the present,',
-    line2: 'for a sustainable future.',
-    title: 'Transforming the present, for a sustainable future.',
+    line1: 'Knowledge, cooperation',
+    line2: 'and territorial action for sustainable development.',
+    title: 'Knowledge, cooperation and territorial action for sustainable development.',
     exploreChapter: 'Explore Chapter',
   },
 
   footer: {
-    futurePrefix: 'The future is written on the land we ',
-    futureEmphasis: 'care for today',
-    futureSuffix: '.',
-    join: 'Join the Council',
-    about: 'Socio-environmental governance body dedicated to biome conservation, community resilience and the 2030 Agenda.',
+    futurePrefix: 'Knowledge, cooperation and ',
+    futureEmphasis: 'territorial action',
+    futureSuffix: ' for sustainable development.',
+    join: 'Contact',
+    about: 'Founded on February 4, 2020 in Mexico City. International body dedicated to strengthening environmental governance, promoting strategic cooperation and comprehensive solutions for sustainable development.',
     elConsejo: 'The Council',
-    accion: 'Action',
+    accion: 'Our Action',
     explorar: 'Explore',
-    manifiesto: 'Manifesto for the Earth',
+    manifiesto: 'Institutional Principles',
     contactArrow: 'Contact',
-    rights: '© 2026 Global Environmental Council · All rights reserved.',
+    rights: '© 2026 Council for Green Action · All rights reserved.',
     developer: 'Developed by Gadiel Palma',
-    cities: 'Geneva · Mexico City · Brasilia',
+    cities: 'Mexico City · Montreal · Bogota · San Jose · Madrid',
   },
 };
 

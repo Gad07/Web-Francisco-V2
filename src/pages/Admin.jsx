@@ -75,15 +75,33 @@ const INITIAL_EMPTY_POPUP = {
   triggerDelaySeconds: 3,
   triggerScrollPercent: 35,
   hasCtaButton: true,
-  title: 'Título del Comunicado o Convocatoria',
-  subtitle: 'Consejo Global Ambiental',
-  message: 'Texto explicativo con los detalles y puntos clave del aviso o programa institucional.',
+  title: {
+    es: 'Título del Comunicado o Convocatoria',
+    en: 'Announcement or Call Title',
+  },
+  subtitle: {
+    es: 'Consejo Global Ambiental',
+    en: 'Global Environmental Council',
+  },
+  message: {
+    es: 'Texto explicativo con los detalles y puntos clave del aviso o programa institucional.',
+    en: 'Explanatory text detailing the key aspects of the institutional announcement or program.',
+  },
   image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&fit=crop&auto=format',
   pngElement: '/imagenes/Rama 2.svg',
-  highlightBadge: 'Aviso Institucional',
-  ctaText: 'Ver Convocatoria',
+  highlightBadge: {
+    es: 'Aviso Institucional',
+    en: 'Institutional Notice',
+  },
+  ctaText: {
+    es: 'Ver Convocatoria',
+    en: 'View Call',
+  },
   ctaLink: '/capacitacion',
-  secondaryCtaText: 'Conocer Más',
+  secondaryCtaText: {
+    es: 'Conocer Más',
+    en: 'Learn More',
+  },
   secondaryCtaLink: '/contacto',
   cornerPosition: 'bottom-right',
   oncePerSession: false,
@@ -133,6 +151,71 @@ const INITIAL_EMPTY_ARTICLE = {
   readTime: '4 min de lectura',
   author: 'Dr. Francisco Solorio',
   authorRole: { es: 'Presidente Fundador del Consejo Global Ambiental', en: 'Founding President, Global Environmental Council' },
+};
+
+const INITIAL_EMPTY_DIPLOMA = {
+  id: '',
+  title: { es: 'Nuevo Diplomado Internacional', en: 'New International Diploma' },
+  duration: '120 horas · 4 meses',
+  dates: 'Convocatoria Abierta 2026',
+  badge: 'Certificación Internacional CGA',
+  desc: { es: 'Describe los objetivos, enfoque y contenidos clave del programa...', en: 'Describe program objectives, approach, and core syllabus...' },
+  target: { es: 'Funcionarios, directivos y líderes territoriales', en: 'Public officials, executives and territorial leaders' },
+};
+
+const INITIAL_EMPTY_COURSE = {
+  id: '',
+  title: { es: 'Nuevo Curso / Taller Práctico', en: 'New Practical Workshop' },
+  hours: '30 horas · Virtual en Vivo',
+  dates: 'Próximamente',
+  instructor: 'Claustro Docente CGA',
+  desc: { es: 'Temario y objetivos prácticos del taller...', en: 'Syllabus and practical goals...' },
+};
+
+const INITIAL_EMPTY_WEBINAR = {
+  id: '',
+  title: { es: 'Nueva Conferencia Magistral', en: 'New Keynote Lecture' },
+  speaker: 'Dra. / Dr. Invitado Internacional',
+  date: '2026',
+  type: 'Webinar Abierto · Transmisión Global',
+  summary: { es: 'Breve sinopsis del contenido y temas clave a abordar...', en: 'Brief lecture overview and key topics...' },
+};
+
+const INITIAL_EMPTY_SPECIALIST = {
+  id: '',
+  name: 'Nuevo Especialista',
+  origin: 'México / Internacional',
+  role: { es: 'Investigador(a) Titular', en: 'Senior Researcher' },
+  credentials: 'Ph.D. en Ciencias Ambientales / M.Sc.',
+  expertise: { es: 'Líneas de investigación y áreas de especialización...', en: 'Research lines and areas of specialization...' },
+};
+
+const INITIAL_EMPTY_ALLIANCE = {
+  id: '',
+  name: '',
+  logo: '',
+  website: '',
+  type: 'multilateral',
+  scope: { es: 'Internacional', en: 'International' },
+  role: { es: '', en: '' },
+  tag: { es: 'Cooperación Activa', en: 'Active Cooperation' },
+};
+
+const INITIAL_EMPTY_GOV_MEMBER = {
+  id: '',
+  num: '01',
+  name: '',
+  role: { es: '', en: '' },
+  displayRole: { es: '', en: '' },
+  tag: { es: 'Cuerpo Directivo & Estrategia', en: 'Board & Strategic Leadership' },
+  area: { es: 'Gobernanza Institucional', en: 'Institutional Governance' },
+  country: { es: 'México / Internacional', en: 'Mexico / International' },
+  bio: { es: '', en: '' },
+  quote: { es: '', en: '' },
+  img: '',
+  category: 'consejeria',
+  social: { email: '', linkedin: '', twitter: '', facebook: '', instagram: '', phoneMx: '', phoneCa: '', whatsapp: '' },
+  responsibilities: [],
 };
 
 const AUTH_STORAGE_KEY = 'cga_admin_authenticated';
@@ -202,17 +285,32 @@ export default function Admin() {
   // Pop-ups & Avisos: 'popup' | 'banner' | 'convocatoria'
   const [popupsSubTab, setPopupsSubTab] = useState('popup');
 
+  // Institucional: 'gobernanza' | 'alianzas'
+  const [institutionalSubTab, setInstitutionalSubTab] = useState('gobernanza');
+
   // Estados de Artículos
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [editingArticle, setEditingArticle] = useState(null);
   const [articleEditorTab, setArticleEditorTab] = useState('general'); // 'general' | 'content' | 'hero'
 
-  // Estados de Capacitaciones
-  const [editingDiploma, setEditingDiploma] = useState(null);
-  const [editingCourse, setEditingCourse] = useState(null);
-  const [editingWebinar, setEditingWebinar] = useState(null);
-  const [editingSpecialist, setEditingSpecialist] = useState(null);
+  // Estados de Capacitaciones (Master-Detail: 25% lista izq / 75% editor der)
+  const [selectedDiplomaId, setSelectedDiplomaId] = useState(() => (trainingData?.diplomados?.[0]?.id || ''));
+  const [editingDiploma, setEditingDiploma] = useState(() => (trainingData?.diplomados?.[0] ? JSON.parse(JSON.stringify(trainingData.diplomados[0])) : INITIAL_EMPTY_DIPLOMA));
+  const [diplomaSearch, setDiplomaSearch] = useState('');
+
+  const [selectedCourseId, setSelectedCourseId] = useState(() => (trainingData?.cursos?.[0]?.id || ''));
+  const [editingCourse, setEditingCourse] = useState(() => (trainingData?.cursos?.[0] ? JSON.parse(JSON.stringify(trainingData.cursos[0])) : INITIAL_EMPTY_COURSE));
+  const [courseSearch, setCourseSearch] = useState('');
+
+  const [selectedWebinarId, setSelectedWebinarId] = useState(() => (trainingData?.webinars?.[0]?.id || ''));
+  const [editingWebinar, setEditingWebinar] = useState(() => (trainingData?.webinars?.[0] ? JSON.parse(JSON.stringify(trainingData.webinars[0])) : INITIAL_EMPTY_WEBINAR));
+  const [webinarSearch, setWebinarSearch] = useState('');
+
+  const [selectedSpecialistId, setSelectedSpecialistId] = useState(() => (trainingData?.especialistas?.[0]?.id || ''));
+  const [editingSpecialist, setEditingSpecialist] = useState(() => (trainingData?.especialistas?.[0] ? JSON.parse(JSON.stringify(trainingData.especialistas[0])) : INITIAL_EMPTY_SPECIALIST));
+  const [specialistSearch, setSpecialistSearch] = useState('');
+
   const [editingOrgProgram, setEditingOrgProgram] = useState(null);
   const [newOrgBenefitEs, setNewOrgBenefitEs] = useState('');
   const [newOrgBenefitEn, setNewOrgBenefitEn] = useState('');
@@ -221,6 +319,47 @@ export default function Admin() {
   const [adminCalMonthOffset, setAdminCalMonthOffset] = useState(4); // Mayo = 4
   const [adminCalFilter, setAdminCalFilter] = useState('all');
   const [adminCalSearch, setAdminCalSearch] = useState('');
+
+  // Sincronización automática de elementos seleccionados en Capacitaciones
+  useEffect(() => {
+    if (trainingData?.diplomados?.length > 0) {
+      const match = trainingData.diplomados.find((d) => d.id === selectedDiplomaId);
+      if (!match) {
+        setSelectedDiplomaId(trainingData.diplomados[0].id);
+        setEditingDiploma(JSON.parse(JSON.stringify(trainingData.diplomados[0])));
+      }
+    }
+  }, [trainingData?.diplomados, selectedDiplomaId]);
+
+  useEffect(() => {
+    if (trainingData?.cursos?.length > 0) {
+      const match = trainingData.cursos.find((c) => c.id === selectedCourseId);
+      if (!match) {
+        setSelectedCourseId(trainingData.cursos[0].id);
+        setEditingCourse(JSON.parse(JSON.stringify(trainingData.cursos[0])));
+      }
+    }
+  }, [trainingData?.cursos, selectedCourseId]);
+
+  useEffect(() => {
+    if (trainingData?.webinars?.length > 0) {
+      const match = trainingData.webinars.find((w) => w.id === selectedWebinarId);
+      if (!match) {
+        setSelectedWebinarId(trainingData.webinars[0].id);
+        setEditingWebinar(JSON.parse(JSON.stringify(trainingData.webinars[0])));
+      }
+    }
+  }, [trainingData?.webinars, selectedWebinarId]);
+
+  useEffect(() => {
+    if (trainingData?.especialistas?.length > 0) {
+      const match = trainingData.especialistas.find((s) => s.id === selectedSpecialistId);
+      if (!match) {
+        setSelectedSpecialistId(trainingData.especialistas[0].id);
+        setEditingSpecialist(JSON.parse(JSON.stringify(trainingData.especialistas[0])));
+      }
+    }
+  }, [trainingData?.especialistas, selectedSpecialistId]);
 
   // Estados de Gestión de Pop-ups Multiruta (Izquierda 25% Lista / Derecha 75% Info, Formulario y Preview)
   const [selectedPopupId, setSelectedPopupId] = useState(() => (popups && popups.length > 0 ? popups[0].id : 'popup-home-welcome'));
@@ -241,13 +380,35 @@ export default function Admin() {
     }
   }, [popups, selectedPopupId]);
 
-  // Estados de Aliados Institucionales
-  const [editingAlliance, setEditingAlliance] = useState(null);
+  // Estados de Aliados Institucionales (Master-Detail 25% / 75%)
+  const [selectedAllianceId, setSelectedAllianceId] = useState(() => (alliances && alliances.length > 0 ? alliances[0].id : ''));
+  const [editingAlliance, setEditingAlliance] = useState(() => (alliances && alliances.length > 0 ? JSON.parse(JSON.stringify(alliances[0])) : INITIAL_EMPTY_ALLIANCE));
   const [allianceSearch, setAllianceSearch] = useState('');
 
-  // Estados de Cuerpo de Gobernanza
-  const [editingGovMember, setEditingGovMember] = useState(null);
+  useEffect(() => {
+    if (alliances && alliances.length > 0) {
+      const match = alliances.find((a) => a.id === selectedAllianceId);
+      if (!match) {
+        setSelectedAllianceId(alliances[0].id);
+        setEditingAlliance(JSON.parse(JSON.stringify(alliances[0])));
+      }
+    }
+  }, [alliances, selectedAllianceId]);
+
+  // Estados de Cuerpo de Gobernanza (Master-Detail 25% / 75%)
+  const [selectedGovMemberId, setSelectedGovMemberId] = useState(() => (governanceMembers && governanceMembers.length > 0 ? governanceMembers[0].id : ''));
+  const [editingGovMember, setEditingGovMember] = useState(() => (governanceMembers && governanceMembers.length > 0 ? JSON.parse(JSON.stringify(governanceMembers[0])) : INITIAL_EMPTY_GOV_MEMBER));
   const [govSearch, setGovSearch] = useState('');
+
+  useEffect(() => {
+    if (governanceMembers && governanceMembers.length > 0) {
+      const match = governanceMembers.find((m) => m.id === selectedGovMemberId);
+      if (!match) {
+        setSelectedGovMemberId(governanceMembers[0].id);
+        setEditingGovMember(JSON.parse(JSON.stringify(governanceMembers[0])));
+      }
+    }
+  }, [governanceMembers, selectedGovMemberId]);
 
   // Estados de Pop-up & Banner
   const [previewPopupOpen, setPreviewPopupOpen] = useState(false);
@@ -370,6 +531,7 @@ export default function Admin() {
     saveArticle(toSave);
     showToast('Artículo guardado exitosamente');
     setEditingArticle(null);
+    setAdminModule('comunicaciones');
   };
 
   const handleAddParagraph = () => {
@@ -409,9 +571,26 @@ export default function Admin() {
   };
 
   // ─────────────────────────────────────────────────────────────
-  // MANEJADORES DE CAPACITACIONES
+  // MANEJADORES DE CAPACITACIONES (MASTER-DETAIL)
   // ─────────────────────────────────────────────────────────────
+  const handleSelectDiploma = (d) => {
+    setSelectedDiplomaId(d.id);
+    setEditingDiploma(JSON.parse(JSON.stringify(d)));
+  };
+
+  const handleStartCreateDiploma = () => {
+    const newId = `dip-${Date.now()}`;
+    const newDip = {
+      ...INITIAL_EMPTY_DIPLOMA,
+      id: newId,
+      title: { es: `Nuevo Diplomado #${(trainingData.diplomados || []).length + 1}`, en: `New Diploma #${(trainingData.diplomados || []).length + 1}` },
+    };
+    setSelectedDiplomaId(newId);
+    setEditingDiploma(newDip);
+  };
+
   const handleSaveDiploma = (diploma) => {
+    if (!diploma) return;
     updateTrainingData((prev) => {
       const idx = prev.diplomados.findIndex((d) => d.id === diploma.id);
       let nextList;
@@ -423,21 +602,46 @@ export default function Admin() {
       }
       return { ...prev, diplomados: nextList };
     });
-    setEditingDiploma(null);
+    setSelectedDiplomaId(diploma.id);
+    setEditingDiploma(JSON.parse(JSON.stringify(diploma)));
     showToast('Diplomado guardado correctamente');
   };
 
   const handleDeleteDiploma = (id) => {
     if (window.confirm('¿Confirmas eliminar este diplomado?')) {
+      const remaining = (trainingData.diplomados || []).filter((d) => d.id !== id);
       updateTrainingData((prev) => ({
         ...prev,
-        diplomados: prev.diplomados.filter((d) => d.id !== id),
+        diplomados: remaining,
       }));
+      if (remaining.length > 0) {
+        setSelectedDiplomaId(remaining[0].id);
+        setEditingDiploma(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateDiploma();
+      }
       showToast('Diplomado eliminado');
     }
   };
 
+  const handleSelectCourse = (c) => {
+    setSelectedCourseId(c.id);
+    setEditingCourse(JSON.parse(JSON.stringify(c)));
+  };
+
+  const handleStartCreateCourse = () => {
+    const newId = `cur-${Date.now()}`;
+    const newCourse = {
+      ...INITIAL_EMPTY_COURSE,
+      id: newId,
+      title: { es: `Nuevo Curso #${(trainingData.cursos || []).length + 1}`, en: `New Course #${(trainingData.cursos || []).length + 1}` },
+    };
+    setSelectedCourseId(newId);
+    setEditingCourse(newCourse);
+  };
+
   const handleSaveCourse = (course) => {
+    if (!course) return;
     updateTrainingData((prev) => {
       const idx = prev.cursos.findIndex((c) => c.id === course.id);
       let nextList;
@@ -449,21 +653,46 @@ export default function Admin() {
       }
       return { ...prev, cursos: nextList };
     });
-    setEditingCourse(null);
+    setSelectedCourseId(course.id);
+    setEditingCourse(JSON.parse(JSON.stringify(course)));
     showToast('Curso / Taller guardado correctamente');
   };
 
   const handleDeleteCourse = (id) => {
     if (window.confirm('¿Confirmas eliminar este curso?')) {
+      const remaining = (trainingData.cursos || []).filter((c) => c.id !== id);
       updateTrainingData((prev) => ({
         ...prev,
-        cursos: prev.cursos.filter((c) => c.id !== id),
+        cursos: remaining,
       }));
+      if (remaining.length > 0) {
+        setSelectedCourseId(remaining[0].id);
+        setEditingCourse(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateCourse();
+      }
       showToast('Curso eliminado');
     }
   };
 
+  const handleSelectWebinar = (w) => {
+    setSelectedWebinarId(w.id);
+    setEditingWebinar(JSON.parse(JSON.stringify(w)));
+  };
+
+  const handleStartCreateWebinar = () => {
+    const newId = `web-${Date.now()}`;
+    const newWeb = {
+      ...INITIAL_EMPTY_WEBINAR,
+      id: newId,
+      title: { es: `Nueva Conferencia #${(trainingData.webinars || []).length + 1}`, en: `New Lecture #${(trainingData.webinars || []).length + 1}` },
+    };
+    setSelectedWebinarId(newId);
+    setEditingWebinar(newWeb);
+  };
+
   const handleSaveWebinar = (webinar) => {
+    if (!webinar) return;
     updateTrainingData((prev) => {
       const idx = prev.webinars.findIndex((w) => w.id === webinar.id);
       let nextList;
@@ -475,21 +704,46 @@ export default function Admin() {
       }
       return { ...prev, webinars: nextList };
     });
-    setEditingWebinar(null);
+    setSelectedWebinarId(webinar.id);
+    setEditingWebinar(JSON.parse(JSON.stringify(webinar)));
     showToast('Conferencia guardada correctamente');
   };
 
   const handleDeleteWebinar = (id) => {
     if (window.confirm('¿Confirmas eliminar esta conferencia?')) {
+      const remaining = (trainingData.webinars || []).filter((w) => w.id !== id);
       updateTrainingData((prev) => ({
         ...prev,
-        webinars: prev.webinars.filter((w) => w.id !== id),
+        webinars: remaining,
       }));
+      if (remaining.length > 0) {
+        setSelectedWebinarId(remaining[0].id);
+        setEditingWebinar(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateWebinar();
+      }
       showToast('Conferencia eliminada');
     }
   };
 
+  const handleSelectSpecialist = (s) => {
+    setSelectedSpecialistId(s.id);
+    setEditingSpecialist(JSON.parse(JSON.stringify(s)));
+  };
+
+  const handleStartCreateSpecialist = () => {
+    const newId = `esp-${Date.now()}`;
+    const newSpec = {
+      ...INITIAL_EMPTY_SPECIALIST,
+      id: newId,
+      name: `Nuevo Especialista #${(trainingData.especialistas || []).length + 1}`,
+    };
+    setSelectedSpecialistId(newId);
+    setEditingSpecialist(newSpec);
+  };
+
   const handleSaveSpecialist = (spec) => {
+    if (!spec) return;
     updateTrainingData((prev) => {
       const idx = prev.especialistas.findIndex((s) => s.id === spec.id);
       let nextList;
@@ -501,16 +755,24 @@ export default function Admin() {
       }
       return { ...prev, especialistas: nextList };
     });
-    setEditingSpecialist(null);
+    setSelectedSpecialistId(spec.id);
+    setEditingSpecialist(JSON.parse(JSON.stringify(spec)));
     showToast('Especialista guardado correctamente');
   };
 
   const handleDeleteSpecialist = (id) => {
     if (window.confirm('¿Confirmas eliminar este especialista?')) {
+      const remaining = (trainingData.especialistas || []).filter((s) => s.id !== id);
       updateTrainingData((prev) => ({
         ...prev,
-        especialistas: prev.especialistas.filter((s) => s.id !== id),
+        especialistas: remaining,
       }));
+      if (remaining.length > 0) {
+        setSelectedSpecialistId(remaining[0].id);
+        setEditingSpecialist(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateSpecialist();
+      }
       showToast('Especialista eliminado');
     }
   };
@@ -821,15 +1083,22 @@ export default function Admin() {
   });
 
   // ─────────────────────────────────────────────────────────────
-  // MANEJADORES DE ALIADOS INSTITUCIONALES (LOGOTIPOS)
+  // MANEJADORES DE ALIADOS INSTITUCIONALES (MASTER-DETAIL)
+  // ─────────────────────────────────────────────────────────────
+  const handleSelectAlliance = (a) => {
+    setSelectedAllianceId(a.id);
+    setEditingAlliance(JSON.parse(JSON.stringify(a)));
+  };
+
   const handleStartCreateAlliance = () => {
-    setEditingAlliance({
-      id: `alliance-${Date.now()}`,
-      name: '',
-      logo: '',
-      website: '',
-      type: 'multilateral',
-    });
+    const newId = `alliance-${Date.now()}`;
+    const newAll = {
+      ...INITIAL_EMPTY_ALLIANCE,
+      id: newId,
+      name: `Nueva Institución / Aliado #${(alliances || []).length + 1}`,
+    };
+    setSelectedAllianceId(newId);
+    setEditingAlliance(newAll);
   };
 
   const handleSaveAllianceForm = (e) => {
@@ -840,13 +1109,21 @@ export default function Admin() {
       return;
     }
     saveAlliance(editingAlliance);
-    setEditingAlliance(null);
+    setSelectedAllianceId(editingAlliance.id);
+    setEditingAlliance(JSON.parse(JSON.stringify(editingAlliance)));
     showToast('Logotipo de aliado guardado exitosamente');
   };
 
   const handleDeleteAllianceItem = (id) => {
     if (window.confirm('¿Confirmas eliminar este logotipo de aliado?')) {
+      const remaining = (alliances || []).filter((a) => a.id !== id);
       deleteAlliance(id);
+      if (remaining.length > 0) {
+        setSelectedAllianceId(remaining[0].id);
+        setEditingAlliance(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateAlliance();
+      }
       showToast('Logotipo eliminado');
     }
   };
@@ -858,23 +1135,22 @@ export default function Admin() {
     }
   };
 
-  // ─── GESTIÓN DE CUERPO DE GOBERNANZA (ADMIN HANDLERS) ───
+  // ─── GESTIÓN DE CUERPO DE GOBERNANZA (MASTER-DETAIL) ───
+  const handleSelectGovMember = (m) => {
+    setSelectedGovMemberId(m.id);
+    setEditingGovMember(JSON.parse(JSON.stringify(m)));
+  };
+
   const handleStartCreateGovMember = () => {
-    setEditingGovMember({
-      id: `gov-${Date.now()}`,
-      num: String(governanceMembers.length + 1).padStart(2, '0'),
-      name: '',
-      role: { es: '', en: '' },
-      displayRole: { es: '', en: '' },
-      tag: { es: 'Cuerpo Directivo & Estrategia', en: 'Board & Strategic Leadership' },
-      area: { es: '', en: '' },
-      country: { es: 'México / Internacional', en: 'Mexico / International' },
-      bio: { es: '', en: '' },
-      img: '',
-      category: 'consejeria',
-      social: { email: '', linkedin: '', twitter: '' },
-      responsibilities: [],
-    });
+    const newId = `gov-${Date.now()}`;
+    const newGov = {
+      ...INITIAL_EMPTY_GOV_MEMBER,
+      id: newId,
+      num: String((governanceMembers || []).length + 1).padStart(2, '0'),
+      name: 'NUEVO MIEMBRO DEL CONSEJO',
+    };
+    setSelectedGovMemberId(newId);
+    setEditingGovMember(newGov);
   };
 
   const handleSaveGovMemberForm = (e) => {
@@ -885,13 +1161,21 @@ export default function Admin() {
       return;
     }
     saveGovernanceMember(editingGovMember);
-    setEditingGovMember(null);
+    setSelectedGovMemberId(editingGovMember.id);
+    setEditingGovMember(JSON.parse(JSON.stringify(editingGovMember)));
     showToast(`Miembro "${editingGovMember.name}" guardado exitosamente`);
   };
 
   const handleDeleteGovMemberItem = (id, name) => {
     if (window.confirm(`¿Confirmas eliminar a "${name || id}" del cuerpo de gobernanza?`)) {
+      const remaining = (governanceMembers || []).filter((m) => m.id !== id);
       deleteGovernanceMember(id);
+      if (remaining.length > 0) {
+        setSelectedGovMemberId(remaining[0].id);
+        setEditingGovMember(JSON.parse(JSON.stringify(remaining[0])));
+      } else {
+        handleStartCreateGovMember();
+      }
       showToast('Miembro eliminado');
     }
   };
@@ -1008,47 +1292,69 @@ export default function Admin() {
       </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════════════════
-          NAVBAR UNIFICADA DEL ADMINISTRADOR CON LOGOTIPO OFICIAL
+          NAVBAR PRINCIPAL UNIFICADA (SINGLE-TIER SLIM STUDIO BAR)
          ══════════════════════════════════════════════════════════════════ */}
       <header className="sticky top-0 z-40 bg-[#f5efe3]/95 border-b border-[#d8ceb6] backdrop-blur-xl transition-all shadow-xs">
-        {/* FILA PRINCIPAL: LOGO + NAVEGACIÓN EDITORIAL ESTILO SITIO PÚBLICO + CERRAR SESIÓN */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-6">
-          {/* Cluster Izquierdo: Logotipo Oficial CGA */}
-          <div className="flex items-center shrink-0" style={{ height: '46px', maxHeight: '46px' }}>
+        <div className="w-full max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
+          {/* Cluster Izquierdo: Logotipo Oficial CGA + Consola badge */}
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               to="/"
               className="flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
-              style={{ height: '44px', maxHeight: '44px', width: 'auto' }}
-              title="Consejo Global Ambiental"
+              style={{ height: '42px', maxHeight: '42px', width: 'auto' }}
+              title="Consejo Global Ambiental - Ir a portada"
             >
               <img
                 src="/logos/Logo%20ES.svg"
                 alt="Consejo Global Ambiental"
-                width="195"
-                height="44"
+                width="190"
+                height="42"
                 style={{
-                  height: '44px',
-                  maxHeight: '44px',
+                  height: '40px',
+                  maxHeight: '40px',
                   width: 'auto',
-                  maxWidth: '210px',
+                  maxWidth: '200px',
                   objectFit: 'contain',
                   display: 'block'
                 }}
-                className="h-11 w-auto max-h-11 max-w-[210px] object-contain"
+                className="h-9 sm:h-10 w-auto max-h-10 max-w-[200px] object-contain"
               />
             </Link>
           </div>
 
-          {/* Cluster Central: Módulos de Navegación Estilo Sitio Público */}
-          <nav className="flex items-center gap-4 sm:gap-6 md:gap-8 overflow-x-auto max-w-full py-1">
+          {/* Cluster Central: 4 Módulos Agrupados con Estilo Studio */}
+          <nav className="flex items-center p-1 sm:p-1.5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-2xs shrink-0">
             {[
-              { id: 'capacitaciones', label: 'Capacitaciones & Academia' },
-              { id: 'comunicaciones', label: 'Comunicaciones & Medios' },
-              { id: 'popups', label: 'Pop-ups & Avisos' },
-              { id: 'alianzas', label: 'Aliados & Logotipos' },
-              { id: 'gobernanza', label: 'Gobierno y Estructura' },
+              {
+                id: 'capacitaciones',
+                label: 'Capacitaciones',
+                icon: GraduationCap,
+                count: (trainingData.diplomados?.length || 0) + (trainingData.cursos?.length || 0) + (trainingData.webinars?.length || 0),
+                isActive: adminModule === 'capacitaciones',
+              },
+              {
+                id: 'comunicaciones',
+                label: 'Comunicaciones',
+                icon: FileText,
+                count: articles.length,
+                isActive: adminModule === 'comunicaciones' || adminModule === 'articulos',
+              },
+              {
+                id: 'popups',
+                label: 'Pop-ups & Avisos',
+                icon: Bell,
+                count: popups.length,
+                isActive: adminModule === 'popups',
+              },
+              {
+                id: 'institucional',
+                label: 'Institucional',
+                icon: ShieldCheck,
+                count: governanceMembers.length + alliances.length,
+                isActive: adminModule === 'institucional' || adminModule === 'alianzas' || adminModule === 'gobernanza',
+              },
             ].map((mod) => {
-              const isActive = adminModule === mod.id;
+              const IconComp = mod.icon;
               return (
                 <button
                   key={mod.id}
@@ -1056,137 +1362,84 @@ export default function Admin() {
                     setAdminModule(mod.id);
                     setEditingArticle(null);
                   }}
-                  className={`relative py-2 font-sans text-[13px] sm:text-[14px] font-medium tracking-[0.02em] whitespace-nowrap transition-colors duration-200 ${
-                    isActive
-                      ? 'text-[#3a4a18] font-bold'
-                      : 'text-[#5c523e] hover:text-[#2d2618]'
+                  className={`relative px-3 sm:px-4 py-2 rounded-xl font-sans text-xs sm:text-[13px] font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                    mod.isActive
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm'
+                      : 'text-[#6b6048] hover:text-[#2d2618] hover:bg-white/60'
                   }`}
                 >
+                  <IconComp className={`w-3.5 h-3.5 ${mod.isActive ? 'text-[#d8ceb6]' : 'text-[#8a7e68]'}`} />
                   <span>{mod.label}</span>
-                  {isActive && (
-                    <motion.span
-                      layoutId="adminActiveTabIndicator"
-                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4a5a22] rounded-full"
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                  )}
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold leading-tight ${
+                      mod.isActive
+                        ? 'bg-[#384519] text-[#f5efe3] border border-[#5d722d]'
+                        : 'bg-white/80 text-[#6b6048] border border-[#d8ceb6]'
+                    }`}
+                  >
+                    {mod.count}
+                  </span>
                 </button>
               );
             })}
           </nav>
 
           {/* Cluster Derecho: Cerrar Sesión */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-full bg-[#eae4d2] hover:bg-red-900/15 text-[#5c523e] hover:text-red-800 border border-[#d8ceb6] text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shadow-xs"
-              title="Cerrar Sesión"
+              className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#eae4d2] hover:bg-red-50 text-[#5c523e] hover:text-red-700 border border-[#d8ceb6] text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              title="Cerrar Sesión Segura"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Cerrar Sesión</span>
+              <span className="hidden sm:inline">Cerrar Sesión</span>
             </button>
           </div>
-        </div>
-
-        {/* FILA SECUNDARIA: SUB-NAVBAR TIPO PÁGINA (ESTILO PILL EXACTO DE LAS IMÁGENES DEL USUARIO) */}
-        <div className="bg-[#e4dcce]/60 border-t border-[#d8ceb6] py-2 px-4 sm:px-8 overflow-x-auto flex justify-center">
-          {/* SUB-NAVBAR PARA CAPACITACIONES (IDÉNTICA A LA IMAGEN 1 DEL USUARIO) */}
-          {adminModule === 'capacitaciones' && (
-            <div className="inline-flex items-center p-1 rounded-full bg-[#eae4d2] border border-[#d8ceb6] shadow-xs overflow-x-auto">
-              {[
-                { id: 'oferta', label: 'Oferta Académica' },
-                { id: 'diplomados', label: 'Diplomados' },
-                { id: 'cursos', label: 'Cursos & Talleres' },
-                { id: 'conferencias', label: 'Conferencias' },
-                { id: 'organizaciones', label: 'Programas para Organizaciones' },
-                { id: 'especialistas', label: 'Especialistas' },
-                { id: 'calendario', label: 'Calendario Académico' },
-                { id: 'inscripciones', label: `Inscripciones (${applications.length})` },
-              ].map((sub) => {
-                const isActive = trainingSubTab === sub.id;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => setTrainingSubTab(sub.id)}
-                    className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                      isActive
-                        ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs font-semibold'
-                        : 'text-[#6b6048] hover:text-[#2d2618]'
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* SUB-NAVBAR PARA COMUNICACIONES (IDÉNTICA A LA IMAGEN 2 DEL USUARIO) */}
-          {adminModule === 'comunicaciones' && (
-            <div className="inline-flex items-center p-1 rounded-full bg-[#eae4d2] border border-[#d8ceb6] shadow-xs overflow-x-auto">
-              {[
-                { id: 'todo', label: 'Todo' },
-                { id: 'noticias', label: 'Noticias' },
-                { id: 'eventos', label: 'Eventos' },
-                { id: 'opinion', label: 'Opinión' },
-                { id: 'dialogos', label: 'Diálogos' },
-                { id: 'publicaciones', label: 'Publicaciones' },
-                { id: 'prensa', label: 'Boletín & Prensa' },
-              ].map((sub) => {
-                const isActive = commsSubTab === sub.id;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => setCommsSubTab(sub.id)}
-                    className={`px-4 sm:px-5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                      isActive
-                        ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs font-semibold'
-                        : 'text-[#6b6048] hover:text-[#2d2618]'
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* SUB-NAVBAR PARA POP-UPS & AVISOS */}
-          {adminModule === 'popups' && (
-            <div className="inline-flex items-center p-1 rounded-full bg-[#eae4d2] border border-[#d8ceb6] shadow-xs overflow-x-auto">
-              {[
-                { id: 'popup', label: 'Pop-up Emergente de Bienvenida' },
-                { id: 'banner', label: 'Cinta de Anuncios / Marquesina' },
-              ].map((sub) => {
-                const isActive = popupsSubTab === sub.id;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => setPopupsSubTab(sub.id)}
-                    className={`px-4 sm:px-5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                      isActive
-                        ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs font-semibold'
-                        : 'text-[#6b6048] hover:text-[#2d2618]'
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
       </header>
 
       {/* ══════════════════════════════════════════════════════════════════
-          CONTENIDO DINÁMICO SEGÚN EL MÓDULO ACTIVO
+          CONTENIDO DINÁMICO SEGÚN EL MÓDULO ACTIVO (FULL-WIDTH STUDIO)
          ══════════════════════════════════════════════════════════════════ */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 space-y-8">
+      <main className="w-full max-w-[1850px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* ─────────────────────────────────────────────────────────────
             MÓDULO 1: GESTIÓN DE ARTÍCULOS & HERO PERSONALIZADO
            ───────────────────────────────────────────────────────────── */}
         {adminModule === 'articulos' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
+            {/* STUDIO HEADER CARD: RETORNO A COMUNICACIONES */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingArticle(null);
+                    setAdminModule('comunicaciones');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-[#f5efe3] text-[#2d2618] border border-[#d8ceb6] text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-2xs transition-all"
+                  title="Volver a la vista de Comunicaciones"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#4a5a22]" />
+                  <span>Volver a Comunicaciones</span>
+                </button>
+                <div className="h-5 w-px bg-[#d8ceb6] hidden sm:block" />
+                <span className="text-xs font-medium text-[#6b6048]">
+                  {editingArticle ? `Editando publicación: ${editingArticle.title?.es || 'Nuevo Artículo'}` : 'Catálogo General de Artículos'}
+                </span>
+              </div>
+
+              {!editingArticle && (
+                <button
+                  type="button"
+                  onClick={() => handleStartCreateArticle('noticias')}
+                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md flex items-center gap-2 cursor-pointer transition-all self-start sm:self-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Crear Nuevo Artículo</span>
+                </button>
+              )}
+            </div>
+
             {/* TARJETAS DE ESTADÍSTICAS RÁPIDAS */}
             <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-5 rounded-2xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs space-y-1">
@@ -1240,8 +1493,11 @@ export default function Admin() {
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => setEditingArticle(null)}
-                        className="px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-xs font-semibold text-[#6b6048] border border-[#d8ceb6] transition-colors"
+                        onClick={() => {
+                          setEditingArticle(null);
+                          setAdminModule('comunicaciones');
+                        }}
+                        className="px-4 py-2 rounded-xl bg-white/70 hover:bg-white text-xs font-semibold text-[#6b6048] border border-[#d8ceb6] transition-colors cursor-pointer"
                       >
                         Cancelar
                       </button>
@@ -2032,7 +2288,51 @@ export default function Admin() {
             MÓDULO 2: GESTIÓN DE CAPACITACIONES (CON CADA UNO DE SUS TEMAS)
            ───────────────────────────────────────────────────────────── */}
         {adminModule === 'capacitaciones' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
+            {/* STUDIO HEADER CARD: CAPACITACIONES & ACADEMIA */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-xs space-y-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal">
+                    Gestión de Capacitaciones & Academia
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#6b6048] max-w-3xl">
+                    Administra los programas formativos internacionales, catálogo curricular bilingüe, claustro docente y el seguimiento en tiempo real de inscripciones.
+                  </p>
+                </div>
+              </div>
+
+              {/* Sub-tabs Pills Integradas en el Módulo */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#d8ceb6]/70">
+                {[
+                  { id: 'oferta', label: 'Oferta Académica' },
+                  { id: 'diplomados', label: `Diplomados (${trainingData.diplomados?.length || 0})` },
+                  { id: 'cursos', label: `Cursos & Talleres (${trainingData.cursos?.length || 0})` },
+                  { id: 'conferencias', label: `Conferencias (${trainingData.webinars?.length || 0})` },
+                  { id: 'organizaciones', label: 'Programas Corporativos' },
+                  { id: 'especialistas', label: `Especialistas (${trainingData.especialistas?.length || 0})` },
+                  { id: 'calendario', label: 'Calendario Académico' },
+                  { id: 'inscripciones', label: `Inscripciones (${applications.length})` },
+                ].map((sub) => {
+                  const isActive = trainingSubTab === sub.id;
+                  return (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      onClick={() => setTrainingSubTab(sub.id)}
+                      className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                          : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* SUB-TEMA: OFERTA ACADÉMICA */}
             {trainingSubTab === 'oferta' && (
               <div className="space-y-6">
@@ -2091,463 +2391,833 @@ export default function Admin() {
             )}
 
             {/* SUB-TEMA: DIPLOMADOS */}
+            {/* SUB-TEMA: DIPLOMADOS (MASTER-DETAIL 25% / 75%) */}
             {trainingSubTab === 'diplomados' && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
-                      Diplomados Internacionales ({trainingData.diplomados.length})
-                    </h3>
-                    <p className="text-xs text-[#6b6048]">
-                      Gestión de programas de especialización de alta duración y certificación.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setEditingDiploma({
-                        id: `dip-${Date.now()}`,
-                        title: { es: '', en: '' },
-                        duration: '120 horas · 4 meses',
-                        dates: 'Convocatoria Abierta 2026',
-                        badge: 'Certificación Internacional CGA',
-                        desc: { es: '', en: '' },
-                        target: { es: '', en: '' },
-                        modules: ['Módulo I: Introducción y Fundamentos'],
-                      })
-                    }
-                    className="px-5 py-2.5 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nuevo Diplomado</span>
-                  </button>
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE DIPLOMADOS) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Diplomados Guardados
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(trainingData?.diplomados || []).length} programas
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateDiploma}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Crear nuevo diplomado"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nuevo</span>
+                        </button>
+                      </div>
 
-                {/* FORMULARIO DIPLOMADO */}
-                {editingDiploma && (
-                  <div className="p-6 rounded-3xl bg-[#eae4d2] border border-[#4a5a22] shadow-xl space-y-4">
-                    <h4 className="font-serif text-lg text-[#2d2618]">
-                      {editingDiploma.title?.es ? `Editar: ${editingDiploma.title.es}` : 'Nuevo Diplomado'}
-                    </h4>
+                      {/* Buscador de Diplomados */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={diplomaSearch}
+                          onChange={(e) => setDiplomaSearch(e.target.value)}
+                          placeholder="Buscar diplomado..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                        />
+                      </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Título del Diplomado</label>
-                        <input
-                          type="text"
-                          value={editingDiploma.title.es}
-                          onChange={(e) =>
-                            setEditingDiploma({
-                              ...editingDiploma,
-                              title: { ...editingDiploma.title, es: e.target.value },
-                            })
-                          }
-                          placeholder="Ej. Diplomado Internacional en..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Duración & Modalidad</label>
-                        <input
-                          type="text"
-                          value={editingDiploma.duration}
-                          onChange={(e) => setEditingDiploma({ ...editingDiploma, duration: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Fechas & Inicio</label>
-                        <input
-                          type="text"
-                          value={editingDiploma.dates}
-                          onChange={(e) => setEditingDiploma({ ...editingDiploma, dates: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Insignia / Certificación</label>
-                        <input
-                          type="text"
-                          value={editingDiploma.badge}
-                          onChange={(e) => setEditingDiploma({ ...editingDiploma, badge: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Descripción del Programa</label>
-                        <textarea
-                          rows="3"
-                          value={editingDiploma.desc.es}
-                          onChange={(e) =>
-                            setEditingDiploma({
-                              ...editingDiploma,
-                              desc: { ...editingDiploma.desc, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Público Objetivo</label>
-                        <input
-                          type="text"
-                          value={editingDiploma.target.es}
-                          onChange={(e) =>
-                            setEditingDiploma({
-                              ...editingDiploma,
-                              target: { ...editingDiploma.target, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(trainingData?.diplomados || [])
+                          .filter((d) => {
+                            if (!diplomaSearch.trim()) return true;
+                            const q = diplomaSearch.toLowerCase();
+                            const titleEs = (typeof d.title === 'object' ? d.title?.es : d.title) || '';
+                            const titleEn = (typeof d.title === 'object' ? d.title?.en : '') || '';
+                            const badge = d.badge || '';
+                            return titleEs.toLowerCase().includes(q) || titleEn.toLowerCase().includes(q) || badge.toLowerCase().includes(q);
+                          })
+                          .map((dip) => {
+                            const isSelected = (editingDiploma?.id === dip.id) || (selectedDiplomaId === dip.id);
+                            const titleText = (typeof dip.title === 'object' ? dip.title?.es : dip.title) || 'Sin título';
+
+                            return (
+                              <div
+                                key={dip.id}
+                                onClick={() => handleSelectDiploma(dip)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  {dip.badge && (
+                                    <span className="inline-block px-2 py-0.5 rounded-md bg-[#4a5a22]/10 text-[#4a5a22] text-[10px] font-bold uppercase tracking-wider">
+                                      {dip.badge}
+                                    </span>
+                                  )}
+                                  <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-2">
+                                    {titleText}
+                                  </h4>
+                                  {dip.duration && (
+                                    <p className="text-[11px] text-[#6b6048]">
+                                      {dip.duration}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#eae4d2]">
+                                  <span className="text-[11px] font-mono text-[#4a5a22] font-semibold truncate max-w-[120px]">
+                                    {dip.dates || 'Próximamente'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteDiploma(dip.id);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar diplomado"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-
-                    <div className="flex justify-end gap-2 pt-3">
-                      <button
-                        onClick={() => setEditingDiploma(null)}
-                        className="px-4 py-2 rounded-xl bg-white text-[#6b6048] border border-[#d8ceb6] text-xs font-semibold"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleSaveDiploma(editingDiploma)}
-                        className="px-5 py-2 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider"
-                      >
-                        Guardar Diplomado
-                      </button>
-                    </div>
                   </div>
-                )}
 
-                {/* LISTA DE DIPLOMADOS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {trainingData.diplomados.map((dip) => (
-                    <div
-                      key={dip.id}
-                      className="p-6 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-3 flex flex-col justify-between"
-                    >
-                      <div className="space-y-2">
-                        <span className="px-2.5 py-0.5 rounded-md bg-[#4a5a22]/15 text-[#4a5a22] text-[10px] font-bold uppercase tracking-wider">
-                          {dip.badge}
-                        </span>
-                        <h4 className="font-serif text-lg text-[#2d2618] font-medium leading-snug">
-                          {dip.title?.es}
-                        </h4>
-                        <p className="text-xs text-[#6b6048]">{dip.duration}</p>
-                        <p className="text-xs text-[#2d2618] font-light line-clamp-2">{dip.desc?.es}</p>
-                      </div>
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingDiploma ? (
+                      <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm">
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {(typeof editingDiploma.title === 'object' ? editingDiploma.title?.es : editingDiploma.title) || 'Nuevo Diplomado'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              Programa de Especialización · Duración: <span className="font-semibold text-[#2d2618]">{editingDiploma.duration || 'Por definir'}</span> · Estado: <span className="font-mono text-[#4a5a22] font-bold">{editingDiploma.dates || 'Abierto'}</span>
+                            </p>
+                          </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-[#d8ceb6]">
-                        <span className="text-[11px] font-mono text-[#4a5a22] font-semibold">{dip.dates}</span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setEditingDiploma(JSON.parse(JSON.stringify(dip)))}
-                            className="px-3 py-1.5 rounded-lg bg-white hover:bg-[#d8ceb6] text-xs font-semibold text-[#2d2618] border border-[#d8ceb6]"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteDiploma(dip.id)}
-                            className="p-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-800"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleSaveDiploma(editingDiploma)}
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: IDENTIFICACIÓN & CERTIFICACIÓN */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Identificación y Certificación del Programa</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Título del Diplomado (Español) *</label>
+                              <input
+                                type="text"
+                                value={typeof editingDiploma.title === 'object' ? editingDiploma.title?.es || '' : editingDiploma.title || ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    title: typeof editingDiploma.title === 'object'
+                                      ? { ...editingDiploma.title, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Ej. Diplomado Internacional en..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Diploma Title (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingDiploma.title === 'object' ? editingDiploma.title?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    title: typeof editingDiploma.title === 'object'
+                                      ? { ...editingDiploma.title, en: e.target.value }
+                                      : { es: editingDiploma.title || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Ej. International Diploma in..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Duración & Modalidad</label>
+                              <input
+                                type="text"
+                                value={editingDiploma.duration || ''}
+                                onChange={(e) => setEditingDiploma({ ...editingDiploma, duration: e.target.value })}
+                                placeholder="Ej. 120 horas · 4 meses"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Fechas & Convocatoria</label>
+                              <input
+                                type="text"
+                                value={editingDiploma.dates || ''}
+                                onChange={(e) => setEditingDiploma({ ...editingDiploma, dates: e.target.value })}
+                                placeholder="Ej. Convocatoria Abierta 2026"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Insignia / Certificación Emitida</label>
+                              <input
+                                type="text"
+                                value={editingDiploma.badge || ''}
+                                onChange={(e) => setEditingDiploma({ ...editingDiploma, badge: e.target.value })}
+                                placeholder="Ej. Certificación Internacional CGA"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: DETALLE ACADÉMICO & CONTENIDOS */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Contenido del Programa & Audiencia</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Descripción del Programa (Español)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingDiploma.desc === 'object' ? editingDiploma.desc?.es || '' : editingDiploma.desc || ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    desc: typeof editingDiploma.desc === 'object'
+                                      ? { ...editingDiploma.desc, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Describe los objetivos y enfoque del diplomado..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Program Description (English)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingDiploma.desc === 'object' ? editingDiploma.desc?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    desc: typeof editingDiploma.desc === 'object'
+                                      ? { ...editingDiploma.desc, en: e.target.value }
+                                      : { es: editingDiploma.desc || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Describe the objectives and scope of the diploma..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Público Objetivo (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingDiploma.target === 'object' ? editingDiploma.target?.es || '' : editingDiploma.target || ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    target: typeof editingDiploma.target === 'object'
+                                      ? { ...editingDiploma.target, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Ej. Funcionarios, directivos y líderes territoriales"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Target Audience (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingDiploma.target === 'object' ? editingDiploma.target?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingDiploma({
+                                    ...editingDiploma,
+                                    target: typeof editingDiploma.target === 'object'
+                                      ? { ...editingDiploma.target, en: e.target.value }
+                                      : { es: editingDiploma.target || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Ej. Public officials, executives and territorial leaders"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona un diplomado de la lista o haz clic en "Nuevo" para comenzar.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* SUB-TEMA: CURSOS & TALLERES */}
+            {/* SUB-TEMA: CURSOS & TALLERES (MASTER-DETAIL 25% / 75%) */}
             {trainingSubTab === 'cursos' && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
-                      Cursos & Talleres Prácticos ({trainingData.cursos.length})
-                    </h3>
-                    <p className="text-xs text-[#6b6048]">
-                      Gestión de talleres intensivos y cursos técnicos de campo y laboratorio.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setEditingCourse({
-                        id: `cur-${Date.now()}`,
-                        title: { es: '', en: '' },
-                        hours: '30 horas · Virtual en Vivo',
-                        dates: 'Próximamente',
-                        desc: { es: '', en: '' },
-                        instructor: 'CGA Claustro Docente',
-                      })
-                    }
-                    className="px-5 py-2.5 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nuevo Curso / Taller</span>
-                  </button>
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE CURSOS & TALLERES) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Cursos & Talleres
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(trainingData?.cursos || []).length} disponibles
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateCourse}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Crear nuevo curso o taller"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nuevo</span>
+                        </button>
+                      </div>
 
-                {editingCourse && (
-                  <div className="p-6 rounded-3xl bg-[#eae4d2] border border-[#4a5a22] shadow-xl space-y-4">
-                    <h4 className="font-serif text-lg text-[#2d2618]">Editar Curso / Taller</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Título del Curso</label>
+                      {/* Buscador de Cursos */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
-                          value={editingCourse.title.es}
-                          onChange={(e) =>
-                            setEditingCourse({
-                              ...editingCourse,
-                              title: { ...editingCourse.title, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
+                          value={courseSearch}
+                          onChange={(e) => setCourseSearch(e.target.value)}
+                          placeholder="Buscar curso o taller..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Horas & Modalidad</label>
-                        <input
-                          type="text"
-                          value={editingCourse.hours}
-                          onChange={(e) => setEditingCourse({ ...editingCourse, hours: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Fechas</label>
-                        <input
-                          type="text"
-                          value={editingCourse.dates}
-                          onChange={(e) => setEditingCourse({ ...editingCourse, dates: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Instructor / Facilitador</label>
-                        <input
-                          type="text"
-                          value={editingCourse.instructor}
-                          onChange={(e) => setEditingCourse({ ...editingCourse, instructor: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Descripción del Contenido</label>
-                        <textarea
-                          rows="3"
-                          value={editingCourse.desc.es}
-                          onChange={(e) =>
-                            setEditingCourse({
-                              ...editingCourse,
-                              desc: { ...editingCourse.desc, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
+
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(trainingData?.cursos || [])
+                          .filter((c) => {
+                            if (!courseSearch.trim()) return true;
+                            const q = courseSearch.toLowerCase();
+                            const titleEs = (typeof c.title === 'object' ? c.title?.es : c.title) || '';
+                            const titleEn = (typeof c.title === 'object' ? c.title?.en : '') || '';
+                            const instructor = c.instructor || '';
+                            return titleEs.toLowerCase().includes(q) || titleEn.toLowerCase().includes(q) || instructor.toLowerCase().includes(q);
+                          })
+                          .map((c) => {
+                            const isSelected = (editingCourse?.id === c.id) || (selectedCourseId === c.id);
+                            const titleText = (typeof c.title === 'object' ? c.title?.es : c.title) || 'Sin título';
+
+                            return (
+                              <div
+                                key={c.id}
+                                onClick={() => handleSelectCourse(c)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  {c.hours && (
+                                    <span className="inline-block px-2 py-0.5 rounded-md bg-[#4a5a22]/10 text-[#4a5a22] text-[10px] font-bold uppercase tracking-wider">
+                                      {c.hours}
+                                    </span>
+                                  )}
+                                  <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-2">
+                                    {titleText}
+                                  </h4>
+                                  {c.instructor && (
+                                    <p className="text-[11px] text-[#6b6048] line-clamp-1">
+                                      Facilitador: {c.instructor}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#eae4d2]">
+                                  <span className="text-[11px] font-mono text-[#4a5a22] font-semibold truncate max-w-[120px]">
+                                    {c.dates || 'Próximamente'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteCourse(c.id);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar curso"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-3">
-                      <button
-                        onClick={() => setEditingCourse(null)}
-                        className="px-4 py-2 rounded-xl bg-white text-[#6b6048] border border-[#d8ceb6] text-xs font-semibold"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleSaveCourse(editingCourse)}
-                        className="px-5 py-2 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider"
-                      >
-                        Guardar Taller
-                      </button>
-                    </div>
                   </div>
-                )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {trainingData.cursos.map((c) => (
-                    <div
-                      key={c.id}
-                      className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-2 flex flex-col justify-between"
-                    >
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-[#4a5a22] uppercase tracking-wider">
-                          {c.hours}
-                        </span>
-                        <h4 className="font-serif text-base text-[#2d2618] font-medium leading-snug">
-                          {c.title?.es}
-                        </h4>
-                        <p className="text-xs text-[#6b6048]">Instructor: {c.instructor}</p>
-                        <p className="text-xs text-[#2d2618] font-light line-clamp-2">{c.desc?.es}</p>
-                      </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-[#d8ceb6]">
-                        <span className="text-[11px] font-mono text-[#6b6048]">{c.dates}</span>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setEditingCourse(JSON.parse(JSON.stringify(c)))}
-                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#d8ceb6] text-xs font-medium text-[#2d2618]"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCourse(c.id)}
-                            className="p-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-800"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingCourse ? (
+                      <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm">
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {(typeof editingCourse.title === 'object' ? editingCourse.title?.es : editingCourse.title) || 'Nuevo Curso / Taller'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              Taller Práctico · Modalidad: <span className="font-semibold text-[#2d2618]">{editingCourse.hours || 'Virtual / Presencial'}</span> · Fechas: <span className="font-mono text-[#4a5a22] font-bold">{editingCourse.dates || 'Por definir'}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleSaveCourse(editingCourse)}
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: IDENTIFICACIÓN Y FACILITADOR */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Información General del Curso / Taller</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Título del Curso (Español) *</label>
+                              <input
+                                type="text"
+                                value={typeof editingCourse.title === 'object' ? editingCourse.title?.es || '' : editingCourse.title || ''}
+                                onChange={(e) =>
+                                  setEditingCourse({
+                                    ...editingCourse,
+                                    title: typeof editingCourse.title === 'object'
+                                      ? { ...editingCourse.title, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Ej. Taller Práctico de Monitoreo..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Course Title (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingCourse.title === 'object' ? editingCourse.title?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingCourse({
+                                    ...editingCourse,
+                                    title: typeof editingCourse.title === 'object'
+                                      ? { ...editingCourse.title, en: e.target.value }
+                                      : { es: editingCourse.title || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Ej. Practical Monitoring Workshop..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Horas & Modalidad</label>
+                              <input
+                                type="text"
+                                value={editingCourse.hours || ''}
+                                onChange={(e) => setEditingCourse({ ...editingCourse, hours: e.target.value })}
+                                placeholder="Ej. 30 horas · Virtual en Vivo"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Fechas Programadas</label>
+                              <input
+                                type="text"
+                                value={editingCourse.dates || ''}
+                                onChange={(e) => setEditingCourse({ ...editingCourse, dates: e.target.value })}
+                                placeholder="Ej. Próximamente / 15-20 Mayo"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Instructor / Facilitador Titular</label>
+                              <input
+                                type="text"
+                                value={editingCourse.instructor || ''}
+                                onChange={(e) => setEditingCourse({ ...editingCourse, instructor: e.target.value })}
+                                placeholder="Ej. CGA Claustro Docente"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: TEMARIO & OBJETIVOS PRÁCTICOS */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Temario & Objetivos Prácticos</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Descripción del Contenido (Español)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingCourse.desc === 'object' ? editingCourse.desc?.es || '' : editingCourse.desc || ''}
+                                onChange={(e) =>
+                                  setEditingCourse({
+                                    ...editingCourse,
+                                    desc: typeof editingCourse.desc === 'object'
+                                      ? { ...editingCourse.desc, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Temario y objetivos prácticos..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Content Description (English)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingCourse.desc === 'object' ? editingCourse.desc?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingCourse({
+                                    ...editingCourse,
+                                    desc: typeof editingCourse.desc === 'object'
+                                      ? { ...editingCourse.desc, en: e.target.value }
+                                      : { es: editingCourse.desc || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Syllabus and practical goals..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona un curso de la lista o haz clic en "Nuevo" para comenzar.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* SUB-TEMA: CONFERENCIAS */}
+            {/* SUB-TEMA: CONFERENCIAS (MASTER-DETAIL 25% / 75%) */}
             {trainingSubTab === 'conferencias' && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
-                      Conferencias Magistrales & Foros Globales ({trainingData.webinars.length})
-                    </h3>
-                    <p className="text-xs text-[#6b6048]">
-                      Gestión de ciclos de webinars internacionales y ponencias científicas.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setEditingWebinar({
-                        id: `web-${Date.now()}`,
-                        title: { es: '', en: '' },
-                        speaker: 'Dra. / Dr. Invitado',
-                        date: '2026',
-                        type: 'Webinar Abierto · Transmisión Global',
-                        summary: { es: '', en: '' },
-                      })
-                    }
-                    className="px-5 py-2.5 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nueva Conferencia</span>
-                  </button>
-                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE CONFERENCIAS) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Conferencias & Foros
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(trainingData?.webinars || []).length} registradas
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateWebinar}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Crear nueva conferencia"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nueva</span>
+                        </button>
+                      </div>
 
-                {editingWebinar && (
-                  <div className="p-6 rounded-3xl bg-[#eae4d2] border border-[#4a5a22] shadow-xl space-y-4">
-                    <h4 className="font-serif text-lg text-[#2d2618]">Editar Conferencia</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Título de la Conferencia</label>
+                      {/* Buscador de Conferencias */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
-                          value={editingWebinar.title.es}
-                          onChange={(e) =>
-                            setEditingWebinar({
-                              ...editingWebinar,
-                              title: { ...editingWebinar.title, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
+                          value={webinarSearch}
+                          onChange={(e) => setWebinarSearch(e.target.value)}
+                          placeholder="Buscar conferencia..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Ponente / Conferencista</label>
-                        <input
-                          type="text"
-                          value={editingWebinar.speaker}
-                          onChange={(e) => setEditingWebinar({ ...editingWebinar, speaker: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Fecha & Horario</label>
-                        <input
-                          type="text"
-                          value={editingWebinar.date}
-                          onChange={(e) => setEditingWebinar({ ...editingWebinar, date: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Tipo de Evento</label>
-                        <input
-                          type="text"
-                          value={editingWebinar.type}
-                          onChange={(e) => setEditingWebinar({ ...editingWebinar, type: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Resumen</label>
-                        <textarea
-                          rows="3"
-                          value={editingWebinar.summary.es}
-                          onChange={(e) =>
-                            setEditingWebinar({
-                              ...editingWebinar,
-                              summary: { ...editingWebinar.summary, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
+
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(trainingData?.webinars || [])
+                          .filter((w) => {
+                            if (!webinarSearch.trim()) return true;
+                            const q = webinarSearch.toLowerCase();
+                            const titleEs = (typeof w.title === 'object' ? w.title?.es : w.title) || '';
+                            const titleEn = (typeof w.title === 'object' ? w.title?.en : '') || '';
+                            const speaker = w.speaker || '';
+                            const type = w.type || '';
+                            return titleEs.toLowerCase().includes(q) || titleEn.toLowerCase().includes(q) || speaker.toLowerCase().includes(q) || type.toLowerCase().includes(q);
+                          })
+                          .map((w) => {
+                            const isSelected = (editingWebinar?.id === w.id) || (selectedWebinarId === w.id);
+                            const titleText = (typeof w.title === 'object' ? w.title?.es : w.title) || 'Sin título';
+
+                            return (
+                              <div
+                                key={w.id}
+                                onClick={() => handleSelectWebinar(w)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  {w.type && (
+                                    <span className="inline-block px-2 py-0.5 rounded-md bg-[#4a5a22]/10 text-[#4a5a22] text-[10px] font-bold uppercase tracking-wider">
+                                      {w.type}
+                                    </span>
+                                  )}
+                                  <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-2">
+                                    {titleText}
+                                  </h4>
+                                  {w.speaker && (
+                                    <p className="text-[11px] text-[#6b6048] line-clamp-1">
+                                      {w.speaker}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#eae4d2]">
+                                  <span className="text-[11px] font-mono text-[#4a5a22] font-semibold truncate max-w-[120px]">
+                                    {w.date || '2026'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteWebinar(w.id);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar conferencia"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-3">
-                      <button
-                        onClick={() => setEditingWebinar(null)}
-                        className="px-4 py-2 rounded-xl bg-white text-[#6b6048] border border-[#d8ceb6] text-xs font-semibold"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleSaveWebinar(editingWebinar)}
-                        className="px-5 py-2 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider"
-                      >
-                        Guardar Conferencia
-                      </button>
-                    </div>
                   </div>
-                )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {trainingData.webinars.map((w) => (
-                    <div
-                      key={w.id}
-                      className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-2 flex flex-col justify-between"
-                    >
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-[#4a5a22] uppercase tracking-wider">
-                          {w.type}
-                        </span>
-                        <h4 className="font-serif text-base text-[#2d2618] font-medium leading-snug">
-                          {w.title?.es}
-                        </h4>
-                        <p className="text-xs text-[#6b6048] font-medium">{w.speaker}</p>
-                        <p className="text-xs text-[#2d2618] font-light line-clamp-2">{w.summary?.es}</p>
-                      </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-[#d8ceb6]">
-                        <span className="text-[11px] font-mono text-[#4a5a22]">{w.date}</span>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setEditingWebinar(JSON.parse(JSON.stringify(w)))}
-                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#d8ceb6] text-xs font-medium text-[#2d2618]"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteWebinar(w.id)}
-                            className="p-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-800"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingWebinar ? (
+                      <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm">
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {(typeof editingWebinar.title === 'object' ? editingWebinar.title?.es : editingWebinar.title) || 'Nueva Conferencia'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              Ponente: <span className="font-semibold text-[#2d2618]">{editingWebinar.speaker || 'Por asignar'}</span> · Tipo: <span className="font-semibold text-[#2d2618]">{editingWebinar.type || 'Webinar Abierto'}</span> · Fecha: <span className="font-mono text-[#4a5a22] font-bold">{editingWebinar.date || '2026'}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleSaveWebinar(editingWebinar)}
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: IDENTIFICACIÓN Y PONENTE */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Información de la Conferencia & Ponente</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Título de la Conferencia (Español) *</label>
+                              <input
+                                type="text"
+                                value={typeof editingWebinar.title === 'object' ? editingWebinar.title?.es || '' : editingWebinar.title || ''}
+                                onChange={(e) =>
+                                  setEditingWebinar({
+                                    ...editingWebinar,
+                                    title: typeof editingWebinar.title === 'object'
+                                      ? { ...editingWebinar.title, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Ej. Conferencia Magistral sobre Bioeconomía..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Lecture Title (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingWebinar.title === 'object' ? editingWebinar.title?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingWebinar({
+                                    ...editingWebinar,
+                                    title: typeof editingWebinar.title === 'object'
+                                      ? { ...editingWebinar.title, en: e.target.value }
+                                      : { es: editingWebinar.title || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Ej. Keynote Lecture on Bioeconomy..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Ponente / Conferencista Invitado</label>
+                              <input
+                                type="text"
+                                value={editingWebinar.speaker || ''}
+                                onChange={(e) => setEditingWebinar({ ...editingWebinar, speaker: e.target.value })}
+                                placeholder="Ej. Dra. / Dr. Invitado Internacional"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Fecha & Horario de Transmisión</label>
+                              <input
+                                type="text"
+                                value={editingWebinar.date || ''}
+                                onChange={(e) => setEditingWebinar({ ...editingWebinar, date: e.target.value })}
+                                placeholder="Ej. 18 de Junio 2026 · 17:00 hrs CDMX"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Tipo o Formato de Evento</label>
+                              <input
+                                type="text"
+                                value={editingWebinar.type || ''}
+                                onChange={(e) => setEditingWebinar({ ...editingWebinar, type: e.target.value })}
+                                placeholder="Ej. Webinar Abierto · Transmisión Global"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: SINOPSIS & RESUMEN */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Sinopsis del Contenido & Temas Clave</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Resumen (Español)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingWebinar.summary === 'object' ? editingWebinar.summary?.es || '' : editingWebinar.summary || ''}
+                                onChange={(e) =>
+                                  setEditingWebinar({
+                                    ...editingWebinar,
+                                    summary: typeof editingWebinar.summary === 'object'
+                                      ? { ...editingWebinar.summary, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Breve sinopsis del contenido..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Summary (English)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingWebinar.summary === 'object' ? editingWebinar.summary?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingWebinar({
+                                    ...editingWebinar,
+                                    summary: typeof editingWebinar.summary === 'object'
+                                      ? { ...editingWebinar.summary, en: e.target.value }
+                                      : { es: editingWebinar.summary || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Brief lecture overview..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona una conferencia de la lista o haz clic en "Nueva" para comenzar.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -3053,145 +3723,275 @@ export default function Admin() {
             })()}
 
             {/* SUB-TEMA: ESPECIALISTAS */}
+            {/* SUB-TEMA: ESPECIALISTAS (MASTER-DETAIL 25% / 75%) */}
             {trainingSubTab === 'especialistas' && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
-                      Claustro de Especialistas & Profesores ({trainingData.especialistas.length})
-                    </h3>
-                    <p className="text-xs text-[#6b6048]">
-                      Gestión de científicos, catedráticos y líderes territoriales de la Academia.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setEditingSpecialist({
-                        id: `esp-${Date.now()}`,
-                        name: '',
-                        role: { es: '', en: '' },
-                        credentials: '',
-                        expertise: { es: '', en: '' },
-                        origin: 'México',
-                      })
-                    }
-                    className="px-5 py-2.5 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Nuevo Especialista</span>
-                  </button>
-                </div>
-
-                {editingSpecialist && (
-                  <div className="p-6 rounded-3xl bg-[#eae4d2] border border-[#4a5a22] shadow-xl space-y-4">
-                    <h4 className="font-serif text-lg text-[#2d2618]">Editar Especialista</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Nombre Completo</label>
-                        <input
-                          type="text"
-                          value={editingSpecialist.name}
-                          onChange={(e) => setEditingSpecialist({ ...editingSpecialist, name: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">País / Sede</label>
-                        <input
-                          type="text"
-                          value={editingSpecialist.origin}
-                          onChange={(e) => setEditingSpecialist({ ...editingSpecialist, origin: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Cargo Institucional</label>
-                        <input
-                          type="text"
-                          value={editingSpecialist.role.es}
-                          onChange={(e) =>
-                            setEditingSpecialist({
-                              ...editingSpecialist,
-                              role: { ...editingSpecialist.role, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Credenciales Académicas</label>
-                        <input
-                          type="text"
-                          value={editingSpecialist.credentials}
-                          onChange={(e) =>
-                            setEditingSpecialist({ ...editingSpecialist, credentials: e.target.value })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <label className="font-bold text-[#4a5a22]">Áreas de Especialidad</label>
-                        <textarea
-                          rows="3"
-                          value={editingSpecialist.expertise.es}
-                          onChange={(e) =>
-                            setEditingSpecialist({
-                              ...editingSpecialist,
-                              expertise: { ...editingSpecialist.expertise, es: e.target.value },
-                            })
-                          }
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6]"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2 pt-3">
-                      <button
-                        onClick={() => setEditingSpecialist(null)}
-                        className="px-4 py-2 rounded-xl bg-white text-[#6b6048] border border-[#d8ceb6] text-xs font-semibold"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleSaveSpecialist(editingSpecialist)}
-                        className="px-5 py-2 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider"
-                      >
-                        Guardar Especialista
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {trainingData.especialistas.map((s) => (
-                    <div
-                      key={s.id}
-                      className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-2 flex flex-col justify-between"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono text-[#6b6048]">{s.origin}</span>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE ESPECIALISTAS) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Especialistas Guardados
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(trainingData?.especialistas || []).length} claustro
+                          </span>
                         </div>
-                        <h4 className="font-serif text-base text-[#2d2618] font-medium">{s.name}</h4>
-                        <p className="text-xs text-[#4a5a22] font-medium">{s.role?.es}</p>
-                        <p className="text-[11px] text-[#6b6048] font-mono">{s.credentials}</p>
-                        <p className="text-xs text-[#2d2618] font-light line-clamp-3 pt-1">{s.expertise?.es}</p>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateSpecialist}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Crear nuevo especialista"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nuevo</span>
+                        </button>
                       </div>
-                      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#d8ceb6]">
-                        <button
-                          onClick={() => setEditingSpecialist(JSON.parse(JSON.stringify(s)))}
-                          className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#d8ceb6] text-xs font-medium text-[#2d2618]"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSpecialist(s.id)}
-                          className="p-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-800"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+
+                      {/* Buscador de Especialistas */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={specialistSearch}
+                          onChange={(e) => setSpecialistSearch(e.target.value)}
+                          placeholder="Buscar especialista..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                        />
+                      </div>
+
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(trainingData?.especialistas || [])
+                          .filter((s) => {
+                            if (!specialistSearch.trim()) return true;
+                            const q = specialistSearch.toLowerCase();
+                            const name = s.name || '';
+                            const roleEs = (typeof s.role === 'object' ? s.role?.es : s.role) || '';
+                            const roleEn = (typeof s.role === 'object' ? s.role?.en : '') || '';
+                            const origin = s.origin || '';
+                            const credentials = s.credentials || '';
+                            return name.toLowerCase().includes(q) || roleEs.toLowerCase().includes(q) || roleEn.toLowerCase().includes(q) || origin.toLowerCase().includes(q) || credentials.toLowerCase().includes(q);
+                          })
+                          .map((s) => {
+                            const isSelected = (editingSpecialist?.id === s.id) || (selectedSpecialistId === s.id);
+                            const roleText = (typeof s.role === 'object' ? s.role?.es : s.role) || '';
+
+                            return (
+                              <div
+                                key={s.id}
+                                onClick={() => handleSelectSpecialist(s)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-1">
+                                  {s.origin && (
+                                    <span className="text-[10px] font-mono text-[#6b6048]">
+                                      {s.origin}
+                                    </span>
+                                  )}
+                                  <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-1">
+                                    {s.name || 'Sin nombre'}
+                                  </h4>
+                                  {roleText && (
+                                    <p className="text-xs text-[#4a5a22] font-medium line-clamp-1">
+                                      {roleText}
+                                    </p>
+                                  )}
+                                  {s.credentials && (
+                                    <p className="text-[11px] text-[#6b6048] line-clamp-1 font-mono">
+                                      {s.credentials}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#eae4d2]">
+                                  <span className="text-[10px] text-[#8c8068] uppercase font-bold tracking-wider">
+                                    Claustro Docente
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteSpecialist(s.id);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar especialista"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingSpecialist ? (
+                      <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm">
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {editingSpecialist.name || 'Nuevo Especialista'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              {editingSpecialist.credentials || 'Especialista Docente'} · Sede: <span className="font-semibold text-[#2d2618]">{editingSpecialist.origin || 'Internacional'}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleSaveSpecialist(editingSpecialist)}
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: INFORMACIÓN PERSONAL & CARGO */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Datos del Especialista & Cargo</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Nombre Completo *</label>
+                              <input
+                                type="text"
+                                value={editingSpecialist.name || ''}
+                                onChange={(e) => setEditingSpecialist({ ...editingSpecialist, name: e.target.value })}
+                                placeholder="Ej. Dr. Francisco Solorio"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">País / Sede</label>
+                              <input
+                                type="text"
+                                value={editingSpecialist.origin || ''}
+                                onChange={(e) => setEditingSpecialist({ ...editingSpecialist, origin: e.target.value })}
+                                placeholder="Ej. México / Suiza"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Cargo Institucional (Español) *</label>
+                              <input
+                                type="text"
+                                value={typeof editingSpecialist.role === 'object' ? editingSpecialist.role?.es || '' : editingSpecialist.role || ''}
+                                onChange={(e) =>
+                                  setEditingSpecialist({
+                                    ...editingSpecialist,
+                                    role: typeof editingSpecialist.role === 'object'
+                                      ? { ...editingSpecialist.role, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Ej. Investigador(a) Titular..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Institutional Role (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingSpecialist.role === 'object' ? editingSpecialist.role?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingSpecialist({
+                                    ...editingSpecialist,
+                                    role: typeof editingSpecialist.role === 'object'
+                                      ? { ...editingSpecialist.role, en: e.target.value }
+                                      : { es: editingSpecialist.role || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Ej. Senior Researcher..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Credenciales Académicas</label>
+                              <input
+                                type="text"
+                                value={editingSpecialist.credentials || ''}
+                                onChange={(e) =>
+                                  setEditingSpecialist({ ...editingSpecialist, credentials: e.target.value })
+                                }
+                                placeholder="Ej. Ph.D. en Ciencias Ambientales / M.Sc."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: LÍNEAS DE INVESTIGACIÓN & ESPECIALIDAD */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Áreas de Especialidad & Investigación</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Áreas de Especialidad (Español)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingSpecialist.expertise === 'object' ? editingSpecialist.expertise?.es || '' : editingSpecialist.expertise || ''}
+                                onChange={(e) =>
+                                  setEditingSpecialist({
+                                    ...editingSpecialist,
+                                    expertise: typeof editingSpecialist.expertise === 'object'
+                                      ? { ...editingSpecialist.expertise, es: e.target.value }
+                                      : { es: e.target.value, en: '' },
+                                  })
+                                }
+                                placeholder="Líneas de investigación y especialización..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Areas of Expertise (English)</label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingSpecialist.expertise === 'object' ? editingSpecialist.expertise?.en || '' : ''}
+                                onChange={(e) =>
+                                  setEditingSpecialist({
+                                    ...editingSpecialist,
+                                    expertise: typeof editingSpecialist.expertise === 'object'
+                                      ? { ...editingSpecialist.expertise, en: e.target.value }
+                                      : { es: editingSpecialist.expertise || '', en: e.target.value },
+                                  })
+                                }
+                                placeholder="Research lines and specialization..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona un especialista de la lista o haz clic en "Nuevo" para comenzar.
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -3822,25 +4622,58 @@ export default function Admin() {
             MÓDULO 3: GESTIÓN DE COMUNICACIONES & SALA DE PRENSA
            ───────────────────────────────────────────────────────────── */}
         {adminModule === 'comunicaciones' && (
-          <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
-                  Línea Editorial: {commsSubTab === 'todo' ? 'Todas las Publicaciones' : commsSubTab.toUpperCase()}
-                </h3>
-                <p className="text-xs text-[#6b6048]">
-                  Administración de noticias, eventos, opiniones, diálogos y boletines de prensa.
-                </p>
+          <div className="space-y-6">
+            {/* STUDIO HEADER CARD: COMUNICACIONES */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-xs space-y-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal">
+                    Comunicaciones & Medios
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#6b6048] max-w-3xl">
+                    Publicación multiformato de noticias ambientales, eventos, opinión experta y comunicados con hero personalizable y contenido bilingüe.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleStartCreateArticle(commsSubTab === 'todo' || commsSubTab === 'prensa' ? 'noticias' : commsSubTab)}
+                    className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md flex items-center gap-2 cursor-pointer transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Redactar Artículo</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleStartCreateArticle(commsSubTab === 'todo' ? 'noticias' : commsSubTab)}
-                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Publicar en {commsSubTab === 'todo' ? 'Noticias' : commsSubTab}</span>
-                </button>
+              {/* Sub-tabs Categorías Editorial */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#d8ceb6]/70">
+                {[
+                  { id: 'todo', label: `Todo (${articles.length})` },
+                  { id: 'noticias', label: 'Noticias' },
+                  { id: 'eventos', label: 'Eventos' },
+                  { id: 'opinion', label: 'Opinión' },
+                  { id: 'dialogos', label: 'Diálogos' },
+                  { id: 'publicaciones', label: 'Publicaciones' },
+                  { id: 'prensa', label: 'Boletín & Prensa' },
+                ].map((sub) => {
+                  const isActive = commsSubTab === sub.id;
+                  return (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      onClick={() => setCommsSubTab(sub.id)}
+                      className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                          : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                      }`}
+                    >
+                      {sub.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -3953,7 +4786,49 @@ export default function Admin() {
             MÓDULO 4: GESTIÓN DE POP-UPS & BANNERS DE AVISO
            ───────────────────────────────────────────────────────────── */}
         {adminModule === 'popups' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
+            {/* STUDIO HEADER CARD: POP-UPS & AVISOS */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-xs space-y-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal">
+                    Pop-ups & Avisos de Alto Impacto
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#6b6048] max-w-3xl">
+                    Crea y personaliza ventanas emergentes inteligentes con segmentación por ruta, 4 layouts interactivos, cuenta regresiva y cinta de marquesina.
+                  </p>
+                </div>
+              </div>
+
+              {/* Sub-tabs Selector Pill */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#d8ceb6]/70">
+                <button
+                  type="button"
+                  onClick={() => setPopupsSubTab('popup')}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    popupsSubTab === 'popup'
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                      : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                  }`}
+                >
+                  <Bell className="w-3.5 h-3.5" />
+                  <span>Pop-ups Multiruta ({popups.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPopupsSubTab('banner')}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    popupsSubTab === 'banner'
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                      : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                  }`}
+                >
+                  <Megaphone className="w-3.5 h-3.5" />
+                  <span>Cinta de Anuncios / Marquesina</span>
+                </button>
+              </div>
+            </div>
+
             {/* SUB-TEMA: POP-UPS MULTIRUTA & AVISOS (LAYOUT: 25% LISTA IZQ / 75% INFO, FORM Y PREVIEW DER) */}
             {popupsSubTab === 'popup' && (
               <div className="space-y-6">
@@ -4963,96 +5838,209 @@ export default function Admin() {
                           )}
                         </div>
 
-                        {/* SECCIÓN 4: TEXTOS Y CONTENIDO EDITORIAL */}
+                        {/* SECCIÓN 4: TEXTOS Y CONTENIDO EDITORIAL BILINGÜE */}
                         <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            <span>4. Textos & Contenido del Pop-up</span>
-                          </h4>
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                              <FileText className="w-4 h-4" />
+                              <span>4. Textos & Contenido del Pop-up (Bilingüe ES / EN)</span>
+                            </h4>
+                            <span className="text-[11px] text-[#6b6048] bg-white px-2.5 py-1 rounded-full border border-[#d8ceb6] font-medium">
+                              Soporta Español e Inglés
+                            </span>
+                          </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div className="sm:col-span-2 space-y-1.5">
-                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                Título Principal *
+                            {/* Título Principal ES y EN */}
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Título Principal (Español) *</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">ES</span>
                               </label>
                               <input
                                 type="text"
                                 required
-                                value={editingPopup.title || ''}
-                                onChange={(e) =>
+                                value={typeof editingPopup.title === 'object' ? editingPopup.title?.es || '' : editingPopup.title || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
                                   setEditingPopup({
                                     ...editingPopup,
-                                    title: e.target.value,
-                                  })
-                                }
+                                    title: typeof editingPopup.title === 'object'
+                                      ? { ...editingPopup.title, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
                                 placeholder="Ej. Convocatoria Abierta · Posgrados 2026"
                                 className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                               />
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                Subtítulo Institucional
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Título Principal (Inglés)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">EN</span>
                               </label>
                               <input
                                 type="text"
-                                value={editingPopup.subtitle || ''}
-                                onChange={(e) =>
+                                value={typeof editingPopup.title === 'object' ? editingPopup.title?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
                                   setEditingPopup({
                                     ...editingPopup,
-                                    subtitle: e.target.value,
-                                  })
-                                }
+                                    title: typeof editingPopup.title === 'object'
+                                      ? { ...editingPopup.title, en: val }
+                                      : { es: editingPopup.title || '', en: val },
+                                  });
+                                }}
+                                placeholder="Ej. Open Call · Postgraduate Programs 2026"
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                              />
+                            </div>
+
+                            {/* Subtítulo Institucional ES y EN */}
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Subtítulo Institucional (Español)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">ES</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={typeof editingPopup.subtitle === 'object' ? editingPopup.subtitle?.es || '' : editingPopup.subtitle || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingPopup({
+                                    ...editingPopup,
+                                    subtitle: typeof editingPopup.subtitle === 'object'
+                                      ? { ...editingPopup.subtitle, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
                                 placeholder="Ej. Consejo Global Ambiental · Academia"
                                 className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                               />
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                Badge / Etiqueta Destacada
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Subtítulo Institucional (Inglés)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">EN</span>
                               </label>
                               <input
                                 type="text"
-                                value={editingPopup.highlightBadge || ''}
-                                onChange={(e) =>
+                                value={typeof editingPopup.subtitle === 'object' ? editingPopup.subtitle?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
                                   setEditingPopup({
                                     ...editingPopup,
-                                    highlightBadge: e.target.value,
-                                  })
-                                }
+                                    subtitle: typeof editingPopup.subtitle === 'object'
+                                      ? { ...editingPopup.subtitle, en: val }
+                                      : { es: editingPopup.subtitle || '', en: val },
+                                  });
+                                }}
+                                placeholder="Ej. Global Environmental Council · Academy"
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                              />
+                            </div>
+
+                            {/* Badge / Etiqueta Destacada ES y EN */}
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Badge / Etiqueta Destacada (Español)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">ES</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={typeof editingPopup.highlightBadge === 'object' ? editingPopup.highlightBadge?.es || '' : editingPopup.highlightBadge || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingPopup({
+                                    ...editingPopup,
+                                    highlightBadge: typeof editingPopup.highlightBadge === 'object'
+                                      ? { ...editingPopup.highlightBadge, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
                                 placeholder="Ej. Inscripciones Abiertas"
                                 className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                               />
                             </div>
 
-                            <div className="sm:col-span-2 space-y-1.5">
-                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                Mensaje / Descripción Completa
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Badge / Etiqueta Destacada (Inglés)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">EN</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={typeof editingPopup.highlightBadge === 'object' ? editingPopup.highlightBadge?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingPopup({
+                                    ...editingPopup,
+                                    highlightBadge: typeof editingPopup.highlightBadge === 'object'
+                                      ? { ...editingPopup.highlightBadge, en: val }
+                                      : { es: editingPopup.highlightBadge || '', en: val },
+                                  });
+                                }}
+                                placeholder="Ej. Applications Open"
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                              />
+                            </div>
+
+                            {/* Mensaje / Descripción Completa ES y EN */}
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Mensaje / Descripción (Español)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">ES</span>
                               </label>
                               <textarea
                                 rows="3"
-                                value={editingPopup.message || ''}
-                                onChange={(e) =>
+                                value={typeof editingPopup.message === 'object' ? editingPopup.message?.es || '' : editingPopup.message || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
                                   setEditingPopup({
                                     ...editingPopup,
-                                    message: e.target.value,
-                                  })
-                                }
+                                    message: typeof editingPopup.message === 'object'
+                                      ? { ...editingPopup.message, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
                                 placeholder="Explica detalladamente la convocatoria o aviso..."
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                              />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex items-center justify-between">
+                                <span>Mensaje / Descripción (Inglés)</span>
+                                <span className="text-[10px] text-[#6b6048] font-mono font-bold">EN</span>
+                              </label>
+                              <textarea
+                                rows="3"
+                                value={typeof editingPopup.message === 'object' ? editingPopup.message?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingPopup({
+                                    ...editingPopup,
+                                    message: typeof editingPopup.message === 'object'
+                                      ? { ...editingPopup.message, en: val }
+                                      : { es: editingPopup.message || '', en: val },
+                                  });
+                                }}
+                                placeholder="Detail the announcement or call in English..."
                                 className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
                               />
                             </div>
                           </div>
                         </div>
 
-                        {/* SECCIÓN 5: BOTONES DE ACCIÓN (CTA) */}
+                        {/* SECCIÓN 5: BOTONES DE ACCIÓN (CTA) BILINGÜE */}
                         <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#d8ceb6]">
                             <div>
                               <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
                                 <MousePointerClick className="w-4 h-4" />
-                                <span>5. Botones de Acción (CTA)</span>
+                                <span>5. Botones de Acción (CTA Bilingüe)</span>
                               </h4>
                               <p className="text-[11px] text-[#6b6048] mt-0.5">
                                 Puedes activar o desactivar los botones de acción para crear comunicados solemnes o pop-ups con llamados a la acción.
@@ -5080,77 +6068,135 @@ export default function Admin() {
                           </div>
 
                           {editingPopup.hasCtaButton !== false ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
-                              <div className="space-y-1.5">
-                                <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                  Texto del Botón Principal (CTA)
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editingPopup.ctaText || ''}
-                                  onChange={(e) =>
-                                    setEditingPopup({
-                                      ...editingPopup,
-                                      ctaText: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Ej. Ver Convocatoria & Registrarse"
-                                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
-                                />
+                            <div className="space-y-4 pt-1">
+                              {/* Botón Principal: Texto ES, Texto EN, Enlace */}
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex justify-between">
+                                    <span>Texto Botón Principal (ES)</span>
+                                    <span className="text-[10px] text-[#6b6048] font-mono">ES</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={typeof editingPopup.ctaText === 'object' ? editingPopup.ctaText?.es || '' : editingPopup.ctaText || ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        ctaText: typeof editingPopup.ctaText === 'object'
+                                          ? { ...editingPopup.ctaText, es: val }
+                                          : { es: val, en: '' },
+                                      });
+                                    }}
+                                    placeholder="Ej. Ver Convocatoria"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex justify-between">
+                                    <span>Texto Botón Principal (EN)</span>
+                                    <span className="text-[10px] text-[#6b6048] font-mono">EN</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={typeof editingPopup.ctaText === 'object' ? editingPopup.ctaText?.en || '' : ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        ctaText: typeof editingPopup.ctaText === 'object'
+                                          ? { ...editingPopup.ctaText, en: val }
+                                          : { es: editingPopup.ctaText || '', en: val },
+                                      });
+                                    }}
+                                    placeholder="Ej. View Call & Register"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
+                                    Enlace de Destino Principal
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editingPopup.ctaLink || ''}
+                                    onChange={(e) =>
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        ctaLink: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Ej. /capacitacion"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
                               </div>
 
-                              <div className="space-y-1.5">
-                                <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                  Enlace de Destino Principal
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editingPopup.ctaLink || ''}
-                                  onChange={(e) =>
-                                    setEditingPopup({
-                                      ...editingPopup,
-                                      ctaLink: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Ej. /capacitacion"
-                                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
-                                />
-                              </div>
+                              {/* Botón Secundario: Texto ES, Texto EN, Enlace */}
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex justify-between">
+                                    <span>Texto Acción Secundaria (ES)</span>
+                                    <span className="text-[10px] text-[#6b6048] font-mono">ES</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={typeof editingPopup.secondaryCtaText === 'object' ? editingPopup.secondaryCtaText?.es || '' : editingPopup.secondaryCtaText || ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        secondaryCtaText: typeof editingPopup.secondaryCtaText === 'object'
+                                          ? { ...editingPopup.secondaryCtaText, es: val }
+                                          : { es: val, en: '' },
+                                      });
+                                    }}
+                                    placeholder="Ej. Conocer Más"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
 
-                              <div className="space-y-1.5">
-                                <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                  Texto de Acción Secundaria (Opcional)
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editingPopup.secondaryCtaText || ''}
-                                  onChange={(e) =>
-                                    setEditingPopup({
-                                      ...editingPopup,
-                                      secondaryCtaText: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Ej. Conocer Más"
-                                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
-                                />
-                              </div>
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider flex justify-between">
+                                    <span>Texto Acción Secundaria (EN)</span>
+                                    <span className="text-[10px] text-[#6b6048] font-mono">EN</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={typeof editingPopup.secondaryCtaText === 'object' ? editingPopup.secondaryCtaText?.en || '' : ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        secondaryCtaText: typeof editingPopup.secondaryCtaText === 'object'
+                                          ? { ...editingPopup.secondaryCtaText, en: val }
+                                          : { es: editingPopup.secondaryCtaText || '', en: val },
+                                      });
+                                    }}
+                                    placeholder="Ej. Learn More"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
 
-                              <div className="space-y-1.5">
-                                <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
-                                  Enlace de Acción Secundaria (Opcional)
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editingPopup.secondaryCtaLink || ''}
-                                  onChange={(e) =>
-                                    setEditingPopup({
-                                      ...editingPopup,
-                                      secondaryCtaLink: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Ej. /contacto"
-                                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
-                                />
+                                <div className="space-y-1.5">
+                                  <label className="font-bold text-[#4a5a22] uppercase tracking-wider">
+                                    Enlace de Acción Secundaria
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editingPopup.secondaryCtaLink || ''}
+                                    onChange={(e) =>
+                                      setEditingPopup({
+                                        ...editingPopup,
+                                        secondaryCtaLink: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Ej. /contacto"
+                                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                                  />
+                                </div>
                               </div>
                             </div>
                           ) : (
@@ -5680,14 +6726,35 @@ export default function Admin() {
                       </div>
 
                       {showCta && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#eae4d2]">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-[#eae4d2]">
                           <div className="space-y-1.5">
-                            <label className="text-[11px] font-semibold text-[#2d2618]">Texto del Botón CTA:</label>
+                            <label className="text-[11px] font-semibold text-[#2d2618]">Texto del Botón CTA (ES):</label>
                             <input
                               type="text"
-                              value={b.ctaText || ''}
-                              onChange={(e) => updateBanner({ ctaText: e.target.value })}
-                              placeholder="Ej. Postular ahora, Ver más, Inscribirme"
+                              value={typeof b.ctaText === 'object' ? b.ctaText?.es || '' : b.ctaText || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateBanner({
+                                  ctaText: typeof b.ctaText === 'object' ? { ...b.ctaText, es: val } : { es: val, en: '' }
+                                });
+                              }}
+                              placeholder="Ej. Conocer más, Inscribirme"
+                              className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-xs text-[#2d2618]"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-[#2d2618]">Texto del Botón CTA (EN):</label>
+                            <input
+                              type="text"
+                              value={typeof b.ctaText === 'object' ? b.ctaText?.en || '' : ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateBanner({
+                                  ctaText: typeof b.ctaText === 'object' ? { ...b.ctaText, en: val } : { es: b.ctaText || '', en: val }
+                                });
+                              }}
+                              placeholder="Ej. Learn more, Apply now"
                               className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-xs text-[#2d2618]"
                             />
                           </div>
@@ -5698,7 +6765,7 @@ export default function Admin() {
                               type="text"
                               value={b.ctaLink || ''}
                               onChange={(e) => updateBanner({ ctaLink: e.target.value })}
-                              placeholder="Ej. /capacitacion, /proyectos, #contacto"
+                              placeholder="Ej. /capacitacion, /proyectos"
                               className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-xs text-[#2d2618]"
                             />
                           </div>
@@ -5710,17 +6777,42 @@ export default function Admin() {
                   {/* ─── 5. CONTENIDO SEGÚN ESTILO SELECCIONADO ─── */}
                   {/* CASO 1: ESTÁTICO */}
                   {bannerStyle === 'static' && (
-                    <div className="p-5 rounded-2xl bg-white border border-[#d8ceb6] space-y-3">
+                    <div className="p-5 rounded-2xl bg-white border border-[#d8ceb6] space-y-4">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                        Texto del Mensaje de la Cinta
+                        Texto del Mensaje de la Cinta (Bilingüe ES / EN)
                       </h4>
-                      <input
-                        type="text"
-                        value={b.message || ''}
-                        onChange={(e) => updateBanner({ message: e.target.value })}
-                        placeholder="Escribe el mensaje institucional..."
-                        className="w-full px-4 py-3 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-sm text-[#2d2618]"
-                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-[#2d2618]">Mensaje en Español:</label>
+                          <input
+                            type="text"
+                            value={typeof b.message === 'object' ? b.message?.es || '' : b.message || ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              updateBanner({
+                                message: typeof b.message === 'object' ? { ...b.message, es: val } : { es: val, en: '' }
+                              });
+                            }}
+                            placeholder="Escribe el mensaje institucional en español..."
+                            className="w-full px-4 py-3 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-sm text-[#2d2618]"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-[#2d2618]">Mensaje en Inglés:</label>
+                          <input
+                            type="text"
+                            value={typeof b.message === 'object' ? b.message?.en || '' : ''}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              updateBanner({
+                                message: typeof b.message === 'object' ? { ...b.message, en: val } : { es: b.message || '', en: val }
+                              });
+                            }}
+                            placeholder="Type the institutional message in English..."
+                            className="w-full px-4 py-3 rounded-xl bg-[#f5efe3]/40 border border-[#d8ceb6] text-sm text-[#2d2618]"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -5989,1022 +7081,1080 @@ export default function Admin() {
           </div>
         )}
 
-        {/* ─────────────────────────────────────────────────────────────
-            MÓDULO 4: GESTIÓN DE ALIADOS INSTITUCIONALES & LOGOTIPOS
-           ───────────────────────────────────────────────────────────── */}
-        {adminModule === 'alianzas' && (
-          <div className="space-y-6">
-            {/* Header del Módulo */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-2xl space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#4a5a22]">
-                  Directorio Institucional
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
-                  Gestión de Aliados y Logotipos
-                </h2>
-                <p className="text-xs sm:text-sm text-[#6b6048] font-light leading-relaxed">
-                  Configura los logotipos oficiales y sus enlaces directos que se muestran en la sección pública (/alianzas-institucionales). Soporta enlaces directos de Google Drive, imágenes web o archivos locales.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleResetAlliances}
-                  className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Restablecer</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleStartCreateAlliance}
-                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Nuevo Logotipo</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Barra de búsqueda y conteo */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-full sm:w-96">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a7e68]" />
-                <input
-                  type="text"
-                  value={allianceSearch}
-                  onChange={(e) => setAllianceSearch(e.target.value)}
-                  placeholder="Buscar por sitio web o URL de logotipo..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] placeholder-[#9a8e78] focus:outline-none focus:border-[#4a5a22] shadow-2xs"
-                />
-              </div>
-              <span className="text-xs text-[#8a7e68] font-mono">
-                Total Aliados: <strong className="text-[#4a5a22]">{alliances.length}</strong>
-              </span>
-            </div>
-
-            {/* Grilla de Tarjetas de Aliados (Logotipo, Nombre y Sitio Web) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {alliances
-                .filter((a) => {
-                  if (!allianceSearch.trim()) return true;
-                  const q = allianceSearch.toLowerCase();
-                  return (
-                    a.name?.toLowerCase().includes(q) ||
-                    a.shortName?.toLowerCase().includes(q) ||
-                    a.website?.toLowerCase().includes(q) ||
-                    a.logo?.toLowerCase().includes(q)
-                  );
-                })
-                .map((item, idx) => (
-                  <div
-                    key={item.id || idx}
-                    className="p-5 rounded-2xl bg-white border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
-                  >
-                    <div className="space-y-3">
-                      {/* Visualizador del Logo a tamaño completo */}
-                      <div className="w-full h-44 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden relative">
-                        {item.logo ? (
-                          <img
-                            src={formatDriveUrl(item.logo)}
-                            alt={item.name || 'Logotipo de Aliado'}
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              const currentSrc = e.currentTarget.src || '';
-                              if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
-                                e.currentTarget.dataset.retried = 'true';
-                                const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
-                                if (idMatch && idMatch[1]) {
-                                  e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
-                                }
-                              }
-                            }}
-                            className="w-full h-full object-contain"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-center space-y-2">
-                            <div className="w-12 h-12 rounded-xl bg-[#4a5a22]/15 border border-[#4a5a22]/30 flex items-center justify-center text-[#4a5a22]">
-                              <ImageIcon className="w-6 h-6 opacity-60" />
-                            </div>
-                            <span className="text-xs font-sans text-[#8a7e68]">
-                              Sin logotipo asignado
-                            </span>
-                          </div>
-                        )}
-
-                        {item.logo?.includes('drive.google.com') && (
-                          <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#4a5a22] text-[#f5efe3] text-[9px] font-mono font-bold tracking-wider">
-                            Google Drive
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Nombre del Aliado / Institución */}
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#4a5a22] block">
-                          Institución / Aliado
-                        </span>
-                        <h4 className="font-serif text-sm font-medium text-[#2d2618] line-clamp-1">
-                          {item.name || item.shortName || 'Aliado Institucional'}
-                        </h4>
-                      </div>
-
-                      {/* Sitio Web Oficial */}
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a7e68] block">
-                          Sitio Web Oficial
-                        </span>
-                        {item.website ? (
-                          <a
-                            href={item.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs text-[#4a5a22] font-semibold hover:underline truncate max-w-full"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">{item.website}</span>
-                          </a>
-                        ) : (
-                          <span className="text-xs text-[#8a7e68] italic">
-                            Sin sitio web asignado
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Botones de Acción */}
-                    <div className="pt-3 border-t border-[#eae4d2] flex items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditingAlliance(JSON.parse(JSON.stringify(item)))}
-                        className="px-3.5 py-1.5 rounded-lg bg-[#eae4d2] hover:bg-[#4a5a22] hover:text-[#f5efe3] text-[#2d2618] text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Editar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteAllianceItem(item.id)}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-all cursor-pointer"
-                        title="Eliminar aliado"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
         {/* ══════════════════════════════════════════════════════════════════
-            MÓDULO: CUERPO DE GOBERNANZA E INVESTIGADORES
-            ══════════════════════════════════════════════════════════════════ */}
-        {adminModule === 'gobernanza' && (
+            MÓDULO: GESTIÓN INSTITUCIONAL (GOBERNANZA & ALIANZAS AGRUPADAS)
+           ══════════════════════════════════════════════════════════════════ */}
+        {(adminModule === 'institucional' || adminModule === 'alianzas' || adminModule === 'gobernanza') && (
           <div className="space-y-6">
-            {/* Header del Módulo */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/80 border border-[#d8ceb6] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-2xl space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#4a5a22]">
-                  Estructura Directiva & Investigación
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-light">
-                  Gobierno y Estructura Institucional
-                </h2>
-                <p className="text-xs sm:text-sm text-[#6b6048] font-light leading-relaxed">
-                  Configura a los consejeros, directores y científicos colegiados mostrados en la sección pública (/gobernanza). Soporta enlaces directos de Google Drive (convertidos automáticamente con previsualización en vivo), semblanzas institucionales y atribuciones.
-                </p>
+            {/* STUDIO HEADER CARD: INSTITUCIONAL & GOBERNANZA */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-xs space-y-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2618] font-normal">
+                    Directorio Institucional & Alianzas
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#6b6048] max-w-3xl">
+                    Gestión centralizada del Consejo Directivo, claustro científico, semblanzas oficiales con Business Card modal y el catálogo de logotipos y enlaces de aliados.
+                  </p>
+                </div>
+
+                {/* Acciones Rápidas Contextuales */}
+                <div className="flex items-center gap-3">
+                  {institutionalSubTab === 'gobernanza' ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleResetGovMembers}
+                        className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span>Restablecer</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleStartCreateGovMember}
+                        className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Nuevo Miembro</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleResetAlliances}
+                        className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span>Restablecer</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleStartCreateAlliance}
+                        className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Nuevo Logotipo</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              {/* Sub-tabs Selector Pill */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#d8ceb6]/70">
                 <button
                   type="button"
-                  onClick={handleResetGovMembers}
-                  className="px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] hover:text-[#2d2618] transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                  onClick={() => {
+                    setInstitutionalSubTab('gobernanza');
+                    setAdminModule('institucional');
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    institutionalSubTab === 'gobernanza'
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                      : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                  }`}
                 >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Restablecer</span>
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Cuerpo de Gobernanza & Investigadores ({governanceMembers.length})</span>
                 </button>
                 <button
                   type="button"
-                  onClick={handleStartCreateGovMember}
-                  className="px-5 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    setInstitutionalSubTab('alianzas');
+                    setAdminModule('institucional');
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                    institutionalSubTab === 'alianzas'
+                      ? 'bg-[#4a5a22] text-[#f5efe3] shadow-sm font-bold'
+                      : 'bg-white/70 hover:bg-white text-[#6b6048] hover:text-[#2d2618] border border-[#d8ceb6]'
+                  }`}
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Nuevo Miembro</span>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Aliados Institucionales & Logotipos ({alliances.length})</span>
                 </button>
               </div>
             </div>
 
-            {/* Barra de búsqueda y conteo */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-full sm:w-96">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a7e68]" />
-                <input
-                  type="text"
-                  value={govSearch}
-                  onChange={(e) => setGovSearch(e.target.value)}
-                  placeholder="Buscar miembro por nombre, cargo o área..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] placeholder-[#9a8e78] focus:outline-none focus:border-[#4a5a22] shadow-2xs"
-                />
-              </div>
-              <span className="text-xs text-[#8a7e68] font-mono">
-                Total Miembros: <strong className="text-[#4a5a22]">{governanceMembers.length}</strong>
-              </span>
-            </div>
-
-            {/* Grilla de Tarjetas de Miembros de Gobernanza */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {governanceMembers
-                .filter((m) => {
-                  if (!govSearch.trim()) return true;
-                  const q = govSearch.toLowerCase();
-                  const name = m.name?.toLowerCase() || '';
-                  const displayRole = (typeof m.displayRole === 'object' ? `${m.displayRole?.es} ${m.displayRole?.en}` : m.displayRole || '').toLowerCase();
-                  const role = (typeof m.role === 'object' ? `${m.role?.es} ${m.role?.en}` : m.role || '').toLowerCase();
-                  const area = (typeof m.area === 'object' ? `${m.area?.es} ${m.area?.en}` : m.area || '').toLowerCase();
-                  const country = (typeof m.country === 'object' ? `${m.country?.es} ${m.country?.en}` : m.country || '').toLowerCase();
-                  return name.includes(q) || displayRole.includes(q) || role.includes(q) || area.includes(q) || country.includes(q);
-                })
-                .map((member) => (
-                  <div
-                    key={member.id}
-                    className="p-5 rounded-2xl bg-white border border-[#d8ceb6] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
-                  >
-                    <div className="space-y-3">
-                      {/* Fotografía del Miembro con Soporte Drive */}
-                      <div className="w-full h-56 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] overflow-hidden relative">
-                        {member.img ? (
-                          <img
-                            src={formatDriveUrl(member.img)}
-                            alt={member.name}
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              const currentSrc = e.currentTarget.src || '';
-                              if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
-                                e.currentTarget.dataset.retried = 'true';
-                                const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
-                                if (idMatch && idMatch[1]) {
-                                  e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
-                                  return;
-                                }
-                              }
-                              if (member.id === 'francisco-solorio') {
-                                e.currentTarget.src = '/imports/Perfiles/FranciscoSolorio.png';
-                              }
-                            }}
-                            className="w-full h-full object-cover object-top"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 text-[#8a7e68]">
-                            <User className="w-10 h-10 opacity-30 text-[#4a5a22] mb-1" />
-                            <span className="text-xs">Sin fotografía asignada</span>
-                          </div>
-                        )}
-
-                        {member.num && (
-                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#1f1a12]/80 text-[#f5efe3] text-[10px] font-mono font-semibold">
-                            #{member.num}
-                          </span>
-                        )}
-
-                        {typeof member.img === 'string' && member.img.includes('drive.google.com') && (
-                          <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#4a5a22] text-[#f5efe3] text-[9px] font-mono font-bold tracking-wider">
-                            Google Drive
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Metadatos */}
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#4a5a22]">
-                            {typeof member.area === 'object' ? member.area.es : member.area || 'Gobernanza'}
-                          </span>
-                          <span className="text-[10px] text-[#8a7e68]">
-                            &bull; {typeof member.country === 'object' ? member.country.es : member.country || 'Internacional'}
+            {/* SECCIÓN ALIANZAS (MASTER-DETAIL 25% / 75%) */}
+            {institutionalSubTab === 'alianzas' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE ALIADOS) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Aliados Guardados
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(alliances || []).length} instituciones
                           </span>
                         </div>
-
-                        <h4 className="font-serif text-base text-[#2d2618] font-bold leading-snug line-clamp-1" title={member.name}>
-                          {member.name}
-                        </h4>
-
-                        <p className="text-xs font-semibold text-[#5a6b2a] line-clamp-1">
-                          {typeof member.displayRole === 'object' ? member.displayRole.es : (typeof member.role === 'object' ? member.role.es : member.displayRole || member.role || 'Miembro')}
-                        </p>
-
-                        <p className="text-[11px] text-[#6b6048] font-light line-clamp-2 leading-relaxed pt-1">
-                          {typeof member.bio === 'object' ? member.bio.es : member.bio}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Botones de Acción */}
-                    <div className="pt-3 border-t border-[#eae4d2] flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#7a6e58]">
-                        {member.social?.email && (
-                          <span className="p-1 rounded-md bg-[#eae4d2]/70 text-[#4a5a22]" title={member.social.email}>
-                            <Mail className="w-3 h-3" />
-                          </span>
-                        )}
-                        {member.responsibilities && (
-                          <span className="text-[10px] font-mono text-[#8a7e68]">
-                            {member.responsibilities.length} atribuciones
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        {(member.id === 'luis-garcia' || member.id === 'francisco-solorio') && (
-                          <Link
-                            to={member.id === 'luis-garcia' ? '/luis-garcia' : '/francisco-solorio'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2.5 py-1.5 rounded-lg bg-white border border-[#d8ceb6] hover:bg-[#4a5a22]/10 hover:border-[#4a5a22] text-[#4a5a22] text-xs font-semibold transition-all flex items-center gap-1 shadow-2xs"
-                            title="Ver Business Card / Perfil en vivo"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">Ver Card</span>
-                          </Link>
-                        )}
                         <button
                           type="button"
-                          onClick={() => setEditingGovMember(JSON.parse(JSON.stringify(member)))}
-                          className="px-3 py-1.5 rounded-lg bg-[#eae4d2] hover:bg-[#4a5a22] hover:text-[#f5efe3] text-[#2d2618] text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                          onClick={handleStartCreateAlliance}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Registrar nuevo aliado"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Editar</span>
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nuevo</span>
                         </button>
+                      </div>
+
+                      {/* Buscador de Aliados */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={allianceSearch}
+                          onChange={(e) => setAllianceSearch(e.target.value)}
+                          placeholder="Buscar aliado o sitio web..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                        />
+                      </div>
+
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(alliances || [])
+                          .filter((a) => {
+                            if (!allianceSearch.trim()) return true;
+                            const q = allianceSearch.toLowerCase();
+                            const name = a.name || '';
+                            const shortName = a.shortName || '';
+                            const website = a.website || '';
+                            const scope = typeof a.scope === 'object' ? `${a.scope?.es} ${a.scope?.en}` : (a.scope || '');
+                            return name.toLowerCase().includes(q) || shortName.toLowerCase().includes(q) || website.toLowerCase().includes(q) || scope.toLowerCase().includes(q);
+                          })
+                          .map((item, idx) => {
+                            const isSelected = (editingAlliance?.id === item.id) || (selectedAllianceId === item.id);
+                            const nameText = item.name || item.shortName || 'Aliado Institucional';
+
+                            return (
+                              <div
+                                key={item.id || idx}
+                                onClick={() => handleSelectAlliance(item)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-2">
+                                  {/* Logotipo miniatura */}
+                                  <div className="w-full h-20 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] p-2 flex items-center justify-center overflow-hidden">
+                                    {item.logo ? (
+                                      <img
+                                        src={formatDriveUrl(item.logo)}
+                                        alt={nameText}
+                                        referrerPolicy="no-referrer"
+                                        onError={(e) => {
+                                          const currentSrc = e.currentTarget.src || '';
+                                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                            e.currentTarget.dataset.retried = 'true';
+                                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                            if (idMatch && idMatch[1]) {
+                                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                            }
+                                          }
+                                        }}
+                                        className="w-full h-full object-contain"
+                                        loading="lazy"
+                                      />
+                                    ) : (
+                                      <ImageIcon className="w-6 h-6 opacity-40 text-[#4a5a22]" />
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-1">
+                                      {nameText}
+                                    </h4>
+                                    {item.website && (
+                                      <p className="text-[11px] text-[#4a5a22] font-mono truncate">
+                                        {item.website}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#eae4d2]">
+                                  <span className="text-[10px] text-[#8c8068] uppercase font-bold tracking-wider">
+                                    {item.type || 'Multilateral'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteAllianceItem(item.id);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar aliado"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+
+                      {/* Botón de Restablecimiento */}
+                      <div className="pt-2 border-t border-[#d8ceb6]">
                         <button
                           type="button"
-                          onClick={() => handleDeleteGovMemberItem(member.id, member.name)}
-                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-all cursor-pointer"
-                          title="Eliminar miembro"
+                          onClick={handleResetAlliances}
+                          className="w-full py-2 rounded-xl bg-white hover:bg-[#f5efe3] border border-[#d8ceb6] text-xs font-semibold text-[#6b6048] flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Restablecer Aliados Oficiales</span>
                         </button>
                       </div>
                     </div>
                   </div>
-                ))}
-            </div>
+
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingAlliance ? (
+                      <form
+                        onSubmit={handleSaveAllianceForm}
+                        className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm"
+                      >
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {editingAlliance.name || 'Nuevo Aliado Institucional'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              Categoría: <span className="font-semibold text-[#2d2618] uppercase">{editingAlliance.type || 'Multilateral'}</span> · Ámbito: <span className="font-semibold text-[#2d2618]">{typeof editingAlliance.scope === 'object' ? editingAlliance.scope?.es : editingAlliance.scope || 'Internacional'}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="submit"
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: INSTITUCIÓN & LOGOTIPO */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Institución & Logotipo Oficial</span>
+                          </h4>
+
+                          <div className="space-y-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Nombre de la Institución / Organización *</label>
+                              <input
+                                type="text"
+                                value={editingAlliance.name || ''}
+                                onChange={(e) => setEditingAlliance({ ...editingAlliance, name: e.target.value })}
+                                placeholder="Ej. World Environmental Sustainability Summit (WESS)"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="font-bold text-[#4a5a22]">
+                                URL del Logotipo (Google Drive, Imagen Web o Local) *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={editingAlliance.logo || ''}
+                                onChange={(e) => setEditingAlliance({ ...editingAlliance, logo: e.target.value })}
+                                placeholder="Pega enlace de Google Drive (https://drive.google.com/file/d/.../view) o URL de imagen"
+                                className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                              <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
+                                <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
+                                <span>
+                                  <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el enlace compartido normal. El sistema detecta y convierte el ID automáticamente.
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Previsualización en Vivo */}
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#6b6048]">Previsualización en Vivo del Logotipo</label>
+                              <div className="w-full h-36 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden shadow-inner">
+                                {editingAlliance.logo ? (
+                                  <img
+                                    src={formatDriveUrl(editingAlliance.logo)}
+                                    alt="Vista previa"
+                                    referrerPolicy="no-referrer"
+                                    onError={(e) => {
+                                      const currentSrc = e.currentTarget.src || '';
+                                      if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                        e.currentTarget.dataset.retried = 'true';
+                                        const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                        if (idMatch && idMatch[1]) {
+                                          e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                        }
+                                      }
+                                    }}
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <div className="text-center space-y-1 text-xs text-[#8a7e68]">
+                                    <ImageIcon className="w-6 h-6 mx-auto opacity-40 text-[#4a5a22]" />
+                                    <span>Pega una URL para ver la previsualización del logo</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="font-bold text-[#4a5a22]">Categoría de Alianza</label>
+                                <select
+                                  value={editingAlliance.type || 'multilateral'}
+                                  onChange={(e) => setEditingAlliance({ ...editingAlliance, type: e.target.value })}
+                                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                                >
+                                  <option value="multilateral">Organismo Multilateral</option>
+                                  <option value="academic">Red Académica & Científica</option>
+                                  <option value="territorial">Organización Comunitaria / Territorial</option>
+                                  <option value="philanthropic">Fondo & Filantropía</option>
+                                </select>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="font-bold text-[#4a5a22]">Sitio Web Oficial</label>
+                                <input
+                                  type="url"
+                                  value={editingAlliance.website || ''}
+                                  onChange={(e) => setEditingAlliance({ ...editingAlliance, website: e.target.value })}
+                                  placeholder="https://ejemplo.org"
+                                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: ÁMBITO & MISIÓN CONJUNTA */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Cooperación & Ámbito Territorial</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Ámbito Territorial (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingAlliance.scope === 'object' ? editingAlliance.scope?.es || '' : editingAlliance.scope || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    scope: typeof editingAlliance.scope === 'object'
+                                      ? { ...editingAlliance.scope, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Ej. Global · Ginebra / Internacional"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Territorial Scope (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingAlliance.scope === 'object' ? editingAlliance.scope?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    scope: typeof editingAlliance.scope === 'object'
+                                      ? { ...editingAlliance.scope, en: val }
+                                      : { es: editingAlliance.scope || '', en: val },
+                                  });
+                                }}
+                                placeholder="Ej. Global · Geneva / International"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Rol / Función de Cooperación (Español)</label>
+                              <textarea
+                                rows={2}
+                                value={typeof editingAlliance.role === 'object' ? editingAlliance.role?.es || '' : editingAlliance.role || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    role: typeof editingAlliance.role === 'object'
+                                      ? { ...editingAlliance.role, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Describe la agenda conjunta y objetivos..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Role / Cooperation Purpose (English)</label>
+                              <textarea
+                                rows={2}
+                                value={typeof editingAlliance.role === 'object' ? editingAlliance.role?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    role: typeof editingAlliance.role === 'object'
+                                      ? { ...editingAlliance.role, en: val }
+                                      : { es: editingAlliance.role || '', en: val },
+                                  });
+                                }}
+                                placeholder="Describe joint agenda and objectives..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Insignia / Etiqueta (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingAlliance.tag === 'object' ? editingAlliance.tag?.es || '' : editingAlliance.tag || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    tag: typeof editingAlliance.tag === 'object'
+                                      ? { ...editingAlliance.tag, es: val }
+                                      : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Ej. Ginebra 2026 / Cooperación Activa"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Badge / Tag (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingAlliance.tag === 'object' ? editingAlliance.tag?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingAlliance({
+                                    ...editingAlliance,
+                                    tag: typeof editingAlliance.tag === 'object'
+                                      ? { ...editingAlliance.tag, en: val }
+                                      : { es: editingAlliance.tag || '', en: val },
+                                  });
+                                }}
+                                placeholder="Ej. Geneva 2026 / Active Cooperation"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona un aliado institucional de la lista o haz clic en "Nuevo" para comenzar.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SECCIÓN GOBERNANZA (MASTER-DETAIL 25% / 75%) */}
+            {institutionalSubTab === 'gobernanza' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* COLUMNA IZQUIERDA: 25% (LISTA VERTICAL DE MIEMBROS DE GOBERNANZA) */}
+                  <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+                    <div className="p-5 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] shadow-sm space-y-4">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d8ceb6]">
+                        <div>
+                          <h3 className="font-serif text-lg text-[#2d2618] font-medium">
+                            Cuerpo de Gobernanza
+                          </h3>
+                          <span className="text-[11px] text-[#6b6048]">
+                            {(governanceMembers || []).length} miembros
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStartCreateGovMember}
+                          className="px-3 py-1.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                          title="Registrar nuevo miembro"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Nuevo</span>
+                        </button>
+                      </div>
+
+                      {/* Buscador de Gobernanza */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#6b6048] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={govSearch}
+                          onChange={(e) => setGovSearch(e.target.value)}
+                          placeholder="Buscar por nombre, cargo o área..."
+                          className="w-full pl-8 pr-3 py-2 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22] shadow-xs"
+                        />
+                      </div>
+
+                      {/* Lista de Tarjetas */}
+                      <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1">
+                        {(governanceMembers || [])
+                          .filter((m) => {
+                            if (!govSearch.trim()) return true;
+                            const q = govSearch.toLowerCase();
+                            const name = m.name?.toLowerCase() || '';
+                            const displayRole = (typeof m.displayRole === 'object' ? `${m.displayRole?.es} ${m.displayRole?.en}` : m.displayRole || '').toLowerCase();
+                            const role = (typeof m.role === 'object' ? `${m.role?.es} ${m.role?.en}` : m.role || '').toLowerCase();
+                            const area = (typeof m.area === 'object' ? `${m.area?.es} ${m.area?.en}` : m.area || '').toLowerCase();
+                            const country = (typeof m.country === 'object' ? `${m.country?.es} ${m.country?.en}` : m.country || '').toLowerCase();
+                            return name.includes(q) || displayRole.includes(q) || role.includes(q) || area.includes(q) || country.includes(q);
+                          })
+                          .map((member) => {
+                            const isSelected = (editingGovMember?.id === member.id) || (selectedGovMemberId === member.id);
+                            const roleText = typeof member.displayRole === 'object' ? member.displayRole.es : (typeof member.role === 'object' ? member.role.es : member.displayRole || member.role || 'Miembro');
+
+                            return (
+                              <div
+                                key={member.id}
+                                onClick={() => handleSelectGovMember(member)}
+                                className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                                  isSelected
+                                    ? 'bg-white border-[#4a5a22] shadow-md ring-2 ring-[#4a5a22]/25'
+                                    : 'bg-white/75 hover:bg-white border-[#d8ceb6] hover:border-[#6b6048]'
+                                }`}
+                              >
+                                <div className="space-y-2">
+                                  {/* Foto miniatura y badge num */}
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-[#f5efe3] border border-[#d8ceb6] overflow-hidden shrink-0 relative">
+                                      {member.img ? (
+                                        <img
+                                          src={formatDriveUrl(member.img)}
+                                          alt={member.name}
+                                          referrerPolicy="no-referrer"
+                                          onError={(e) => {
+                                            const currentSrc = e.currentTarget.src || '';
+                                            if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                              e.currentTarget.dataset.retried = 'true';
+                                              const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                              if (idMatch && idMatch[1]) {
+                                                e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                                return;
+                                              }
+                                            }
+                                            if (member.id === 'francisco-solorio') {
+                                              e.currentTarget.src = '/imports/Perfiles/FranciscoSolorio.png';
+                                            }
+                                          }}
+                                          className="w-full h-full object-cover object-top"
+                                          loading="lazy"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <User className="w-5 h-5 opacity-30 text-[#4a5a22]" />
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="space-y-0.5 min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        {member.num && (
+                                          <span className="text-[10px] font-mono text-[#4a5a22] font-bold">
+                                            #{member.num}
+                                          </span>
+                                        )}
+                                        <span className="text-[10px] text-[#8c8068] uppercase font-bold truncate">
+                                          {typeof member.area === 'object' ? member.area.es : member.area || 'Gobernanza'}
+                                        </span>
+                                      </div>
+                                      <h4 className="font-bold text-sm text-[#2d2618] leading-snug line-clamp-1">
+                                        {member.name}
+                                      </h4>
+                                      <p className="text-xs text-[#5a6b2a] font-medium line-clamp-1">
+                                        {roleText}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#eae4d2]">
+                                  {(member.id === 'luis-garcia' || member.id === 'francisco-solorio') ? (
+                                    <Link
+                                      to={member.id === 'luis-garcia' ? '/luis-garcia' : '/francisco-solorio'}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="inline-flex items-center gap-1 text-[11px] text-[#4a5a22] font-semibold hover:underline"
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                      <span>Ver Card</span>
+                                    </Link>
+                                  ) : (
+                                    <span className="text-[10px] text-[#8c8068] font-mono">
+                                      {typeof member.country === 'object' ? member.country.es : member.country || 'Internacional'}
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteGovMemberItem(member.id, member.name);
+                                    }}
+                                    className="px-2 py-1 rounded-lg hover:bg-red-50 text-[#8c8068] hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Eliminar miembro"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* COLUMNA DERECHA: 75% (EDITOR EDITORIAL SIEMPRE VISIBLE) */}
+                  <div className="lg:col-span-9 xl:col-span-9 space-y-6">
+                    {editingGovMember ? (
+                      <form
+                        onSubmit={handleSaveGovMemberForm}
+                        className="p-6 sm:p-8 rounded-3xl bg-[#eae4d2]/85 border border-[#d8ceb6] space-y-6 shadow-sm"
+                      >
+                        {/* Cabecera del Editor */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#d8ceb6]">
+                          <div>
+                            <h3 className="font-serif text-2xl text-[#2d2618] font-normal">
+                              {editingGovMember.name || 'Nuevo Miembro de Gobernanza'}
+                            </h3>
+                            <p className="text-xs text-[#6b6048] mt-1">
+                              Posición <span className="font-mono text-[#4a5a22] font-bold">#{editingGovMember.num || '01'}</span> · Categoría: <span className="font-semibold text-[#2d2618] uppercase">{editingGovMember.category || 'Concejalía'}</span> · Área: <span className="font-semibold text-[#2d2618]">{typeof editingGovMember.area === 'object' ? editingGovMember.area?.es : editingGovMember.area || 'Gobernanza Institucional'}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            {(editingGovMember.id === 'luis-garcia' || editingGovMember.id === 'francisco-solorio') && (
+                              <Link
+                                to={editingGovMember.id === 'luis-garcia' ? '/luis-garcia' : '/francisco-solorio'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#f5efe3] border border-[#d8ceb6] text-xs font-bold text-[#4a5a22] flex items-center gap-1.5 shadow-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                <span>Ver Tarjeta en Vivo</span>
+                              </Link>
+                            )}
+                            <button
+                              type="submit"
+                              className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Guardar Cambios</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 1: IDENTIFICACIÓN & FOTOGRAFÍA OFICIAL */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>1. Identificación Oficial & Fotografía</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+                            <div className="sm:col-span-3 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Nombre Oficial Completo *</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.name || ''}
+                                onChange={(e) => setEditingGovMember({ ...editingGovMember, name: e.target.value })}
+                                placeholder="Ej. Dr. Francisco Solorio"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Número de Orden</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.num || ''}
+                                onChange={(e) => setEditingGovMember({ ...editingGovMember, num: e.target.value })}
+                                placeholder="01"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Categoría en Gobernanza</label>
+                              <select
+                                value={editingGovMember.category || 'consejeria'}
+                                onChange={(e) => setEditingGovMember({ ...editingGovMember, category: e.target.value })}
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              >
+                                <option value="consejeria">Consejo Directivo & Presidencia</option>
+                                <option value="direccion">Dirección Ejecutiva & Coordinación</option>
+                                <option value="asesoria">Consejo Consultivo & Científico</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Cargo Oficial (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingGovMember.displayRole === 'object' ? editingGovMember.displayRole?.es || '' : editingGovMember.displayRole || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    displayRole: typeof editingGovMember.displayRole === 'object'
+                                      ? { ...editingGovMember.displayRole, es: val }
+                                      : { es: val, en: '' },
+                                    role: typeof editingGovMember.role === 'object'
+                                      ? { ...editingGovMember.role, es: val.toUpperCase() }
+                                      : { es: val.toUpperCase(), en: '' },
+                                  });
+                                }}
+                                placeholder="Ej. Presidente Fundador"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Official Role (English)</label>
+                              <input
+                                type="text"
+                                value={typeof editingGovMember.displayRole === 'object' ? editingGovMember.displayRole?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    displayRole: typeof editingGovMember.displayRole === 'object'
+                                      ? { ...editingGovMember.displayRole, en: val }
+                                      : { es: editingGovMember.displayRole || '', en: val },
+                                    role: typeof editingGovMember.role === 'object'
+                                      ? { ...editingGovMember.role, en: val.toUpperCase() }
+                                      : { es: editingGovMember.role || '', en: val.toUpperCase() },
+                                  });
+                                }}
+                                placeholder="Ej. Founding President"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Área / Departamento (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingGovMember.area === 'object' ? editingGovMember.area?.es || '' : editingGovMember.area || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    area: typeof editingGovMember.area === 'object' ? { ...editingGovMember.area, es: val } : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Ej. Presidencia & Consejo Superior"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <label className="font-bold text-[#4a5a22]">País / Sede Institucional (Español)</label>
+                              <input
+                                type="text"
+                                value={typeof editingGovMember.country === 'object' ? editingGovMember.country?.es || '' : editingGovMember.country || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    country: typeof editingGovMember.country === 'object' ? { ...editingGovMember.country, es: val } : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Ej. México / Suiza"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            {/* URL de Fotografía Oficial */}
+                            <div className="sm:col-span-4 space-y-2">
+                              <label className="font-bold text-[#4a5a22]">
+                                URL de la Fotografía Oficial (Google Drive, Web o Local)
+                              </label>
+                              <input
+                                type="text"
+                                value={editingGovMember.img || ''}
+                                onChange={(e) => setEditingGovMember({ ...editingGovMember, img: e.target.value })}
+                                placeholder="Pega enlace de Google Drive o URL de imagen directa"
+                                className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
+                              />
+                              <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
+                                <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
+                                <span>
+                                  <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el enlace compartido público de Google Drive.
+                                </span>
+                              </div>
+
+                              {/* Preview en vivo */}
+                              <div className="w-full h-44 rounded-2xl bg-[#f5efe3] border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden shadow-inner">
+                                {editingGovMember.img ? (
+                                  <img
+                                    src={formatDriveUrl(editingGovMember.img)}
+                                    alt="Vista previa fotografía"
+                                    referrerPolicy="no-referrer"
+                                    onError={(e) => {
+                                      const currentSrc = e.currentTarget.src || '';
+                                      if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
+                                        e.currentTarget.dataset.retried = 'true';
+                                        const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                                        if (idMatch && idMatch[1]) {
+                                          e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+                                        }
+                                      }
+                                    }}
+                                    className="w-full h-full object-cover object-top"
+                                  />
+                                ) : (
+                                  <div className="text-center space-y-1 text-xs text-[#8a7e68]">
+                                    <User className="w-8 h-8 mx-auto opacity-30 text-[#4a5a22]" />
+                                    <span>Pega una URL de foto para ver la previsualización</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 2: SEMBLANZA & MANIFIESTO DIRECTIVO */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>2. Semblanza Institucional & Manifiesto</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Semblanza / Biografía (Español) *</label>
+                              <textarea
+                                rows={4}
+                                value={typeof editingGovMember.bio === 'object' ? editingGovMember.bio?.es || '' : editingGovMember.bio || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    bio: typeof editingGovMember.bio === 'object' ? { ...editingGovMember.bio, es: val } : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="Describe la trayectoria profesional y rol en el Consejo..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] leading-relaxed"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Institutional Biography (English)</label>
+                              <textarea
+                                rows={4}
+                                value={typeof editingGovMember.bio === 'object' ? editingGovMember.bio?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    bio: typeof editingGovMember.bio === 'object' ? { ...editingGovMember.bio, en: val } : { es: editingGovMember.bio || '', en: val },
+                                  });
+                                }}
+                                placeholder="Describe professional background and leadership role..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] leading-relaxed"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Cita de Liderazgo (Español)</label>
+                              <textarea
+                                rows={2}
+                                value={typeof editingGovMember.quote === 'object' ? editingGovMember.quote?.es || '' : editingGovMember.quote || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    quote: typeof editingGovMember.quote === 'object' ? { ...editingGovMember.quote, es: val } : { es: val, en: '' },
+                                  });
+                                }}
+                                placeholder="«La misión trasciende fronteras: consolidar una gobernanza territorial...»"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] italic"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Leadership Quote (English)</label>
+                              <textarea
+                                rows={2}
+                                value={typeof editingGovMember.quote === 'object' ? editingGovMember.quote?.en || '' : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    quote: typeof editingGovMember.quote === 'object' ? { ...editingGovMember.quote, en: val } : { es: editingGovMember.quote || '', en: val },
+                                  });
+                                }}
+                                placeholder="«Our mission transcends borders: consolidating rigorous territorial governance...»"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] italic"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-2 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <label className="font-bold text-[#4a5a22]">Atribuciones y Responsabilidades Directivas (Español)</label>
+                                <span className="text-[10px] text-[#8a7e68] font-mono">1 por línea</span>
+                              </div>
+                              <textarea
+                                rows={3}
+                                value={
+                                  Array.isArray(editingGovMember.responsibilities)
+                                    ? editingGovMember.responsibilities.map((r) => (typeof r === 'object' ? r.es ?? '' : r ?? '')).join('\n')
+                                    : ''
+                                }
+                                onChange={(e) => {
+                                  const newLinesEs = e.target.value.split('\n');
+                                  const curLinesEn = (Array.isArray(editingGovMember.responsibilities)
+                                    ? editingGovMember.responsibilities.map((r) => (typeof r === 'object' ? r.en ?? '' : ''))
+                                    : []);
+                                  const maxLen = Math.max(newLinesEs.length, curLinesEn.length);
+                                  const combined = [];
+                                  for (let i = 0; i < maxLen; i++) {
+                                    if (i < newLinesEs.length || (curLinesEn[i] && curLinesEn[i].trim())) {
+                                      combined.push({
+                                        es: newLinesEs[i] ?? '',
+                                        en: curLinesEn[i] ?? newLinesEs[i] ?? '',
+                                      });
+                                    }
+                                  }
+                                  setEditingGovMember({ ...editingGovMember, responsibilities: combined });
+                                }}
+                                placeholder="Conducción institucional y representación...&#10;Orientación estratégica de la agenda..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SECCIÓN 3: CONTACTO DIRECTO & REDES SOCIALES */}
+                        <div className="p-5 rounded-2xl bg-white/70 border border-[#d8ceb6] space-y-4">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5a22] flex items-center gap-2">
+                            <span>3. Canales de Contacto Directo & Redes</span>
+                          </h4>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Correo(s) Institucional(es)</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.social?.email || ''}
+                                onChange={(e) =>
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    social: { ...(editingGovMember.social || {}), email: e.target.value },
+                                  })
+                                }
+                                placeholder="presidencia@consejocga.org, despacho@consejocga.org"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Perfil de LinkedIn (URL)</label>
+                              <input
+                                type="url"
+                                value={editingGovMember.social?.linkedin || ''}
+                                onChange={(e) =>
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    social: { ...(editingGovMember.social || {}), linkedin: e.target.value },
+                                  })
+                                }
+                                placeholder="https://linkedin.com/in/usuario"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Teléfono México</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.social?.phoneMx || ''}
+                                onChange={(e) =>
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    social: { ...(editingGovMember.social || {}), phoneMx: e.target.value },
+                                  })
+                                }
+                                placeholder="+52 55 3083 1032"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold text-[#4a5a22]">Teléfono Canadá</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.social?.phoneCa || ''}
+                                onChange={(e) =>
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    social: { ...(editingGovMember.social || {}), phoneCa: e.target.value },
+                                  })
+                                }
+                                placeholder="+1 437 290 8820"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+
+                            <div className="space-y-1 sm:col-span-2">
+                              <label className="font-bold text-[#4a5a22]">WhatsApp (Enlace directo o número internacional)</label>
+                              <input
+                                type="text"
+                                value={editingGovMember.social?.whatsapp || ''}
+                                onChange={(e) =>
+                                  setEditingGovMember({
+                                    ...editingGovMember,
+                                    social: { ...(editingGovMember.social || {}), whatsapp: e.target.value },
+                                  })
+                                }
+                                placeholder="https://wa.me/525545691548"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="p-8 rounded-3xl bg-[#eae4d2]/50 border border-[#d8ceb6] text-center text-[#6b6048]">
+                        Selecciona un miembro de la lista o haz clic en "Nuevo" para comenzar.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
 
-      {/* ─── MODAL DE EDICIÓN / REGISTRO DE ALIADO ─── */}
-      <AnimatePresence>
-        {editingAlliance && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-[#eae4d2] border-2 border-[#4a5a22] shadow-2xl overflow-hidden text-[#2d2618]"
-            >
-              {/* Header Modal */}
-              <div className="p-5 bg-[#1f1a12] text-[#f5efe3] flex items-center justify-between border-b border-[#3d3422]">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-lg bg-[#4a5a22] text-[#f5efe3] flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                  <span className="font-serif text-lg font-light text-white">
-                    {editingAlliance.id?.startsWith('alliance-')
-                      ? 'Registrar Nuevo Logotipo'
-                      : 'Editar Logotipo de Aliado'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setEditingAlliance(null)}
-                  className="p-1.5 rounded-full hover:bg-white/10 text-white/80 cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              {/* Formulario de Aliado */}
-              <form onSubmit={handleSaveAllianceForm} className="p-6 overflow-y-auto space-y-5 flex-1 bg-[#eae4d2]">
-                {/* Nombre de la Institución / Aliado */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Nombre de la Institución / Organización
-                  </label>
-                  <input
-                    type="text"
-                    value={editingAlliance.name || ''}
-                    onChange={(e) => setEditingAlliance({ ...editingAlliance, name: e.target.value })}
-                    placeholder="Ej. World Environmental Sustainability Summit (WESS)"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
-                  />
-                </div>
-
-                {/* URL del Logotipo con Helper Google Drive */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    URL del Logotipo (Google Drive, Imagen Web o Local) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingAlliance.logo || ''}
-                    onChange={(e) => setEditingAlliance({ ...editingAlliance, logo: e.target.value })}
-                    placeholder="Pega enlace de Google Drive (https://drive.google.com/file/d/.../view) o URL de imagen"
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
-                  />
-                  <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
-                    <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
-                    <span>
-                      <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el enlace compartido normal. El sistema detecta y convierte el ID automáticamente. (Asegúrate que el archivo esté compartido como "Cualquier persona con el enlace").
-                    </span>
-                  </div>
-                </div>
-
-                {/* Previsualización en Vivo del Logotipo */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b6048]">
-                    Previsualización en Vivo de la Tarjeta
-                  </label>
-                  <div className="w-full h-40 rounded-2xl bg-white border border-[#d8ceb6] p-4 flex items-center justify-center overflow-hidden shadow-inner">
-                    {editingAlliance.logo ? (
-                      <img
-                        src={formatDriveUrl(editingAlliance.logo)}
-                        alt="Vista previa"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const currentSrc = e.currentTarget.src || '';
-                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
-                            e.currentTarget.dataset.retried = 'true';
-                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
-                            if (idMatch && idMatch[1]) {
-                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
-                            }
-                          }
-                        }}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div className="text-center space-y-1 text-xs text-[#8a7e68]">
-                        <ImageIcon className="w-6 h-6 mx-auto opacity-40 text-[#4a5a22]" />
-                        <span>Escribe o pega una URL para ver la previsualización</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Categoría / Tipo de Aliado */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Categoría de Alianza
-                  </label>
-                  <select
-                    value={editingAlliance.type || 'multilateral'}
-                    onChange={(e) => setEditingAlliance({ ...editingAlliance, type: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
-                  >
-                    <option value="multilateral">Organismo Multilateral</option>
-                    <option value="academic">Red Académica & Científica</option>
-                    <option value="territorial">Organización Comunitaria / Territorial</option>
-                    <option value="philanthropic">Fondo & Filantropía</option>
-                  </select>
-                </div>
-
-                {/* Sitio Web Oficial */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Sitio Web Oficial (Opcional)
-                  </label>
-                  <input
-                    type="url"
-                    value={editingAlliance.website || ''}
-                    onChange={(e) => setEditingAlliance({ ...editingAlliance, website: e.target.value })}
-                    placeholder="https://ejemplo.org"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                  />
-                </div>
-
-                {/* Botones */}
-                <div className="pt-4 border-t border-[#d8ceb6] flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditingAlliance(null)}
-                    className="px-5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] transition-all cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>Guardar Logotipo</span>
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-
-        {/* ─── MODAL DE EDICIÓN / REGISTRO DE CUERPO DE GOBERNANZA ─── */}
-        {editingGovMember && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl bg-[#eae4d2] border-2 border-[#4a5a22] shadow-2xl overflow-hidden text-[#2d2618]"
-            >
-              {/* Header Modal */}
-              <div className="p-5 bg-[#1f1a12] text-[#f5efe3] flex items-center justify-between border-b border-[#3d3422]">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-lg bg-[#4a5a22] text-[#f5efe3] flex items-center justify-center text-xs font-bold">
-                    <User className="w-4 h-4" />
-                  </span>
-                  <span className="font-serif text-lg font-light text-white">
-                    {editingGovMember.id?.startsWith('gov-')
-                      ? 'Registrar Nuevo Miembro de Gobernanza'
-                      : 'Editar Miembro de Gobernanza'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setEditingGovMember(null)}
-                  className="p-1.5 rounded-full hover:bg-white/10 text-white/80 cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Formulario */}
-              <form onSubmit={handleSaveGovMemberForm} className="p-6 overflow-y-auto space-y-5 flex-1 bg-[#eae4d2]">
-                {/* Nombre Oficial & Número */}
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="sm:col-span-3 space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Nombre Completo y Grado Académico *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editingGovMember.name || ''}
-                      onChange={(e) => setEditingGovMember({ ...editingGovMember, name: e.target.value })}
-                      placeholder="Ej. MTRO. LUIS GARCÍA GONZÁLEZ"
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-[#2d2618] font-bold focus:outline-none focus:border-[#4a5a22]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      N° Posición
-                    </label>
-                    <input
-                      type="text"
-                      value={editingGovMember.num || ''}
-                      onChange={(e) => setEditingGovMember({ ...editingGovMember, num: e.target.value })}
-                      placeholder="01"
-                      className="w-full px-3 py-3 rounded-xl bg-white border border-[#d8ceb6] text-sm text-center font-mono font-bold text-[#2d2618]"
-                    />
-                  </div>
-                </div>
-
-                {/* Categoría / Sección del Colegiado */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Sección Institucional (Pestaña en /gobernanza) *
-                  </label>
-                  <select
-                    value={editingGovMember.category || 'consejeria'}
-                    onChange={(e) => setEditingGovMember({ ...editingGovMember, category: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs font-semibold text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
-                  >
-                    <option value="gobierno">Gobierno (Presidencia & Secretaría Ejecutiva)</option>
-                    <option value="direcciones">Direcciones (Dirección Nacional & Operativa)</option>
-                    <option value="consejeria">Consejería (Consejo Honorífico & Científico)</option>
-                  </select>
-                </div>
-
-                {/* Cargo / Rol Principal */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Cargo Principal (Español) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={
-                        typeof editingGovMember.displayRole === 'object'
-                          ? editingGovMember.displayRole?.es || ''
-                          : editingGovMember.displayRole || ''
-                      }
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          displayRole: typeof editingGovMember.displayRole === 'object'
-                            ? { ...editingGovMember.displayRole, es: val }
-                            : { es: val, en: '' },
-                          role: typeof editingGovMember.role === 'object'
-                            ? { ...editingGovMember.role, es: val.toUpperCase() }
-                            : { es: val.toUpperCase(), en: '' },
-                        });
-                      }}
-                      placeholder="Ej. Consejero Presidente y Fundador"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Cargo Principal (Inglés)
-                    </label>
-                    <input
-                      type="text"
-                      value={
-                        typeof editingGovMember.displayRole === 'object'
-                          ? editingGovMember.displayRole?.en || ''
-                          : ''
-                      }
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          displayRole: typeof editingGovMember.displayRole === 'object'
-                            ? { ...editingGovMember.displayRole, en: val }
-                            : { es: editingGovMember.displayRole || '', en: val },
-                          role: typeof editingGovMember.role === 'object'
-                            ? { ...editingGovMember.role, en: val.toUpperCase() }
-                            : { es: editingGovMember.role || '', en: val.toUpperCase() },
-                        });
-                      }}
-                      placeholder="Ej. President and Founder Councillor"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                </div>
-
-                {/* Colegiado / Tag Superior & Área */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Colegiado / Tag Superior (ES)
-                    </label>
-                    <input
-                      type="text"
-                      value={
-                        typeof editingGovMember.tag === 'object'
-                          ? editingGovMember.tag?.es || ''
-                          : editingGovMember.tag || ''
-                      }
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          tag: typeof editingGovMember.tag === 'object'
-                            ? { ...editingGovMember.tag, es: val }
-                            : { es: val, en: '' },
-                        });
-                      }}
-                      placeholder="Ej. Presidencia & Estrategia Multilateral"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Área / Especialidad (ES)
-                    </label>
-                    <input
-                      type="text"
-                      value={
-                        typeof editingGovMember.area === 'object'
-                          ? editingGovMember.area?.es || ''
-                          : editingGovMember.area || ''
-                      }
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          area: typeof editingGovMember.area === 'object'
-                            ? { ...editingGovMember.area, es: val }
-                            : { es: val, en: '' },
-                        });
-                      }}
-                      placeholder="Ej. Gobernanza Institucional"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                </div>
-
-                {/* País / Cobertura Territorial */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    País o Región Territorial
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      typeof editingGovMember.country === 'object'
-                        ? editingGovMember.country?.es || ''
-                        : editingGovMember.country || ''
-                    }
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setEditingGovMember({
-                        ...editingGovMember,
-                        country: typeof editingGovMember.country === 'object'
-                          ? { ...editingGovMember.country, es: val }
-                          : { es: val, en: '' },
-                      });
-                    }}
-                    placeholder="Ej. México / Internacional"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                  />
-                </div>
-
-                {/* URL de Fotografía con Helper Google Drive */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Fotografía del Miembro (Google Drive, Web URL o Local)
-                  </label>
-                  <input
-                    type="text"
-                    value={editingGovMember.img || ''}
-                    onChange={(e) => setEditingGovMember({ ...editingGovMember, img: e.target.value })}
-                    placeholder="Pega enlace de Google Drive (https://drive.google.com/file/d/.../view) o enlace de imagen"
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#d8ceb6] text-xs font-mono text-[#2d2618] focus:outline-none focus:border-[#4a5a22]"
-                  />
-                  <div className="p-3 rounded-xl bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[11px] text-[#3a4a18] flex items-start gap-2 leading-relaxed">
-                    <Sparkles className="w-4 h-4 shrink-0 text-[#4a5a22] mt-0.5" />
-                    <span>
-                      <strong>Soporte automático de Google Drive:</strong> Puedes pegar directamente el link compartido de Drive. El sistema lo transforma al servidor de alta disponibilidad de Google sin filtros.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Previsualización en Vivo de la Fotografía */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#6b6048]">
-                    Previsualización en Vivo de la Foto
-                  </label>
-                  <div className="w-full h-44 rounded-2xl bg-white border border-[#d8ceb6] p-2 flex items-center justify-center overflow-hidden shadow-inner">
-                    {editingGovMember.img ? (
-                      <img
-                        src={formatDriveUrl(editingGovMember.img)}
-                        alt="Vista previa de perfil"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const currentSrc = e.currentTarget.src || '';
-                          if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
-                            e.currentTarget.dataset.retried = 'true';
-                            const idMatch = currentSrc.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
-                            if (idMatch && idMatch[1]) {
-                              e.currentTarget.src = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
-                            }
-                          }
-                        }}
-                        className="h-full w-auto object-cover rounded-xl"
-                      />
-                    ) : (
-                      <div className="text-center space-y-1 text-xs text-[#8a7e68]">
-                        <ImageIcon className="w-6 h-6 mx-auto opacity-40 text-[#4a5a22]" />
-                        <span>Pega un enlace de foto para ver la previsualización</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Semblanza Institucional (Biografía) */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                    Semblanza Institucional / Biografía (Español) *
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={
-                      typeof editingGovMember.bio === 'object'
-                        ? editingGovMember.bio?.es || ''
-                        : editingGovMember.bio || ''
-                    }
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setEditingGovMember({
-                        ...editingGovMember,
-                        bio: typeof editingGovMember.bio === 'object'
-                          ? { ...editingGovMember.bio, es: val }
-                          : { es: val, en: '' },
-                      });
-                    }}
-                    placeholder="Describe la trayectoria profesional y rol en el Consejo..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] leading-relaxed"
-                  />
-                </div>
-
-                {/* Cita / Manifiesto de Liderazgo (Business Card & Semblanza) */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Cita / Manifiesto de Liderazgo (Business Card & Semblanza)
-                    </label>
-                    <span className="text-[11px] text-[#8a7e68] font-mono">Visible en la Business Card</span>
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={
-                      typeof editingGovMember.quote === 'object'
-                        ? editingGovMember.quote?.es || ''
-                        : editingGovMember.quote || ''
-                    }
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setEditingGovMember({
-                        ...editingGovMember,
-                        quote: typeof editingGovMember.quote === 'object'
-                          ? { ...editingGovMember.quote, es: val }
-                          : { es: val, en: '' },
-                      });
-                    }}
-                    placeholder="«La misión trasciende fronteras: consolidar una gobernanza territorial rigurosa, científica y solidaria...»"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] italic leading-relaxed"
-                  />
-                </div>
-
-                {/* Atribuciones y Responsabilidades Directivas (Línea por línea) */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Atribuciones y Responsabilidades Directivas
-                    </label>
-                    <span className="text-[11px] text-[#8a7e68] font-mono">1 atribución por línea</span>
-                  </div>
-                  <textarea
-                    rows={3}
-                    value={
-                      Array.isArray(editingGovMember.responsibilities)
-                        ? editingGovMember.responsibilities
-                            .map((r) => (typeof r === 'object' ? r.es || r.en : r))
-                            .join('\n')
-                        : ''
-                    }
-                    onChange={(e) => {
-                      const lines = e.target.value.split('\n');
-                      setEditingGovMember({
-                        ...editingGovMember,
-                        responsibilities: lines.map((line) => ({ es: line, en: line })),
-                      });
-                    }}
-                    placeholder="Conducción institucional y representación...&#10;Orientación estratégica de la agenda..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618] font-sans leading-relaxed"
-                  />
-                </div>
-
-                {/* Contacto & Redes Sociales */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Correo(s) Institucional(es) (puedes separar varios con coma)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingGovMember.social?.email || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), email: e.target.value },
-                        })
-                      }
-                      placeholder="presidencia@consejocga.org, despacho@consejocga.org"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Perfil de LinkedIn (URL)
-                    </label>
-                    <input
-                      type="url"
-                      value={editingGovMember.social?.linkedin || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), linkedin: e.target.value },
-                        })
-                      }
-                      placeholder="https://linkedin.com/in/usuario"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Teléfono México (con lada)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingGovMember.social?.phoneMx || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), phoneMx: e.target.value },
-                        })
-                      }
-                      placeholder="+52 55 3083 1032"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Teléfono Canadá (con lada)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingGovMember.social?.phoneCa || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), phoneCa: e.target.value },
-                        })
-                      }
-                      placeholder="+1 437 290 8820"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Facebook Personal / Institucional (URL)
-                    </label>
-                    <input
-                      type="url"
-                      value={editingGovMember.social?.facebook || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), facebook: e.target.value },
-                        })
-                      }
-                      placeholder="https://facebook.com/usuario"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      Instagram Personal / Institucional (URL)
-                    </label>
-                    <input
-                      type="url"
-                      value={editingGovMember.social?.instagram || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), instagram: e.target.value },
-                        })
-                      }
-                      placeholder="https://instagram.com/usuario"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#4a5a22]">
-                      WhatsApp (Enlace directo wa.me o número internacional)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingGovMember.social?.whatsapp || ''}
-                      onChange={(e) =>
-                        setEditingGovMember({
-                          ...editingGovMember,
-                          social: { ...(editingGovMember.social || {}), whatsapp: e.target.value },
-                        })
-                      }
-                      placeholder="https://wa.me/525545691548"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] text-xs text-[#2d2618]"
-                    />
-                  </div>
-                </div>
-
-                {/* Botones de Acción */}
-                <div className="pt-4 border-t border-[#d8ceb6] flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditingGovMember(null)}
-                    className="px-5 py-2.5 rounded-xl bg-white border border-[#d8ceb6] hover:bg-[#f5efe3] text-xs font-semibold text-[#6b6048] transition-all cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>Guardar Miembro</span>
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* ─── MODAL DE PREVISUALIZACIÓN DEL POP-UP (TEST CON CUALQUIERA DE LOS 4 DISEÑOS EN EL ADMIN) ─── */}
       <AnimatePresence>

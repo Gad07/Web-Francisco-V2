@@ -107,11 +107,15 @@ export default function App() {
     });
 
     const startTime = performance.now();
+    let lastTime = performance.now();
     // Tiempo de seguridad máximo para garantizar que el usuario nunca quede bloqueado
-    const maxSafetyTimeout = 2500;
+    const maxSafetyTimeout = 2800;
 
     const update = (now) => {
       if (isCancelled) return;
+
+      const delta = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
 
       const elapsed = now - startTime;
       const assetRatio = Math.min(1, loadedAssets / totalAssets);
@@ -119,30 +123,42 @@ export default function App() {
       const fontRatio = fontsReady ? 1 : 0;
 
       // REGLA CRÍTICA: Lo primero que debe de cargar y estar visible es el planeta detrás del loader.
-      // Mientras el planeta no esté listo en el canvas 3D, el progreso no supera el 20%.
-      let realTarget;
-      if (!isPlanetReady && elapsed < 2000) {
-        realTarget = Math.min(20, Math.max(5, assetRatio * 20));
+      let target;
+      if (!isPlanetReady && elapsed < 2200) {
+        // Fase 1: Mientras el planeta 3D termina de montar, avanza con suavidad hasta ~20%
+        target = Math.min(20, Math.max(8, assetRatio * 20));
       } else {
-        // Una vez que el planeta está montado y rotando en el fondo, avanza fluidamente hacia el 100%
-        realTarget = 20 + (assetRatio * 70) + (fontRatio * 10);
+        // Fase 2: Planeta listo y girando en el fondo. El contador avanza de forma continua y cadenciada
+        target = 20 + (assetRatio * 70) + (fontRatio * 10);
       }
 
       if ((isPlanetReady && loadedAssets >= totalAssets) || elapsed >= maxSafetyTimeout) {
-        realTarget = 100;
+        target = 100;
       }
 
-      // Interpolación fluida hacia el porcentaje real sin saltos bruscos
-      const diff = realTarget - displayProgress;
-      const step = Math.max(1.5, diff * 0.18);
-      displayProgress = Math.min(realTarget, displayProgress + step);
+      // Ritmo de suma cadenciado, pausado y perfectamente legible:
+      // Limitamos la velocidad para que los números suban de 1 en 1 de forma visible y fluida
+      const distance = target - displayProgress;
+      if (distance > 0) {
+        let stepSpeed;
+        if (displayProgress < 25) {
+          stepSpeed = 32; // Inicio controlado y elegante (~32% por segundo)
+        } else if (displayProgress < 85) {
+          stepSpeed = 46; // Ritmo medio continuo y fluido (~46% por segundo)
+        } else {
+          // Desaceleración suave al aproximarse a 100 para crear anticipación
+          stepSpeed = Math.max(22, Math.min(36, distance * 2.0));
+        }
 
-      if (displayProgress >= 99.5 || (realTarget === 100 && displayProgress >= 98)) {
+        displayProgress = Math.min(target, displayProgress + (stepSpeed * delta));
+      }
+
+      if (displayProgress >= 99.6 || (target === 100 && displayProgress >= 99.0)) {
         setLoadingProgress(100);
-        // Micro-pausa breve de 100ms para apreciar el 100% y proceder con el zoom suave
+        // Pausa adecuada (320ms) para que el ojo humano aprecie con calma el 100%
         window.setTimeout(() => {
           if (!isCancelled) triggerFastZoom();
-        }, 100);
+        }, 320);
         return;
       }
 
@@ -267,27 +283,32 @@ export default function App() {
                 style={{ background: 'transparent' }}
               >
                 <div className="relative flex flex-col items-center text-center">
-                  {/* Contador serif — lo único sobre el mundo */}
+                  {/* Contador serif con suma suave, nítida y perfectamente legible */}
                   <motion.div
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className="font-serif font-light text-white leading-none tabular-nums drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
-                    style={{ fontSize: 'clamp(2.75rem, 6vw, 4rem)' }}
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col items-center justify-center select-none"
                   >
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      <motion.span
-                        key={safePct}
-                        initial={{ opacity: 0.3, y: 8, scale: 1.06 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.16 }}
-                        className="inline-block"
-                      >
+                    <div
+                      className="font-serif font-light text-white leading-none tabular-nums flex items-baseline justify-center drop-shadow-[0_4px_20px_rgba(0,0,0,0.85)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
+                      style={{ fontSize: 'clamp(3.2rem, 6.5vw, 4.5rem)' }}
+                    >
+                      <span className="inline-block tabular-nums font-serif tracking-tight text-white">
                         {safePct}
-                      </motion.span>
-                    </AnimatePresence>
-                    <span className="align-baseline text-[0.3em] text-[#a4c264] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ml-0.5 font-bold">%</span>
+                      </span>
+                      <span className="text-[0.36em] text-white font-sans font-semibold ml-1.5 align-baseline drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                        %
+                      </span>
+                    </div>
+
+                    {/* Sutil barra de progreso minimalista para acompañar visualmente la suma */}
+                    <div className="w-24 sm:w-28 h-[2px] bg-white/20 rounded-full overflow-hidden mt-3 backdrop-blur-sm">
+                      <div
+                        className="h-full bg-white transition-[width] duration-100 ease-out rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                        style={{ width: `${safePct}%` }}
+                      />
+                    </div>
                   </motion.div>
                 </div>
               </motion.div>

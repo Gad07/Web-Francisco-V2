@@ -157,15 +157,33 @@ export const INITIAL_POPUPS_LIST = [
     triggerDelaySeconds: 2,
     triggerScrollPercent: 25,
     hasCtaButton: true,
-    title: 'Bienvenido al Consejo Global Ambiental',
-    subtitle: 'Preservación Biocultural, Gobernanza & Ciencia Aplicada',
-    message: 'Conoce nuestras iniciativas internacionales de custodia biocultural, diplomacia ambiental y formación de liderazgos territoriales.',
+    title: {
+      es: 'Bienvenido al Consejo Global Ambiental',
+      en: 'Welcome to the Global Environmental Council',
+    },
+    subtitle: {
+      es: 'Preservación Biocultural, Gobernanza & Ciencia Aplicada',
+      en: 'Biocultural Preservation, Governance & Applied Science',
+    },
+    message: {
+      es: 'Conoce nuestras iniciativas internacionales de custodia biocultural, diplomacia ambiental y formación de liderazgos territoriales.',
+      en: 'Discover our international biocultural custody initiatives, environmental diplomacy and territorial leadership training.',
+    },
     image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&fit=crop&auto=format',
     pngElement: '/imagenes/Rama 2.svg',
-    highlightBadge: 'Mensaje Institucional',
-    ctaText: 'Conocer Iniciativas',
+    highlightBadge: {
+      es: 'Mensaje Institucional',
+      en: 'Institutional Message',
+    },
+    ctaText: {
+      es: 'Conocer Iniciativas',
+      en: 'Explore Initiatives',
+    },
     ctaLink: '/proyectos',
-    secondaryCtaText: 'Sobre el Consejo',
+    secondaryCtaText: {
+      es: 'Sobre el Consejo',
+      en: 'About the Council',
+    },
     secondaryCtaLink: '/nosotros',
     cornerPosition: 'bottom-right',
     oncePerSession: false,
@@ -176,9 +194,15 @@ const DEFAULT_SETTINGS = {
   banner: {
     enabled: true,
     bannerStyle: 'static', // 'static' | 'text-marquee' | 'image-marquee'
-    message: 'Consejo Global Ambiental · Plataforma Institucional de Custodia Biocultural y Diplomacia Ambiental.',
+    message: {
+      es: 'Consejo Global Ambiental · Plataforma Institucional de Custodia Biocultural y Diplomacia Ambiental.',
+      en: 'Global Environmental Council · Institutional Platform for Biocultural Custody and Environmental Diplomacy.',
+    },
     showCta: true,
-    ctaText: 'Conocer más',
+    ctaText: {
+      es: 'Conocer más',
+      en: 'Learn more',
+    },
     ctaLink: '/contacto',
     theme: 'moss', // 'moss' | 'beige' | 'terracotta' | 'custom'
     bgColor: '#4a5a22',

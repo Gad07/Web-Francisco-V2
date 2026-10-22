@@ -2,13 +2,31 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X, ArrowRight, ShieldCheck, Bell } from 'lucide-react';
+import { useI18n } from '../i18n/index.jsx';
 
 export default function PopUpRenderer({ popup, onClose, isPreview = false, isInline = false }) {
+  const { lang, t } = useI18n();
+
   if (!popup || (!popup.enabled && !isPreview && !isInline)) return null;
+
+  const getLocalized = (val) => {
+    if (!val) return '';
+    if (typeof val === 'object') {
+      return val[lang] || val.es || val.en || '';
+    }
+    return val;
+  };
+
+  const title = getLocalized(popup.title);
+  const subtitle = getLocalized(popup.subtitle);
+  const message = getLocalized(popup.message);
+  const highlightBadge = getLocalized(popup.highlightBadge);
+  const ctaText = getLocalized(popup.ctaText);
+  const secondaryCtaText = getLocalized(popup.secondaryCtaText);
 
   const design = popup.designType || 'split-modal';
   const corner = popup.cornerPosition || 'bottom-right';
-  const showCta = popup.hasCtaButton !== false && Boolean(popup.ctaText) && Boolean(popup.ctaLink);
+  const showCta = popup.hasCtaButton !== false && Boolean(ctaText) && Boolean(popup.ctaLink);
 
   // Helper para verificar si un color hexadecimal es oscuro
   const isDarkBg = (hex) => {
@@ -75,19 +93,19 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
             )}
 
             <div className="space-y-0.5 pr-5">
-              {popup.highlightBadge && (
+              {highlightBadge && (
                 <span className="inline-block text-[9px] font-bold uppercase tracking-widest text-[#4a5a22]">
-                  {popup.highlightBadge}
+                  {highlightBadge}
                 </span>
               )}
               <h4 className="font-serif text-sm font-semibold text-[#2d2618] leading-tight line-clamp-2">
-                {popup.title}
+                {title}
               </h4>
             </div>
           </div>
 
           <p className="text-[11px] text-[#5a503a] font-light leading-relaxed line-clamp-2">
-            {popup.message}
+            {message}
           </p>
 
           <div className="pt-1">
@@ -97,7 +115,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                 onClick={onClose}
                 className="w-full py-2.5 px-4 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-wider text-center transition-colors flex items-center justify-center gap-2 shadow-xs"
               >
-                <span>{popup.ctaText}</span>
+                <span>{ctaText}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
@@ -105,7 +123,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                 onClick={onClose}
                 className="w-full py-2 px-4 rounded-xl bg-white hover:bg-[#f5efe3] text-xs font-semibold text-[#2d2618] border border-[#d8ceb6] transition-colors text-center"
               >
-                Entendido
+                {t({ es: 'Entendido', en: 'Understood' })}
               </button>
             )}
           </div>
@@ -152,11 +170,11 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
 
           <div className="p-6 sm:p-8 space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl text-[#2d2618] font-medium leading-snug">
-              {popup.title}
+              {title}
             </h3>
 
             <p className="text-xs sm:text-sm text-[#5a503a] font-light leading-relaxed">
-              {popup.message}
+              {message}
             </p>
 
             <div className="pt-3">
@@ -166,7 +184,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-wider transition-all shadow-md text-center flex items-center justify-center gap-2"
                 >
-                  <span>{popup.ctaText}</span>
+                  <span>{ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               ) : (
@@ -174,7 +192,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md"
                 >
-                  Entendido / Cerrar Aviso
+                  {t({ es: 'Entendido / Cerrar Aviso', en: 'Understood / Close Notice' })}
                 </button>
               )}
             </div>
@@ -213,11 +231,11 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
           <div className="md:col-span-7 p-6 sm:p-8 space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
               <h3 className="font-serif text-xl sm:text-2xl text-[#2d2618] font-medium leading-snug">
-                {popup.title}
+                {title}
               </h3>
 
               <p className="text-xs sm:text-sm text-[#5a503a] font-light leading-relaxed">
-                {popup.message}
+                {message}
               </p>
             </div>
 
@@ -228,7 +246,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-wider transition-all shadow-md text-center flex items-center justify-center gap-2"
                 >
-                  <span>{popup.ctaText}</span>
+                  <span>{ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               ) : (
@@ -236,7 +254,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md"
                 >
-                  Cerrar Aviso
+                  {t({ es: 'Cerrar Aviso', en: 'Close Notice' })}
                 </button>
               )}
             </div>
@@ -363,10 +381,10 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
             {/* CONTENIDO EDITORIAL */}
             <div className="space-y-2 relative z-10">
               <h3 className="font-serif text-2xl font-normal leading-snug">
-                {popup.title}
+                {title}
               </h3>
               <p className={`text-xs sm:text-sm ${subTextColor} font-light leading-relaxed`}>
-                {popup.message}
+                {message}
               </p>
             </div>
 
@@ -377,7 +395,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-widest transition-all shadow-md text-center flex items-center justify-center gap-2"
                 >
-                  <span>{popup.ctaText}</span>
+                  <span>{ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               ) : (
@@ -385,7 +403,7 @@ export default function PopUpRenderer({ popup, onClose, isPreview = false, isInl
                   onClick={onClose}
                   className="w-full py-3.5 px-5 rounded-xl bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] font-bold text-xs uppercase tracking-widest text-center transition-all shadow-md"
                 >
-                  Cerrar Aviso
+                  {t({ es: 'Cerrar Aviso', en: 'Close Notice' })}
                 </button>
               )}
             </div>

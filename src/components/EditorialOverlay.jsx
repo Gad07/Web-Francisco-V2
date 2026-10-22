@@ -490,7 +490,7 @@ export default function EditorialOverlay({
         onMouseMove={handleHeroMouseMove}
         onMouseLeave={handleHeroMouseLeave}
         onDoubleClick={handleBranchDoubleClick}
-        className="h-[100dvh] w-full relative flex items-center px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden bg-[#f5efe3]"
+        className="h-[100dvh] min-h-[640px] w-full relative flex items-center pt-24 sm:pt-28 md:pt-32 pb-16 px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden bg-[#f5efe3]"
       >
         {/* Atmósfera ambiental — orbes difuminados que respiran */}
         <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -554,17 +554,17 @@ export default function EditorialOverlay({
         </motion.div>
 
         {/* Fila Principal: Columna Izquierda con el Titular Centrado Verticalmente */}
-        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none -translate-y-3 sm:-translate-y-4">
+        <div className="relative z-30 w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none pt-2 sm:pt-4">
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="font-serif text-left tracking-[-0.02em] max-w-2xl lg:max-w-[660px]"
           >
-            <span className="block font-light text-[#2d2618] text-[clamp(2.55rem,5.2vw,4.55rem)] leading-[1.02]">
+            <span className="block font-light text-[#2d2618] text-[clamp(2.35rem,5vw,4.35rem)] leading-[1.04]">
               {t('hero.line1')}
             </span>
-            <span className="block font-serif italic font-normal text-[#4a5a22] text-[clamp(2.45rem,4.9vw,4.35rem)] leading-[1.05] mt-1.5 sm:mt-2.5">
+            <span className="block font-serif italic font-normal text-[#4a5a22] text-[clamp(2.25rem,4.7vw,4.15rem)] leading-[1.06] mt-2 sm:mt-3">
               {t('hero.line2')}
             </span>
           </motion.h1>
@@ -574,14 +574,14 @@ export default function EditorialOverlay({
         {activeBaseLayer === 2 && (
           <div
             aria-hidden="true"
-            className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex items-center px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden"
+            className="hero-mask-layer absolute inset-0 z-35 pointer-events-none flex items-center pt-24 sm:pt-28 md:pt-32 pb-16 px-5 sm:px-10 md:px-16 lg:px-20 overflow-hidden"
           >
-            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none -translate-y-3 sm:-translate-y-4">
+            <div className="relative w-full max-w-[1440px] mx-auto flex flex-col items-start justify-center select-none pt-2 sm:pt-4">
               <div className="font-serif text-left tracking-[-0.02em] max-w-2xl lg:max-w-[660px]">
-                <span className="block font-light text-white text-[clamp(2.55rem,5.2vw,4.55rem)] leading-[1.02] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                <span className="block font-light text-white text-[clamp(2.35rem,5vw,4.35rem)] leading-[1.04] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {t('hero.line1')}
                 </span>
-                <span className="block font-serif italic font-normal text-white text-[clamp(2.45rem,4.9vw,4.35rem)] leading-[1.05] mt-1.5 sm:mt-2.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                <span className="block font-serif italic font-normal text-white text-[clamp(2.25rem,4.7vw,4.15rem)] leading-[1.06] mt-2 sm:mt-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
                   {t('hero.line2')}
                 </span>
               </div>
@@ -679,7 +679,7 @@ export default function EditorialOverlay({
                 <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start text-center sm:text-left">
                     <span className="font-medium text-xs sm:text-sm leading-relaxed">
-                      {b.message}
+                      {typeof b.message === 'object' ? (b.message[lang] || b.message.es || '') : b.message}
                     </span>
                   </div>
 
@@ -689,7 +689,11 @@ export default function EditorialOverlay({
                         to={b.ctaLink}
                         className="inline-flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider underline hover:opacity-80 transition-opacity whitespace-nowrap"
                       >
-                        <span>{b.ctaText || 'Ver más'}</span>
+                        <span>
+                          {typeof b.ctaText === 'object'
+                            ? (b.ctaText[lang] || b.ctaText.es || '')
+                            : (b.ctaText || t({ es: 'Ver más', en: 'Learn more' }))}
+                        </span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     )}
@@ -716,7 +720,7 @@ export default function EditorialOverlay({
                       {[...texts, ...texts, ...texts, ...texts].map((txt, idx) => (
                         <div key={idx} className="flex items-center gap-6 shrink-0 whitespace-nowrap">
                           <span className="font-medium text-xs sm:text-sm tracking-wide">
-                            {txt}
+                            {typeof txt === 'object' ? (txt[lang] || txt.es || '') : txt}
                           </span>
                           <span className="opacity-40 text-xs">◆</span>
                         </div>
