@@ -29,16 +29,26 @@ function isSupported(code) {
 
 function detectLang() {
   if (typeof window !== 'undefined') {
-    // 1. Parámetro explícito en la URL: ?lang=en o ?lang=es
+    // 1. Parámetro explícito en la URL: ?lang=en o ?lang=es (máxima prioridad para compartir enlaces)
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const urlLang = urlParams.get('lang');
       if (urlLang && isSupported(urlLang.toLowerCase())) {
-        return urlLang.toLowerCase();
+        const resolved = urlLang.toLowerCase();
+        try { window.localStorage.setItem(STORAGE_KEY, resolved); } catch {}
+        return resolved;
       }
     } catch {}
 
-    // 2. Dominio fijo en inglés: councilforgreenaction.com (y subdominios)
+    // 2. Preferencia explícita guardada por el usuario en localStorage (siempre se respeta al recargar)
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved && isSupported(saved)) {
+        return saved;
+      }
+    } catch {}
+
+    // 3. Dominio internacional por defecto (councilforgreenaction.com o prefijo en.) si no hay preferencia previa
     try {
       const host = (window.location.hostname || '').toLowerCase();
       const isCouncilEn = host === 'councilforgreenaction.com' || 
@@ -46,30 +56,16 @@ function detectLang() {
                           host.endsWith('.councilforgreenaction.com') ||
                           host.startsWith('en.');
 
-      if (isCouncilEn) {
-        // En councilforgreenaction.com el idioma por defecto SIEMPRE es inglés
-        const saved = window.localStorage.getItem(STORAGE_KEY + ':councilforgreenaction');
-        if (saved && isSupported(saved)) return saved;
-        return 'en';
-      }
-
-      // Otros dominios con prefijo de inglés
-      if (ENGLISH_DOMAINS.some((pattern) => host.includes(pattern))) {
-        const saved = window.localStorage.getItem(STORAGE_KEY);
-        if (saved && isSupported(saved)) return saved;
+      if (isCouncilEn || ENGLISH_DOMAINS.some((pattern) => host.includes(pattern))) {
         return 'en';
       }
     } catch {}
 
-    // 3. Preferencia guardada en localStorage
+    // 4. Idioma del navegador del visitante si nunca ha seleccionado idioma
     try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved && isSupported(saved)) return saved;
+      const nav = typeof navigator !== 'undefined' ? (navigator.language || '').toLowerCase() : '';
+      if (nav.startsWith('en')) return 'en';
     } catch {}
-
-    // 4. Idioma del navegador del visitante
-    const nav = typeof navigator !== 'undefined' ? navigator.language : '';
-    if (typeof nav === 'string' && nav.toLowerCase().startsWith('en')) return 'en';
   }
 
   return DEFAULT_LANG;
@@ -90,34 +86,52 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, lang);
-      const host = (window.location.hostname || '').toLowerCase();
-      if (host.includes('councilforgreenaction.com')) {
-        window.localStorage.setItem(STORAGE_KEY + ':councilforgreenaction', lang);
-      }
     } catch {
-      // sin persistencia disponible — el cambio de idioma sigue funcionando en sesion
+      // sin persistencia disponible
     }
     document.documentElement.lang = lang;
     document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('translate', 'no');
+    document.documentElement.classList.add('notranslate');
     if (document.body) {
       document.body.setAttribute('data-lang', lang);
+      document.body.setAttribute('translate', 'no');
+      document.body.classList.add('notranslate');
     }
 
     // Mantiene title / description / Open Graph alineados con el idioma activo
     const dict = DICTIONARIES[lang] || DICTIONARIES[DEFAULT_LANG];
-    document.title = dict.meta.title;
-    setMetaContent('meta[name="description"]', dict.meta.description);
-    setMetaContent('meta[property="og:title"]', dict.meta.title);
-    setMetaContent('meta[property="og:description"]', dict.meta.ogDescription);
-    setMetaContent('meta[property="og:locale"]', dict.meta.ogLocale);
+    if (dict && dict.meta) {
+      document.title = dict.meta.title;
+      setMetaContent('meta[name="description"]', dict.meta.description);
+      setMetaContent('meta[property="og:title"]', dict.meta.title);
+      setMetaContent('meta[property="og:description"]', dict.meta.ogDescription);
+      setMetaContent('meta[property="og:locale"]', dict.meta.ogLocale);
+    }
   }, [lang]);
 
   const setLang = useCallback((next) => {
-    if (isSupported(next)) setLangState(next);
+    if (isSupported(next)) {
+      // Persistencia síncrona inmediata antes de cualquier re-render o recarga
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+        document.documentElement.lang = next;
+        document.documentElement.setAttribute('data-lang', next);
+      } catch {}
+      setLangState(next);
+    }
   }, []);
 
   const toggleLang = useCallback(() => {
-    setLangState((prev) => (prev === 'es' ? 'en' : 'es'));
+    setLangState((prev) => {
+      const next = prev === 'es' ? 'en' : 'es';
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+        document.documentElement.lang = next;
+        document.documentElement.setAttribute('data-lang', next);
+      } catch {}
+      return next;
+    });
   }, []);
 
   const t = useCallback(

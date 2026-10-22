@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="notranslate" translate="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Desactivar traducción automática del navegador: el sitio tiene selector i18n propio -->
+  <meta name="google" content="notranslate" />
   <title>Consejo Global Ambiental — La Voz Viva de la Tierra</title>
   <meta name="description" content="Una experiencia inmersiva cinematográfica sobre el equilibrio y la interdependencia de la biosfera y el océano." />
   <meta name="theme-color" content="#f5efe3" />
@@ -27,18 +29,21 @@
   
   <link rel="stylesheet" href="/src/style.css" />
 
-  <!-- Idioma: se resuelve antes del primer pintado para evitar el parpadeo de lang -->
+  <!-- Idioma: se resuelve antes del primer pintado respetando siempre la elección del usuario -->
   <script>
     (function () {
       try {
-        var host = (window.location.hostname || '').toLowerCase();
-        var isEnDomain = host.indexOf('councilforgreenaction.com') !== -1 || host.indexOf('en.') === 0;
         var saved = localStorage.getItem('cga:lang');
-        var lang;
-        if (isEnDomain) {
-          lang = (saved === 'es') ? 'es' : 'en';
-        } else {
-          lang = (saved === 'en' || saved === 'es') ? saved : ((navigator.language || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'es');
+        var lang = (saved === 'en' || saved === 'es') ? saved : null;
+        if (!lang) {
+          var host = (window.location.hostname || '').toLowerCase();
+          if (host.indexOf('councilforgreenaction.com') !== -1 || host.indexOf('en.') === 0) {
+            lang = 'en';
+          } else if ((navigator.language || '').toLowerCase().indexOf('en') === 0) {
+            lang = 'en';
+          } else {
+            lang = 'es';
+          }
         }
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-lang', lang);

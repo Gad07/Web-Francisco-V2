@@ -4,25 +4,62 @@ import { motion } from 'framer-motion';
 import { X, ArrowRight, ShieldCheck, Bell } from 'lucide-react';
 import { useI18n } from '../i18n/index.jsx';
 
+const POPUP_TRANSLATIONS_EN = {
+  'popup-home-welcome': {
+    title: 'Welcome to the Council for Green Action',
+    subtitle: 'Biocultural Preservation, Governance & Applied Science',
+    message: 'Discover our international biocultural custody initiatives, environmental diplomacy and territorial leadership training.',
+    highlightBadge: 'Institutional Message',
+    ctaText: 'Explore Initiatives',
+    secondaryCtaText: 'About the Council',
+  },
+};
+
 export default function PopUpRenderer({ popup, onClose, isPreview = false, isInline = false }) {
   const { lang, t } = useI18n();
 
   if (!popup || (!popup.enabled && !isPreview && !isInline)) return null;
 
-  const getLocalized = (val) => {
+  const getLocalized = (val, fieldName) => {
     if (!val) return '';
     if (typeof val === 'object') {
       return val[lang] || val.es || val.en || '';
     }
+    if (lang === 'en') {
+      if (popup?.id && POPUP_TRANSLATIONS_EN[popup.id]?.[fieldName]) {
+        return POPUP_TRANSLATIONS_EN[popup.id][fieldName];
+      }
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed.includes('Bienvenido al Consejo Global Ambiental') || trimmed.includes('Bienvenido al Consejo')) {
+          return 'Welcome to the Council for Green Action';
+        }
+        if (trimmed.includes('Preservación Biocultural')) {
+          return 'Biocultural Preservation, Governance & Applied Science';
+        }
+        if (trimmed.includes('Conoce nuestras iniciativas')) {
+          return 'Discover our international biocultural custody initiatives, environmental diplomacy and territorial leadership training.';
+        }
+        if (trimmed === 'Mensaje Institucional') {
+          return 'Institutional Message';
+        }
+        if (trimmed === 'Conocer Iniciativas') {
+          return 'Explore Initiatives';
+        }
+        if (trimmed === 'Sobre el Consejo') {
+          return 'About the Council';
+        }
+      }
+    }
     return val;
   };
 
-  const title = getLocalized(popup.title);
-  const subtitle = getLocalized(popup.subtitle);
-  const message = getLocalized(popup.message);
-  const highlightBadge = getLocalized(popup.highlightBadge);
-  const ctaText = getLocalized(popup.ctaText);
-  const secondaryCtaText = getLocalized(popup.secondaryCtaText);
+  const title = getLocalized(popup.title, 'title');
+  const subtitle = getLocalized(popup.subtitle, 'subtitle');
+  const message = getLocalized(popup.message, 'message');
+  const highlightBadge = getLocalized(popup.highlightBadge, 'highlightBadge');
+  const ctaText = getLocalized(popup.ctaText, 'ctaText');
+  const secondaryCtaText = getLocalized(popup.secondaryCtaText, 'secondaryCtaText');
 
   const design = popup.designType || 'split-modal';
   const corner = popup.cornerPosition || 'bottom-right';
