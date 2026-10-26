@@ -48,6 +48,8 @@ const en = {
     apoyaCGA: 'Support CGA',
     idioma: 'Language',
     contacto: 'Contact',
+    redesSociales: 'Social media',
+    compartir: 'Share',
   },
 
   navSub: {

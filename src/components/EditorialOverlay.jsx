@@ -17,7 +17,7 @@ export default function EditorialOverlay({
   isLoaded,
   scrollProgress
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { siteSettings } = useSiteSettings();
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [pledgeSubmitted, setPledgeSubmitted] = useState(false);
