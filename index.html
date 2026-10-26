@@ -33,17 +33,24 @@
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('cga:lang');
-        var lang = (saved === 'en' || saved === 'es') ? saved : null;
-        if (!lang) {
-          var host = (window.location.hostname || '').toLowerCase();
-          if (host.indexOf('councilforgreenaction.com') !== -1 || host.indexOf('en.') === 0) {
-            lang = 'en';
-          } else if ((navigator.language || '').toLowerCase().indexOf('en') === 0) {
-            lang = 'en';
-          } else {
-            lang = 'es';
-          }
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlLang = (urlParams.get('lang') || '').toLowerCase();
+        var userChoice = localStorage.getItem('cga:user_selected_lang');
+        var host = (window.location.hostname || '').toLowerCase();
+        
+        var lang = null;
+        if (urlLang === 'en' || urlLang === 'es') {
+          lang = urlLang;
+        } else if (userChoice === 'en' || userChoice === 'es') {
+          lang = userChoice;
+        } else if (host.indexOf('councilforgreenaction.com') !== -1 || host.indexOf('en.') === 0) {
+          lang = 'en';
+        } else if (host.indexOf('consejoglobalambiental.com') !== -1 || host.indexOf('es.') === 0) {
+          lang = 'es';
+        } else if ((navigator.language || '').toLowerCase().indexOf('en') === 0) {
+          lang = 'en';
+        } else {
+          lang = 'es';
         }
         document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-lang', lang);

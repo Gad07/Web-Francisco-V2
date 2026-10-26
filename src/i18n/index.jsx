@@ -14,54 +14,85 @@ const DICTIONARIES = { es, en };
 
 const I18nContext = createContext(null);
 
-// Dominios o patrones que inician directamente en inglés
 export const ENGLISH_DOMAINS = [
   'councilforgreenaction.com',
   'www.councilforgreenaction.com',
-  'global',
-  'international',
-  'en.',
 ];
+
+export const SPANISH_DOMAINS = [
+  'consejoglobalambiental.com',
+  'www.consejoglobalambiental.com',
+];
+
+export const USER_CHOICE_KEY = 'cga:user_selected_lang';
 
 function isSupported(code) {
   return Object.prototype.hasOwnProperty.call(DICTIONARIES, code);
 }
 
+export function getDomainLanguage(hostname) {
+  const host = (hostname || '').toLowerCase();
+  
+  // 1. Dominio en inglés o prefijo en.
+  if (
+    host === 'councilforgreenaction.com' ||
+    host === 'www.councilforgreenaction.com' ||
+    host.endsWith('.councilforgreenaction.com') ||
+    host.startsWith('en.')
+  ) {
+    return 'en';
+  }
+
+  // 2. Dominio en español o prefijo es.
+  if (
+    host === 'consejoglobalambiental.com' ||
+    host === 'www.consejoglobalambiental.com' ||
+    host.endsWith('.consejoglobalambiental.com') ||
+    host.startsWith('es.')
+  ) {
+    return 'es';
+  }
+
+  return null;
+}
+
 function detectLang() {
   if (typeof window !== 'undefined') {
-    // 1. Parámetro explícito en la URL: ?lang=en o ?lang=es (máxima prioridad para compartir enlaces)
+    // 1. Parámetro explícito en la URL: ?lang=en o ?lang=es (máxima prioridad)
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const urlLang = urlParams.get('lang');
       if (urlLang && isSupported(urlLang.toLowerCase())) {
         const resolved = urlLang.toLowerCase();
-        try { window.localStorage.setItem(STORAGE_KEY, resolved); } catch {}
+        try {
+          window.localStorage.setItem(USER_CHOICE_KEY, resolved);
+          window.localStorage.setItem(STORAGE_KEY, resolved);
+        } catch {}
         return resolved;
       }
     } catch {}
 
-    // 2. Preferencia explícita guardada por el usuario en localStorage (siempre se respeta al recargar)
+    // 2. Selección manual explícita previa del usuario
     try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved && isSupported(saved)) {
-        return saved;
+      const userChoice = window.localStorage.getItem(USER_CHOICE_KEY);
+      if (userChoice && isSupported(userChoice)) {
+        return userChoice;
       }
     } catch {}
 
-    // 3. Dominio internacional por defecto (councilforgreenaction.com o prefijo en.) si no hay preferencia previa
+    // 3. Dominio específico (consejoglobalambiental.com -> ES, councilforgreenaction.com -> EN)
     try {
-      const host = (window.location.hostname || '').toLowerCase();
-      const isCouncilEn = host === 'councilforgreenaction.com' || 
-                          host === 'www.councilforgreenaction.com' ||
-                          host.endsWith('.councilforgreenaction.com') ||
-                          host.startsWith('en.');
-
-      if (isCouncilEn || ENGLISH_DOMAINS.some((pattern) => host.includes(pattern))) {
-        return 'en';
+      const domainLang = getDomainLanguage(window.location.hostname);
+      if (domainLang) {
+        // Asegurar que no quede un valor residual incorrecto en STORAGE_KEY
+        try {
+          window.localStorage.setItem(STORAGE_KEY, domainLang);
+        } catch {}
+        return domainLang;
       }
     } catch {}
 
-    // 4. Idioma del navegador del visitante si nunca ha seleccionado idioma
+    // 4. Idioma del navegador para entornos genéricos (localhost, etc.)
     try {
       const nav = typeof navigator !== 'undefined' ? (navigator.language || '').toLowerCase() : '';
       if (nav.startsWith('en')) return 'en';
@@ -114,6 +145,7 @@ export function I18nProvider({ children }) {
     if (isSupported(next)) {
       // Persistencia síncrona inmediata antes de cualquier re-render o recarga
       try {
+        window.localStorage.setItem(USER_CHOICE_KEY, next);
         window.localStorage.setItem(STORAGE_KEY, next);
         document.documentElement.lang = next;
         document.documentElement.setAttribute('data-lang', next);
@@ -126,6 +158,7 @@ export function I18nProvider({ children }) {
     setLangState((prev) => {
       const next = prev === 'es' ? 'en' : 'es';
       try {
+        window.localStorage.setItem(USER_CHOICE_KEY, next);
         window.localStorage.setItem(STORAGE_KEY, next);
         document.documentElement.lang = next;
         document.documentElement.setAttribute('data-lang', next);
