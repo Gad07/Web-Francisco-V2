@@ -138,11 +138,9 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
     if (!ctx) return;
 
     const raw = Math.max(1, Math.min(totalFrames, targetFrameRef.current));
-    const floorNum = Math.floor(raw);
-    const ceilNum = Math.min(totalFrames, floorNum + 1);
-    const fraction = raw - floorNum;
+    const targetIdx = Math.round(raw);
 
-    // Helper para obtener fotograma disponible
+    // Helper para obtener fotograma disponible con máxima nitidez
     const getLoadedFrame = (num) => {
       let img = VIDEO_FRAMES[num];
       if (img && img.complete && img.naturalWidth > 0) return img;
@@ -155,25 +153,16 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
       return VIDEO_FRAMES[1];
     };
 
-    const imgFloor = getLoadedFrame(floorNum);
-    if (!imgFloor || !imgFloor.complete || imgFloor.naturalWidth === 0) return;
+    const imgTarget = getLoadedFrame(targetIdx);
+    if (!imgTarget || !imgTarget.complete || imgTarget.naturalWidth === 0) return;
 
     const { nx, ny, nw, nh } = drawRectRef.current;
     if (nw <= 0 || nh <= 0) return;
 
-    ctx.drawImage(imgFloor, nx, ny, nw, nh);
+    // Dibujado directo de alta definición sin ghosting ni difuminados artificiales
+    ctx.drawImage(imgTarget, nx, ny, nw, nh);
 
-    // Interpolación óptica sub-frame: mezcla suave con el siguiente fotograma a 60-144 FPS
-    if (fraction > 0.05 && fraction < 0.95 && ceilNum !== floorNum) {
-      const imgCeil = VIDEO_FRAMES[ceilNum];
-      if (imgCeil && imgCeil.complete && imgCeil.naturalWidth > 0) {
-        ctx.globalAlpha = fraction;
-        ctx.drawImage(imgCeil, nx, ny, nw, nh);
-        ctx.globalAlpha = 1.0;
-      }
-    }
-
-    lastDrawnFrameRef.current = raw;
+    lastDrawnFrameRef.current = targetIdx;
     isExactFrameDrawnRef.current = true;
   }, [totalFrames]);
 
@@ -229,13 +218,13 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
     };
   }, [scheduleDraw]);
 
-  // Resize canvas to optimal DPR (max 1.25)
+  // Resize canvas to optimal DPR (native up to 2.0 for Retina/4K/1080p full crispness)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const updateSize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
       const w = Math.round(window.innerWidth * dpr);
       const h = Math.round(window.innerHeight * dpr);
 
@@ -256,7 +245,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
       const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
       if (ctx) {
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'low';
+        ctx.imageSmoothingQuality = 'high';
         ctxRef.current = ctx;
       }
 
@@ -303,6 +292,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
           opacity: showFrames ? 1 : 0,
           transform: 'translateZ(0)',
           willChange: 'transform',
+          imageRendering: '-webkit-optimize-contrast',
         }}
       />
 

@@ -25,6 +25,7 @@ export default function EditorialOverlay({
   const [pledgeSubmitted, setPledgeSubmitted] = useState(false);
   const [pledgeName, setPledgeName] = useState('');
   const [activeTabWess, setActiveTabWess] = useState(0);
+  const [milpaMode, setMilpaMode] = useState('milpa');
   const [selectedBiome, setSelectedBiome] = useState(null);
 
   useEffect(() => {
@@ -1030,13 +1031,16 @@ export default function EditorialOverlay({
 
               <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
                 <h2 className="relative font-serif text-2xl sm:text-3xl md:text-4xl text-[#0d1f2d] tracking-tight leading-[1.12] mb-4 sm:mb-5 font-light">
-                  {t({ es: 'Lo que cuidamos en tierra respira bajo el agua.', en: 'What we protect on land breathes underwater.' })}
+                  {t({
+                    es: 'Proteger los bosques es cuidar el ciclo del agua.',
+                    en: 'Protecting forests safeguards the water cycle.',
+                  })}
                 </h2>
 
                 <p className="relative font-sans text-xs sm:text-sm md:text-base text-[#1e2e38] font-light leading-relaxed">
                   {t({
-                    es: 'En la inmensidad del océano, la luz del sol baila entre los arrecifes y el fitoplancton genera el aliento de nuestro planeta. Proteger los bosques y frenar la escorrentía es proteger la continuidad de los corales y la vida marina.',
-                    en: 'In the ocean’s depth, sunlight dances through coral reefs and phytoplankton generates the planet’s breath. Safeguarding forests and curbing runoff sustains corals and marine life.',
+                    es: 'Los bosques favorecen la infiltración del agua de lluvia, contribuyen a la recarga de acuíferos y regulan los flujos hacia ríos y humedales. Conservarlos permite reducir la erosión, proteger la calidad del agua y mantener el equilibrio hidrológico de nuestros territorios.',
+                    en: 'Forests promote rainwater infiltration, contribute to aquifer recharge, and regulate flows toward rivers and wetlands. Conserving them reduces erosion, protects water quality, and maintains the hydrological balance of our territories.',
                   })}
                 </p>
               </motion.div>
@@ -1063,13 +1067,16 @@ export default function EditorialOverlay({
 
               <motion.div style={{ opacity: reefTextOpacity }} className="relative z-10">
                 <h3 className="relative font-serif text-2xl sm:text-3xl md:text-4xl text-[#0d1f2d] font-light leading-[1.12] tracking-tight mb-4 sm:mb-5">
-                  {t({ es: 'Restauración territorial y marina.', en: 'Territorial and marine restoration.' })}
+                  {t({
+                    es: 'Restauración ecológica y soluciones basadas en la naturaleza.',
+                    en: 'Ecological restoration and nature-based solutions.',
+                  })}
                 </h3>
 
                 <p className="relative font-sans text-xs sm:text-sm md:text-base text-[#1e2e38] font-light leading-relaxed">
                   {t({
-                    es: 'Protegemos las cuencas altas que nutren a los arrecifes costeros mediante monitoreo continuo y gobernanza compartida con comunidades locales para preservar los santuarios marinos.',
-                    en: 'We protect the upper watersheds that feed coastal reefs through continuous monitoring and shared governance with local communities to preserve marine sanctuaries.',
+                    es: 'En el Consejo Global Ambiental promovemos la restauración de cuencas, ríos y humedales mediante soluciones basadas en la naturaleza que contribuyen a mejorar la calidad del agua, regular los escurrimientos y recuperar la biodiversidad, fortaleciendo la seguridad hídrica y la resiliencia de las comunidades.',
+                    en: 'At the Global Environmental Council, we champion the restoration of watersheds, rivers, and wetlands through nature-based solutions that enhance water quality, regulate runoff, and restore biodiversity, strengthening water security and community resilience.',
                   })}
                 </p>
               </motion.div>
@@ -1085,32 +1092,22 @@ export default function EditorialOverlay({
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[54%] xl:w-[58%] h-full pointer-events-none z-0 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.img
-              key={activeTabWess}
+              key={activeTabWess === 0 ? `tab0-${milpaMode}` : `tab-${activeTabWess}`}
               src={
                 activeTabWess === 0
-                  ? "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1800&h=1400&fit=crop&auto=format"
+                  ? (milpaMode === 'milpa' ? '/images/wess/milpa-chinampera.jpg' : '/images/wess/semillas-nativas-conservacion.png')
                   : activeTabWess === 1
-                    ? "https://images.unsplash.com/photo-1511497584788-87676104235f?w=1800&h=1400&fit=crop&auto=format"
+                    ? '/images/wess/educacion-para-la-sostenibilidad.png'
                     : activeTabWess === 2
-                      ? "https://lh3.googleusercontent.com/d/1MfXp9e1Kw7ahGf3wJG-eZuN5jZbD3d6M"
-                      : "https://lh3.googleusercontent.com/d/1LzeshVWZJBn4Sfn1RKqD8x-fAbmZWCHN"
+                      ? '/images/wess/identidad-comunidad-territorio.png'
+                      : '/images/wess/reconocimiento-internacional-wess-2026.png'
               }
-              alt={t({ es: 'Proyecto Insignia Gobernanza Ambiental', en: 'Flagship Environmental Governance Project' })}
+              alt={t({ es: 'Gobernanza Ambiental para el Hambre Cero - WESS 2026', en: 'Environmental Governance for Zero Hunger - WESS 2026' })}
               initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={(e) => {
-                const currentSrc = e.currentTarget.src;
-                if (currentSrc.includes('googleusercontent.com/d/') && !e.currentTarget.dataset.retried) {
-                  e.currentTarget.dataset.retried = 'true';
-                  const fileId = currentSrc.split('/d/')[1]?.split('?')[0];
-                  if (fileId) {
-                    e.currentTarget.src = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                  }
-                }
-              }}
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </AnimatePresence>
 
@@ -1129,16 +1126,16 @@ export default function EditorialOverlay({
 
             <p className="text-[#6b6048] font-sans text-base sm:text-lg leading-relaxed mb-8 font-light max-w-2xl">
               {t({
-                es: 'Iniciativa galardonada en la Cumbre Mundial de Sostenibilidad 2026 por fusionar la restauración biocultural, la soberanía alimentaria y la protección satelital comunitaria en un solo modelo territorial.',
-                en: 'Award-winning initiative at the 2026 World Sustainability Summit for bringing biocultural restoration, food sovereignty and community satellite protection together into a single territorial model.',
+                es: 'Iniciativa galardonada durante el Women´s Energy and Sustainability Summit 2026 (WESS 2026) por integrar la conservación de semillas nativas, la educación ambiental y la participación comunitaria para fortalecer la soberanía alimentaria, preservar el patrimonio biocultural y promover la sostenibilidad de los territorios chinamperos.',
+                en: 'Initiative awarded during the Women’s Energy and Sustainability Summit 2026 (WESS 2026) for integrating native seed conservation, environmental education, and community participation to strengthen food sovereignty, preserve biocultural heritage, and promote the sustainability of chinampa territories.',
               })}
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8">
               {[
                 { id: 0, label: { es: 'Semillas Nativas', en: 'Native Seeds' } },
-                { id: 1, label: { es: 'Monitoreo Satelital', en: 'Satellite Monitoring' } },
-                { id: 2, label: { es: 'Gobernanza Ejidal', en: 'Communal Governance' } },
+                { id: 1, label: { es: 'Educación Ambiental', en: 'Environmental Education' } },
+                { id: 2, label: { es: 'Apropiación Territorial', en: 'Territorial Stewardship' } },
                 { id: 3, label: { es: 'Galardón WESS', en: 'WESS Award' } },
               ].map((tab) => (
                 <button
@@ -1166,44 +1163,70 @@ export default function EditorialOverlay({
               <AnimatePresence mode="wait">
                 {activeTabWess === 0 && (
                   <motion.div key="tab0" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Bancos Comunitarios de Germoplasma', en: 'Community Germplasm Banks' })}</h4>
+                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                      <h4 className="font-serif text-2xl text-[#2d2618] font-light">
+                        {t({ es: 'Conservación de la Agrobiodiversidad', en: 'Agrobiodiversity Conservation' })}
+                      </h4>
+                      <div className="inline-flex items-center p-0.5 rounded-lg bg-[#ded5c0] border border-[#cfc4ac] text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => setMilpaMode('milpa')}
+                          className={`px-2 py-0.5 rounded-md transition-colors font-medium ${milpaMode === 'milpa' ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs' : 'text-[#5a4e38] hover:text-[#2d2618]'}`}
+                        >
+                          {t({ es: 'Milpa Chinampera', en: 'Milpa Field' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMilpaMode('cga')}
+                          className={`px-2 py-0.5 rounded-md transition-colors font-medium ${milpaMode === 'cga' ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs' : 'text-[#5a4e38] hover:text-[#2d2618]'}`}
+                        >
+                          {t({ es: 'Entrega Semillas CGA', en: 'CGA Seed Handover' })}
+                        </button>
+                      </div>
+                    </div>
                     <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
                       {t({
-                        es: 'Preservamos más de 1,500 variedades de semillas nativas de maíz, frijol y hortalizas criollas adaptadas al cambio climático, asegurando la autonomía alimentaria de 14 pueblos originarios.',
-                        en: 'We preserve more than 1,500 varieties of native maize, bean and heirloom vegetable seeds adapted to climate change, ensuring food autonomy for 14 indigenous peoples.',
+                        es: 'Promovimos el uso y la conservación de semillas nativas como maíz chinampero, chile chicuarote, calabaza pipiana, chilacayote y frijol ayocote, fortaleciendo los saberes ancestrales, la biodiversidad agrícola y la soberanía alimentaria de las comunidades.',
+                        en: 'We promoted the use and preservation of native seeds such as chinampero maize, chicuarote chili, pipiana squash, chilacayote, and ayocote bean, strengthening ancestral wisdom, agricultural biodiversity, and the food sovereignty of communities.',
                       })}
                     </p>
                   </motion.div>
                 )}
                 {activeTabWess === 1 && (
                   <motion.div key="tab1" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Monitoreo Satelital y Alertas Tempranas', en: 'Satellite Monitoring and Early Warnings' })}</h4>
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">
+                      {t({ es: 'Educación para la Sostenibilidad', en: 'Education for Sustainability' })}
+                    </h4>
                     <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
                       {t({
-                        es: 'Detección en tiempo real vinculada a brigadas territoriales que detienen la tala clandestina y quemas descontroladas antes de que penetren las zonas núcleo protegidas.',
-                        en: 'Real-time detection linked to territorial brigades that halt illegal logging and uncontrolled fires before they reach protected core zones.',
+                        es: 'Beneficiamos a 454 personas a través de 10 cursos y talleres, fortaleciendo sus conocimientos sobre biodiversidad, agricultura sostenible y conservación ambiental, y promoviendo capacidades comunitarias para el cuidado y aprovechamiento responsable de los agroecosistemas.',
+                        en: 'We benefited 454 people across 10 courses and workshops, strengthening their knowledge of biodiversity, sustainable agriculture, and environmental conservation, while promoting community capacities for the responsible care and stewardship of agroecosystems.',
                       })}
                     </p>
                   </motion.div>
                 )}
                 {activeTabWess === 2 && (
                   <motion.div key="tab2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Cohesión Territorial y Asambleas Comunitarias', en: 'Territorial Cohesion and Community Assemblies' })}</h4>
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">
+                      {t({ es: 'Identidad, Comunidad y Territorio', en: 'Identity, Community and Territory' })}
+                    </h4>
                     <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
                       {t({
-                        es: 'Mecanismos de consulta previa e informada que reconocen legalmente a los ejidatarios y comuneros como guardianes soberanos de los corredores ecológicos.',
-                        en: 'Prior and informed consultation mechanisms that legally recognise communal landholders as sovereign guardians of ecological corridors.',
+                        es: 'Desarrollamos 29 actividades de apropiación territorial para fortalecer la identidad comunitaria, recuperar saberes ancestrales y promover la participación colectiva en la conservación del patrimonio biocultural y los agroecosistemas chinamperos.',
+                        en: 'We conducted 29 territorial stewardship activities to strengthen community identity, recover ancestral knowledge, and promote collective participation in the conservation of biocultural heritage and chinampa agroecosystems.',
                       })}
                     </p>
                   </motion.div>
                 )}
                 {activeTabWess === 3 && (
                   <motion.div key="tab3" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">{t({ es: 'Reconocimiento Global WESS 2026', en: 'WESS 2026 Global Recognition' })}</h4>
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">
+                      {t({ es: 'Reconocimiento Internacional WESS 2026', en: 'International Recognition WESS 2026' })}
+                    </h4>
                     <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
                       {t({
-                        es: 'Distinción internacional otorgada en Ginebra como una de las 10 mejores iniciativas globales que articulan simultáneamente soberanía alimentaria y mitigación climática.',
-                        en: 'International distinction awarded in Geneva as one of the 10 best global initiatives simultaneously advancing food sovereignty and climate mitigation.',
+                        es: 'El proyecto “Territorios que Alimentan” recibió el reconocimiento “Soluciones que Transforman el Planeta” durante WESS 2026, destacando su contribución a la seguridad alimentaria, la restauración productiva y la gobernanza ambiental comunitaria.',
+                        en: 'The "Territories that Nourish" project received the "Solutions that Transform the Planet" recognition during WESS 2026, highlighting its contribution to food security, productive restoration, and community environmental governance.',
                       })}
                     </p>
                   </motion.div>

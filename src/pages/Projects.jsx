@@ -104,12 +104,24 @@ export default function Projects() {
       ],
       photos: [
         {
-          url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1400&h=900&fit=crop&auto=format',
-          caption: { es: 'Humedales y parcelas chinamperas en Xochimilco', en: 'Wetlands and chinampa farming plots in Xochimilco' },
+          url: '/images/wess/reconocimiento-internacional-wess-2026.png',
+          caption: { es: 'Galardón Internacional WESS 2026 · Soluciones que Transforman el Planeta', en: 'WESS 2026 International Award · Solutions that Transform the Planet' },
         },
         {
-          url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1400&h=900&fit=crop&auto=format',
-          caption: { es: 'Resguardo y germinación de semillas nativas', en: 'Native seed preservation and germination' },
+          url: '/images/wess/identidad-comunidad-territorio.png',
+          caption: { es: 'Apropiación territorial y ceremonias bioculturales comunitarias', en: 'Territorial stewardship and community biocultural ceremonies' },
+        },
+        {
+          url: '/images/wess/educacion-para-la-sostenibilidad.png',
+          caption: { es: 'Talleres de educación para la sostenibilidad y agroecosistemas', en: 'Sustainability education and agroecosystem workshops' },
+        },
+        {
+          url: '/images/wess/semillas-nativas-conservacion.png',
+          caption: { es: 'Conservación de la agrobiodiversidad y resguardo de semillas nativas', en: 'Agrobiodiversity conservation and native seed preservation' },
+        },
+        {
+          url: '/images/wess/milpa-chinampera.jpg',
+          caption: { es: 'Cosecha tradicional en la milpa chinampera (maíz, frijol, calabaza y chile)', en: 'Traditional chinampa milpa harvest (maize, beans, squash & chili)' },
         },
       ],
     },
