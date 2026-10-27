@@ -13,6 +13,8 @@ import { useSiteSettings } from '../context/SiteSettingsContext.jsx';
 
 const EASE_SPRING = { type: 'spring', stiffness: 340, damping: 30 };
 
+
+
 export default function EditorialOverlay({
   isLoaded,
   scrollProgress
@@ -195,7 +197,7 @@ export default function EditorialOverlay({
   const scrubTargetRef = useRef(0);
   const phaseRef = useRef(0);
   const framePosRef = useRef(0);
-  const TOTAL_VIDEO_FRAMES = 169;
+  const TOTAL_VIDEO_FRAMES = 240;
 
   // MotionValue para el hero branch (sigue usando scrollProgress externo)
   const fallbackMV = useMotionValue(scrollProgress ?? 0);
@@ -295,10 +297,10 @@ export default function EditorialOverlay({
         scrubTargetRef.current = 1;
       }
 
-      // Suavizado del playhead con lerp (0.14) adaptado a ratón y trackpad con inercia cinemática pura
-      const dr = 0.14;
+      // Suavizado del playhead con lerp (0.20) adaptado a ratón y trackpad con inercia cinemática pura
+      const dr = 0.20;
       const diff = scrubTargetRef.current - framePosRef.current;
-      if (Math.abs(diff) < 0.0006) {
+      if (Math.abs(diff) < 0.0004) {
         framePosRef.current = scrubTargetRef.current;
       } else {
         framePosRef.current += diff * dr;
@@ -307,10 +309,11 @@ export default function EditorialOverlay({
       if (progress <= PHASE_2_START) framePosRef.current = 0;
       else if (progress >= PHASE_3_START) framePosRef.current = 1;
 
-      let frame = 1 + Math.round(framePosRef.current * (TOTAL_VIDEO_FRAMES - 1));
-      frame = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, frame));
+      // Cálculo continuo en punto flotante para interpolación óptica sub-frame a 60-144 FPS
+      const rawFrame = 1 + framePosRef.current * (TOTAL_VIDEO_FRAMES - 1);
+      const frame = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, rawFrame));
 
-      // Notificar directamente al CanvasFrameSequence de forma imperativa (CERO re-renders de React, 60-120fps fluido)
+      // Notificar directamente al CanvasFrameSequence de forma imperativa (CERO re-renders de React, 60-144fps fluido)
       if (canvasFrameRef.current) {
         canvasFrameRef.current.setFrame(frame);
       }
@@ -520,10 +523,10 @@ export default function EditorialOverlay({
             scale: heroBranchScale,
           }}
         >
-          {/* Capa Base: Imagen activa actual */}
+          {/* Capa Base: Rama 1 (sin fauna) o Rama 2 (con fauna y flora) */}
           <img
-            src={activeBaseLayer === 1 ? '/imagenes/Rama 1.svg' : '/imagenes/Rama 2.svg'}
-            alt={activeBaseLayer === 1 ? t({ es: 'Rama con Follaje', en: 'Canopy Branch with Foliage' }) : t({ es: 'Rama sin Follaje (Estructura Leñosa)', en: 'Bare Wood Branch Structure' })}
+            src={activeBaseLayer === 1 ? '/imagenes/Rama 1.png' : '/imagenes/Rama 2.png'}
+            alt={activeBaseLayer === 1 ? t({ es: 'Rama Base', en: 'Base Branch' }) : t({ es: 'Rama con Especies y Follaje', en: 'Branch with Species & Foliage' })}
             className="hero-branch-img"
             draggable={false}
           />
@@ -545,12 +548,13 @@ export default function EditorialOverlay({
             }}
           >
             <img
-              src={activeBaseLayer === 1 ? '/imagenes/Rama 2.svg' : '/imagenes/Rama 1.svg'}
-              alt={activeBaseLayer === 1 ? t({ es: 'Rama sin Follaje (Estructura Leñosa)', en: 'Bare Wood Branch Structure' }) : t({ es: 'Rama con Follaje', en: 'Canopy Branch with Foliage' })}
+              src={activeBaseLayer === 1 ? '/imagenes/Rama 2.png' : '/imagenes/Rama 1.png'}
+              alt={activeBaseLayer === 1 ? t({ es: 'Rama con Especies y Follaje', en: 'Branch with Species & Foliage' }) : t({ es: 'Rama Base', en: 'Base Branch' })}
               className="hero-branch-img"
               draggable={false}
             />
           </div>
+
         </motion.div>
 
         {/* Fila Principal: Columna Izquierda con el Titular Centrado Verticalmente */}

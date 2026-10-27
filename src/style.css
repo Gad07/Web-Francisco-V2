@@ -74,8 +74,8 @@ html { scroll-behavior: smooth; }
 }
 
 .hero-mask-layer {
-  -webkit-mask-image: url('/imagenes/Rama 2.svg');
-  mask-image: url('/imagenes/Rama 2.svg');
+  -webkit-mask-image: url('/imagenes/Rama 2.png');
+  mask-image: url('/imagenes/Rama 2.png');
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: right bottom;

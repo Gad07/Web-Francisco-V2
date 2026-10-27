@@ -6,7 +6,7 @@ import React, { useRef, useEffect, useImperativeHandle, forwardRef, useCallback 
  * Preloads all 153 frames, decodes asynchronously off the main thread,
  * and renders smoothly at 60-120 FPS without dropped frames or stutter.
  */
-const TOTAL_FRAMES = 169;
+const TOTAL_FRAMES = 240;
 const VIDEO_FRAMES = typeof window !== 'undefined'
   ? (window.__VIDEO_FRAMES__ || (window.__VIDEO_FRAMES__ = new Array(TOTAL_FRAMES + 1)))
   : new Array(TOTAL_FRAMES + 1);
@@ -17,9 +17,8 @@ const getFrameSrc = (index) => `/VideoFrames/frame_${String(index).padStart(3, '
 const frameLoadListeners = new Set();
 
 /**
- * Preload all 153 frames into browser memory without overflowing VRAM.
- * Standard HTMLImageElement downloads and caches compressed JPEGs (~22 MB total)
- * without triggering mass 1.27 GB RGBA pixel buffer allocations.
+ * Preload all frames into browser memory without overflowing VRAM.
+ * Decodes frames asynchronously off the main thread to eliminate any scroll jank.
  */
 let isPreloading = false;
 
@@ -27,24 +26,25 @@ export function preloadAllVideoFrames() {
   if (typeof window === 'undefined' || isPreloading) return;
   isPreloading = true;
 
-  // 1. Cargar únicamente los fotogramas clave de anclaje (inicio y fin)
-  const priorityFrames = [1, TOTAL_FRAMES];
+  // 1. Cargar fotogramas ancla prioritarios (inicio, transiciones clave y fin)
+  const priorityFrames = [1, 75, 120, 180, TOTAL_FRAMES];
   priorityFrames.forEach((i) => {
     if (!VIDEO_FRAMES[i]) {
       const img = new Image();
       img.src = getFrameSrc(i);
       img.onload = () => {
         VIDEO_FRAMES[i] = img;
+        if (img.decode) img.decode().catch(() => {});
         frameLoadListeners.forEach((fn) => fn(i));
       };
       VIDEO_FRAMES[i] = img;
     }
   });
 
-  // 2. Cargar el resto en lotes controlados para no saturar el ancho de banda de Netlify
+  // 2. Cargar en lotes optimizados con decodificación asíncrona fuera del hilo principal
   const loadBatches = () => {
     let currentIdx = 2;
-    const batchSize = 6;
+    const batchSize = 16;
 
     const loadNextBatch = () => {
       const end = Math.min(TOTAL_FRAMES, currentIdx + batchSize);
@@ -54,6 +54,7 @@ export function preloadAllVideoFrames() {
           img.src = getFrameSrc(i);
           img.onload = () => {
             VIDEO_FRAMES[i] = img;
+            if (img.decode) img.decode().catch(() => {});
             frameLoadListeners.forEach((fn) => fn(i));
           };
           VIDEO_FRAMES[i] = img;
@@ -62,17 +63,17 @@ export function preloadAllVideoFrames() {
       currentIdx = end;
       if (currentIdx < TOTAL_FRAMES) {
         if (typeof window.requestIdleCallback === 'function') {
-          window.requestIdleCallback(loadNextBatch, { timeout: 800 });
+          window.requestIdleCallback(loadNextBatch, { timeout: 400 });
         } else {
-          setTimeout(loadNextBatch, 120);
+          setTimeout(loadNextBatch, 60);
         }
       }
     };
 
     if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(loadNextBatch, { timeout: 1500 });
+      window.requestIdleCallback(loadNextBatch, { timeout: 600 });
     } else {
-      setTimeout(loadNextBatch, 300);
+      setTimeout(loadNextBatch, 100);
     }
   };
 
@@ -90,16 +91,17 @@ if (typeof window !== 'undefined') {
     firstImg.src = getFrameSrc(1);
     firstImg.onload = () => {
       VIDEO_FRAMES[1] = firstImg;
+      if (firstImg.decode) firstImg.decode().catch(() => {});
       frameLoadListeners.forEach((fn) => fn(1));
     };
     VIDEO_FRAMES[1] = firstImg;
   }
 
-  // Pre-carga diferida durante tiempo ocioso del navegador
+  // Pre-carga inmediata durante tiempo ocioso del navegador
   if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(() => preloadAllVideoFrames(), { timeout: 3500 });
+    window.requestIdleCallback(() => preloadAllVideoFrames(), { timeout: 2000 });
   } else {
-    setTimeout(() => preloadAllVideoFrames(), 2000);
+    setTimeout(() => preloadAllVideoFrames(), 800);
   }
 }
 
@@ -129,57 +131,50 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
       ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
       if (ctx) {
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'low';
+        ctx.imageSmoothingQuality = 'medium';
         ctxRef.current = ctx;
       }
     }
     if (!ctx) return;
 
-    const frameNum = Math.max(1, Math.min(totalFrames, Math.round(targetFrameRef.current)));
+    const raw = Math.max(1, Math.min(totalFrames, targetFrameRef.current));
+    const floorNum = Math.floor(raw);
+    const ceilNum = Math.min(totalFrames, floorNum + 1);
+    const fraction = raw - floorNum;
 
-    // If exact frame was already drawn, no need to redraw
-    if (frameNum === lastDrawnFrameRef.current && isExactFrameDrawnRef.current) {
-      return;
-    }
-
-    let img = VIDEO_FRAMES[frameNum];
-    const isExact = Boolean(img && img.complete && img.naturalWidth > 0);
-
-    // Fallback: search backwards for closest loaded frame
-    if (!isExact) {
-      for (let f = frameNum - 1; f >= 1; f--) {
-        if (VIDEO_FRAMES[f] && VIDEO_FRAMES[f].complete && VIDEO_FRAMES[f].naturalWidth > 0) {
-          img = VIDEO_FRAMES[f];
-          break;
-        }
+    // Helper para obtener fotograma disponible
+    const getLoadedFrame = (num) => {
+      let img = VIDEO_FRAMES[num];
+      if (img && img.complete && img.naturalWidth > 0) return img;
+      for (let f = num - 1; f >= 1; f--) {
+        if (VIDEO_FRAMES[f] && VIDEO_FRAMES[f].complete && VIDEO_FRAMES[f].naturalWidth > 0) return VIDEO_FRAMES[f];
       }
-      // If still not found, try forward
-      if (!img || !img.complete || img.naturalWidth === 0) {
-        for (let f = frameNum + 1; f <= totalFrames; f++) {
-          if (VIDEO_FRAMES[f] && VIDEO_FRAMES[f].complete && VIDEO_FRAMES[f].naturalWidth > 0) {
-            img = VIDEO_FRAMES[f];
-            break;
-          }
-        }
+      for (let f = num + 1; f <= totalFrames; f++) {
+        if (VIDEO_FRAMES[f] && VIDEO_FRAMES[f].complete && VIDEO_FRAMES[f].naturalWidth > 0) return VIDEO_FRAMES[f];
       }
-      if (!img || !img.complete || img.naturalWidth === 0) {
-        if (frameNum > 90 && VIDEO_FRAMES[totalFrames]?.complete && VIDEO_FRAMES[totalFrames]?.naturalWidth > 0) {
-          img = VIDEO_FRAMES[totalFrames];
-        } else {
-          img = VIDEO_FRAMES[1];
-        }
-      }
-    }
+      return VIDEO_FRAMES[1];
+    };
 
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    const imgFloor = getLoadedFrame(floorNum);
+    if (!imgFloor || !imgFloor.complete || imgFloor.naturalWidth === 0) return;
 
     const { nx, ny, nw, nh } = drawRectRef.current;
     if (nw <= 0 || nh <= 0) return;
 
-    ctx.drawImage(img, nx, ny, nw, nh);
+    ctx.drawImage(imgFloor, nx, ny, nw, nh);
 
-    lastDrawnFrameRef.current = frameNum;
-    isExactFrameDrawnRef.current = isExact;
+    // Interpolación óptica sub-frame: mezcla suave con el siguiente fotograma a 60-144 FPS
+    if (fraction > 0.05 && fraction < 0.95 && ceilNum !== floorNum) {
+      const imgCeil = VIDEO_FRAMES[ceilNum];
+      if (imgCeil && imgCeil.complete && imgCeil.naturalWidth > 0) {
+        ctx.globalAlpha = fraction;
+        ctx.drawImage(imgCeil, nx, ny, nw, nh);
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    lastDrawnFrameRef.current = raw;
+    isExactFrameDrawnRef.current = true;
   }, [totalFrames]);
 
   const scheduleDraw = useCallback(() => {
@@ -188,7 +183,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
   }, [draw]);
 
   const setFrame = useCallback((num) => {
-    const clamped = Math.max(1, Math.min(totalFrames, Math.round(num)));
+    const clamped = Math.max(1, Math.min(totalFrames, num));
     targetFrameRef.current = clamped;
     draw();
   }, [totalFrames, draw]);
@@ -199,12 +194,12 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
     },
     setProgress(progress) {
       const clamped = Math.max(0, Math.min(1, Number.isFinite(progress) ? progress : 0));
-      const frame = 1 + Math.round(clamped * (totalFrames - 1));
+      const frame = 1 + clamped * (totalFrames - 1);
       setFrame(frame);
     },
     setTargetProgress(progress) {
       const clamped = Math.max(0, Math.min(1, Number.isFinite(progress) ? progress : 0));
-      const frame = 1 + Math.round(clamped * (totalFrames - 1));
+      const frame = 1 + clamped * (totalFrames - 1);
       setFrame(frame);
     },
     redraw() {
