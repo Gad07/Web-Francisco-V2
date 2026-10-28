@@ -7,8 +7,16 @@ export default defineConfig({
     port: 5174,
     host: true,
   },
+  esbuild: {
+    target: 'esnext',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
   build: {
-    target: 'es2020',
+    target: 'esnext',
     sourcemap: false,
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
