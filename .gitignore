@@ -24,3 +24,8 @@ Thumbs.db
 .idea/
 *.swp
 *.bak
+
+# AI upscaling tool + temp work
+scripts/tools/
+scripts/temp_ai_upscale/
+scripts/temp_master_loop/

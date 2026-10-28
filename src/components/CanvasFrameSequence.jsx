@@ -131,7 +131,7 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
       ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
       if (ctx) {
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'medium';
+        ctx.imageSmoothingQuality = 'high';
         ctxRef.current = ctx;
       }
     }
@@ -292,7 +292,6 @@ const CanvasFrameSequence = forwardRef(function CanvasFrameSequence(
           opacity: showFrames ? 1 : 0,
           transform: 'translateZ(0)',
           willChange: 'transform',
-          imageRendering: '-webkit-optimize-contrast',
         }}
       />
 

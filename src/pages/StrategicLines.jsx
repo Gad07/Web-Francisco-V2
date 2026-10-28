@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { PageHero } from '../components/PageHero.jsx';
@@ -403,7 +403,87 @@ export default function StrategicLines() {
     ? lines
     : lines.filter((l) => l.category === selectedCategory);
 
+  const shortDescriptions = {
+    '01': {
+      es: 'Propuestas normativas, participación social y justicia ambiental.',
+      en: 'Normative proposals, social participation, and environmental justice.',
+    },
+    '02': {
+      es: 'Mitigación, adaptación climática y soluciones basadas en la naturaleza.',
+      en: 'Climate mitigation, adaptation, and nature-based solutions.',
+    },
+    '03': {
+      es: 'Recuperación de bosques, cuencas, humedales y servicios ecosistémicos.',
+      en: 'Restoration of forests, watersheds, wetlands, and ecosystem services.',
+    },
+    '04': {
+      es: 'Planificación participativa y defensa del patrimonio biocultural.',
+      en: 'Participatory planning and defense of biocultural heritage.',
+    },
+    '05': {
+      es: 'Diagnósticos, indicadores y evaluación de metas basada en evidencia.',
+      en: 'Diagnostics, indicators, and evidence-based target evaluation.',
+    },
+    '06': {
+      es: 'Agroecología, resguardo de semillas nativas y medios de vida rurales.',
+      en: 'Agroecology, native seed conservation, and rural livelihoods.',
+    },
+    '07': {
+      es: 'Protección de fauna, hábitats e integración de salud ambiental.',
+      en: 'Wildlife protection, habitats, and environmental health integration.',
+    },
+    '08': {
+      es: 'Formación comunitaria, saberes ancestrales y liderazgo juvenil.',
+      en: 'Community training, ancestral wisdom, and youth leadership.',
+    },
+    '09': {
+      es: 'Ciencia aplicada, monitoreo ambiental y tecnologías sostenibles.',
+      en: 'Applied science, environmental monitoring, and sustainable technologies.',
+    },
+    '10': {
+      es: 'Cooperación técnica multilateral y articulación interinstitucional.',
+      en: 'Multilateral technical cooperation and institutional alliances.',
+    },
+  };
+
   const countFor = (id) => (id === 'ALL' ? lines.length : lines.filter((l) => l.category === id).length);
+  const getCategoryLabel = (catId) => {
+    const found = categories.find((c) => c.id === catId);
+    return found ? found.label : { es: 'Eje Estratégico', en: 'Strategic Axis' };
+  };
+  const activeLineObj = expandedLine ? lines.find((l) => l.id === expandedLine) : null;
+  const activeLineIdx = activeLineObj ? lines.findIndex((l) => l.id === activeLineObj.id) : -1;
+
+  const cleanOdsTitle = (rawTitle) => {
+    if (!rawTitle) return '';
+    return rawTitle.replace(/^(ODS|SDG)\s*\d+\s*·\s*/i, '');
+  };
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('cga:modal', { detail: { open: Boolean(expandedLine) } })
+    );
+    if (!expandedLine) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setExpandedLine(null);
+      if (e.key === 'ArrowRight') {
+        const nextIdx = (activeLineIdx + 1) % lines.length;
+        setExpandedLine(lines[nextIdx].id);
+      }
+      if (e.key === 'ArrowLeft') {
+        const prevIdx = (activeLineIdx - 1 + lines.length) % lines.length;
+        setExpandedLine(lines[prevIdx].id);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+      window.dispatchEvent(new CustomEvent('cga:modal', { detail: { open: false } }));
+    };
+  }, [expandedLine, activeLineIdx]);
 
   return (
     <div className="min-h-screen bg-[#f5efe3] text-[#2d2618] font-sans flex flex-col justify-between">
@@ -421,9 +501,6 @@ export default function StrategicLines() {
         {/* ─── CABECERA EDITORIAL + SELECTOR DE ÁMBITOS ─── */}
         <section className="pt-16 sm:pt-24 pb-20 px-4 sm:px-8 md:px-16 lg:px-20 max-w-7xl mx-auto w-full">
           <div className="pb-8 border-b border-[#d8ceb6]/70 mb-10 text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4a5a22]/10 border border-[#4a5a22]/20 text-[#4a5a22] text-xs font-semibold uppercase tracking-widest">
-              {t({ es: 'Ejes de Acción', en: 'Action Axes' })}
-            </div>
             <h2 className="font-serif text-3xl sm:text-5xl text-[#2d2618] font-light leading-[1.14]">
               {t({ es: 'Diez ejes de acción,', en: 'Ten action axes,' })}{' '}
               <span className="italic text-[#4a5a22] font-normal">
@@ -478,53 +555,102 @@ export default function StrategicLines() {
             </div>
           </div>
 
-          {/* ─── GRID DE CARDS: IMAGEN, TÍTULO, DESCRIPCIÓN Y LOGOS ODS DESTACADOS ─── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* ─── GRID MOSAICO INTERCALADO (1x1, 1x2, 2x1, 2x2) ─── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:auto-rows-[250px] lg:auto-rows-[255px] grid-flow-dense gap-5 lg:gap-6">
             {filteredLines.map((line, i) => {
               const isExpanded = expandedLine === line.id;
-              const totalMetas = line.odsMetas.reduce((acc, o) => acc + o.metas.length, 0);
+              const allOdsNums = Array.from(
+                new Set([
+                  ...line.odsDestacados.map((n) => n.padStart(2, '0')),
+                  ...line.odsMetas.map((g) => g.ods.padStart(2, '0')),
+                ])
+              );
+
+              // Patrón mosaico exacto sin huecos para 10, 4 o 2 tarjetas
+              const getMosaicPattern = (idx, total) => {
+                if (total === 2) {
+                  return {
+                    span: 'md:col-span-1 lg:col-span-2 md:row-span-2 lg:row-span-2',
+                    type: '2x2',
+                  };
+                }
+                if (total === 4) {
+                  const patterns4 = [
+                    { span: 'md:col-span-2 lg:col-span-2 md:row-span-2 lg:row-span-2', type: '2x2' },
+                    { span: 'md:col-span-2 lg:col-span-2 md:row-span-1 lg:row-span-1', type: '2x1' },
+                    { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' },
+                    { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' },
+                  ];
+                  return patterns4[idx % 4];
+                }
+                // Mosaico de 10 tarjetas (4 cols × 5 filas = 20 celdas exactas)
+                const patterns10 = [
+                  { span: 'md:col-span-2 lg:col-span-2 md:row-span-2 lg:row-span-2', type: '2x2' }, // 01: 2x2
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-2 lg:row-span-2', type: '1x2' }, // 02: 1x2 (alta)
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' }, // 03: 1x1
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' }, // 04: 1x1
+                  { span: 'md:col-span-2 lg:col-span-2 md:row-span-1 lg:row-span-1', type: '2x1' }, // 05: 2x1 (ancha)
+                  { span: 'md:col-span-2 lg:col-span-2 md:row-span-1 lg:row-span-1', type: '2x1' }, // 06: 2x1 (ancha)
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' }, // 07: 1x1
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-2 lg:row-span-2', type: '1x2' }, // 08: 1x2 (alta)
+                  { span: 'md:col-span-2 lg:col-span-2 md:row-span-2 lg:row-span-2', type: '2x2' }, // 09: 2x2
+                  { span: 'md:col-span-1 lg:col-span-1 md:row-span-1 lg:row-span-1', type: '1x1' }, // 10: 1x1
+                ];
+                return patterns10[idx % patterns10.length];
+              };
+
+              const { span, type } = getMosaicPattern(i, filteredLines.length);
+              const isLarge = type === '2x2';
+              const isCompactRow = type === '1x1' || type === '2x1';
 
               return (
-                <motion.div
+                <motion.article
                   key={line.id}
                   onClick={() => setExpandedLine(isExpanded ? null : line.id)}
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-30px' }}
-                  transition={{ duration: 0.6, delay: 0.05 * (i % 3), ease: EASE }}
-                  className="group relative rounded-2xl overflow-hidden border border-[#d8ceb6] shadow-md hover:shadow-xl hover:border-[#4a5a22]/70 transition-all duration-500 min-h-[460px] flex flex-col justify-between cursor-pointer select-none"
+                  transition={{ duration: 0.6, delay: 0.04 * (i % 5), ease: EASE }}
+                  className={`${span} min-h-[260px] md:min-h-0 group relative rounded-[24px] overflow-hidden bg-[#221c12] shadow-[0_12px_32px_-12px_rgba(45,38,24,0.18)] hover:shadow-[0_26px_50px_-12px_rgba(45,38,24,0.32)] hover:-translate-y-1 transition-all duration-500 cursor-pointer select-none flex flex-col justify-between ${
+                    isLarge ? 'p-6 sm:p-7' : 'p-5'
+                  }`}
                 >
-                  {/* Imagen a sangre completa */}
+                  {/* Fotografía a sangre completa ocupando toda la card */}
                   <img
                     src={line.img}
                     alt={t(line.title)}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-out"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.1s] ease-out"
                     loading="lazy"
                   />
 
-                  {/* Degradado para máxima legibilidad */}
+                  {/* Degradado suave para proteger la foto y dar lectura al título */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
                       background:
-                        'linear-gradient(to top, rgba(18,14,9,0.98) 0%, rgba(18,14,9,0.78) 50%, rgba(18,14,9,0.3) 80%, rgba(18,14,9,0.15) 100%)',
+                        'linear-gradient(180deg, rgba(14,11,7,0.34) 0%, rgba(14,11,7,0.02) 38%, rgba(14,11,7,0.18) 58%, rgba(14,11,7,0.9) 100%)',
                     }}
                   />
 
-                  {/* Parte Superior: Número + ODS Destacados */}
-                  <div className="relative z-10 p-6 flex items-start justify-between">
-                    <span className="font-serif text-2xl font-light text-[#cdd2a6] bg-black/40 backdrop-blur-md px-3 py-1 rounded-xl border border-white/10">
+                  {/* Parte Superior: Número + Íconos ODS */}
+                  <div className="relative z-10 flex items-start justify-between gap-2">
+                    <span
+                      className={`font-serif font-light text-white/95 tabular-nums leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] ${
+                        isLarge ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'
+                      }`}
+                    >
                       {line.id}
                     </span>
 
-                    {/* Logos ODS Destacados */}
-                    <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md p-1.5 rounded-xl border border-white/15 shadow-sm">
-                      {line.odsDestacados.map((num) => (
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                      {allOdsNums.map((num) => (
                         <img
                           key={num}
                           src={`/images/ods/S-WEB-Goal-${num}.png`}
                           alt={`ODS ${num}`}
-                          className="w-8 h-8 rounded-md object-contain shadow-xs hover:scale-110 transition-transform"
+                          className={`${
+                            isLarge ? 'w-8 h-8 sm:w-9 sm:h-9' : 'w-7 h-7 sm:w-8 sm:h-8'
+                          } rounded-[6px] object-contain shadow-[0_4px_12px_rgba(0,0,0,0.35)] group-hover:scale-105 transition-transform duration-300`}
                           title={`ODS ${num}`}
                           loading="lazy"
                         />
@@ -532,128 +658,207 @@ export default function StrategicLines() {
                     </div>
                   </div>
 
-                  {/* Parte Inferior: Título, Descripción y Call to action */}
-                  <div className="relative z-10 p-6 sm:p-7 space-y-2.5">
-                    <h3 className="font-serif text-2xl leading-tight text-white font-normal transition-colors duration-300 group-hover:text-[#e5eec2]">
+                  {/* Parte Inferior: Título + Descripción breve */}
+                  <div className="relative z-10 pt-3 space-y-1.5">
+                    <h3
+                      className={`font-serif text-white font-normal tracking-[-0.01em] group-hover:text-[#e5eec2] transition-colors duration-300 text-balance drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] ${
+                        isLarge
+                          ? 'text-2xl sm:text-3xl leading-[1.16]'
+                          : isCompactRow
+                          ? 'text-[17px] sm:text-[19px] leading-[1.2]'
+                          : 'text-xl sm:text-[22px] leading-[1.2]'
+                      }`}
+                    >
                       {t(line.title)}
                     </h3>
-                    <p className="text-xs text-[#e5decf]/90 font-light leading-relaxed line-clamp-3">
-                      {t(line.desc)}
+                    <p
+                      className={`text-[#e8e1d3]/85 font-light leading-snug drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] ${
+                        isLarge ? 'text-xs sm:text-sm max-w-md' : 'text-[11.5px] sm:text-xs line-clamp-2'
+                      }`}
+                    >
+                      {t(shortDescriptions[line.id] || line.desc)}
                     </p>
-
-                    <div className="pt-2 flex items-center justify-between text-[11px] font-medium text-[#cdd2a6] border-t border-white/15">
-                      <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        <span>{t({ es: 'Ver metas específicas ODS', en: 'View specific SDG targets' })}</span>
-                        <span>({totalMetas}) &rarr;</span>
-                      </span>
-                      <span className="text-[10px] uppercase tracking-wider text-white/60">
-                        {t({ es: 'Clic para abrir', en: 'Click to expand' })}
-                      </span>
-                    </div>
                   </div>
+                </motion.article>
+              );
+            })}
+          </div>
 
-                  {/* Despliegue de Información Interno (EN LA TARJETA, CON METAS ODS DETALLADAS) */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, y: '100%' }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: '100%' }}
-                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedLine(null);
-                        }}
-                        className="absolute inset-0 z-20 bg-[#16120b]/98 backdrop-blur-md p-6 sm:p-7 flex flex-col justify-between cursor-pointer border border-[#cdd2a6]/30 overflow-y-auto"
-                      >
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between pb-3 border-b border-white/15">
-                            <div className="flex items-center gap-2">
-                              <span className="font-serif text-xl font-light text-[#cdd2a6]">
-                                EJE {line.id}
-                              </span>
-                              <div className="flex items-center gap-1">
-                                {line.odsDestacados.map((num) => (
-                                  <img
-                                    key={num}
-                                    src={`/images/ods/S-WEB-Goal-${num}.png`}
-                                    alt={`ODS ${num}`}
-                                    className="w-6 h-6 rounded object-contain"
-                                  />
-                                ))}
-                              </div>
-                            </div>
+          {/* ─── POP-UP MINIMALISTA CON PROTAGONISMO DE FOTO Y ODS ─── */}
+          <AnimatePresence>
+            {activeLineObj && (() => {
+              const prevLine = lines[(activeLineIdx - 1 + lines.length) % lines.length];
+              const nextLine = lines[(activeLineIdx + 1) % lines.length];
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  onClick={() => setExpandedLine(null)}
+                  className="fixed inset-0 z-[120] bg-[#120e09]/80 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center"
+                >
+                  {/* Botón flotante izquierdo (Eje anterior) en escritorio */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedLine(prevLine.id);
+                    }}
+                    title={`${t({ es: 'Anterior', en: 'Previous' })}: ${t(prevLine.title)}`}
+                    className="hidden lg:flex w-11 h-11 mr-4 rounded-full bg-[#faf6ec]/15 hover:bg-[#faf6ec] text-[#faf6ec] hover:text-[#2d2618] border border-white/20 items-center justify-center transition-all duration-300 cursor-pointer shrink-0"
+                  >
+                    &larr;
+                  </button>
+
+                  <motion.div
+                    key={activeLineObj.id}
+                    initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 12, scale: 0.97 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative w-full max-w-[920px] max-h-[90dvh] rounded-[32px] bg-[#faf6ec] text-[#2d2618] border border-[#d8ceb6] shadow-[0_32px_90px_-16px_rgba(0,0,0,0.75)] overflow-hidden flex flex-col"
+                  >
+                    <div className="overflow-y-auto flex-1 [scrollbar-width:thin] [scrollbar-color:rgba(74,90,34,0.28)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:my-7 [&::-webkit-scrollbar-thumb]:bg-[#4a5a22]/25 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#4a5a22]/50">
+                      {/* ── 1. FOTOGRAFÍA PROTAGONISTA ENMARCADA ── */}
+                      <div className="p-3 pb-0">
+                        <div className="relative h-56 sm:h-68 rounded-[24px] overflow-hidden bg-[#1a150e]">
+                          <img
+                            src={activeLineObj.img}
+                            alt={t(activeLineObj.title)}
+                            className="w-full h-full object-cover"
+                          />
+
+                          {/* Degradado limpio para lectura del título sobre la foto */}
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                              background:
+                                'linear-gradient(180deg, rgba(14,11,7,0.35) 0%, rgba(14,11,7,0.05) 40%, rgba(14,11,7,0.88) 100%)',
+                            }}
+                          />
+
+                          {/* Número del eje + Botón cerrar minimalista */}
+                          <div className="absolute top-4 left-5 right-4 z-10 flex items-start justify-between">
+                            <span className="font-serif text-4xl sm:text-5xl font-light text-white/95 tabular-nums leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+                              {activeLineObj.id}
+                            </span>
+
                             <button
                               type="button"
                               onClick={() => setExpandedLine(null)}
-                              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors text-xs"
-                              title="Cerrar detalle"
+                              className="w-9 h-9 rounded-full bg-black/40 hover:bg-white text-white hover:text-[#2d2618] backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-200 cursor-pointer text-xs"
+                              title={t({ es: 'Cerrar (Esc)', en: 'Close (Esc)' })}
                             >
                               ✕
                             </button>
                           </div>
 
-                          <div>
-                            <h4 className="font-serif text-xl sm:text-2xl text-white font-normal leading-snug">
-                              {t(line.title)}
-                            </h4>
-                            <p className="mt-2 text-xs text-[#e5decf]/90 font-light leading-relaxed">
-                              {t(line.desc)}
-                            </p>
+                          {/* Título del eje sobre el borde inferior de la fotografía */}
+                          <div className="absolute bottom-5 left-5 right-5 sm:left-7 sm:right-7 z-10">
+                            <h3 className="font-serif text-2xl sm:text-3xl md:text-[32px] text-white font-normal leading-[1.15] tracking-[-0.01em] text-balance">
+                              {t(activeLineObj.title)}
+                            </h3>
                           </div>
+                        </div>
+                      </div>
 
-                          {/* Metas Específicas por ODS */}
-                          <div className="space-y-3.5 pt-3 border-t border-white/15">
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#cdd2a6] block">
-                              {t({ es: 'Metas Específicas de la Agenda 2030:', en: 'Specific 2030 Agenda Targets:' })}
-                            </span>
+                      {/* ── 2. SÍNTESIS + PROTAGONISMO DE LOS ODS Y SUS METAS ── */}
+                      <div className="p-6 sm:p-7 pt-5 space-y-6">
+                        {/* Descripción editorial limpia */}
+                        <p className="text-sm sm:text-[15px] text-[#4e4330] font-light leading-[1.68]">
+                          {t(activeLineObj.desc)}
+                        </p>
 
-                            {line.odsMetas.map((group) => (
-                              <div key={group.ods} className="bg-white/5 rounded-xl p-3 border border-white/10 space-y-2">
-                                <div className="flex items-center gap-2">
+                        {/* Grilla limpia de ODS con íconos grandes protagonistas */}
+                        <div
+                          className={`grid gap-4 ${
+                            activeLineObj.odsMetas.length === 3
+                              ? 'grid-cols-1 md:grid-cols-3'
+                              : 'grid-cols-1 sm:grid-cols-2'
+                          }`}
+                        >
+                          {activeLineObj.odsMetas.map((group) => {
+                            const odsKey = group.ods.padStart(2, '0');
+                            return (
+                              <div
+                                key={group.ods}
+                                className="rounded-2xl bg-[#f3ede0]/90 border border-[#d8ceb6]/80 p-4 sm:p-5 flex flex-col gap-3.5"
+                              >
+                                {/* Ícono ODS a gran escala + Nombre del Objetivo */}
+                                <div className="flex items-center gap-3.5">
                                   <img
-                                    src={`/images/ods/S-WEB-Goal-${group.ods.padStart(2, '0')}.png`}
-                                    alt={`ODS ${group.ods}`}
-                                    className="w-6 h-6 rounded object-contain shadow-xs shrink-0"
+                                    src={`/images/ods/S-WEB-Goal-${odsKey}.png`}
+                                    alt={`ODS ${odsKey}`}
+                                    className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl object-contain shadow-sm ring-1 ring-black/10 shrink-0"
                                   />
-                                  <span className="text-xs font-semibold text-white">
-                                    {t(group.title)}
-                                  </span>
+                                  <div className="min-w-0">
+                                    <h4 className="font-serif text-[15px] sm:text-base text-[#2d2618] font-normal leading-snug">
+                                      {cleanOdsTitle(t(group.title))}
+                                    </h4>
+                                  </div>
                                 </div>
-                                <ul className="space-y-1.5 pl-1">
+
+                                {/* Metas del ODS */}
+                                <ul className="space-y-2 pt-3 border-t border-[#d8ceb6]/70">
                                   {group.metas.map((m) => (
                                     <li
                                       key={m.code}
-                                      className="text-xs text-[#f5efe3]/90 font-light flex items-start gap-2"
+                                      className="flex items-baseline gap-2.5 text-xs sm:text-[13px] leading-relaxed"
                                     >
-                                      <span className="font-mono text-[10px] font-semibold text-[#cdd2a6] bg-[#cdd2a6]/20 px-1.5 py-0.5 rounded shrink-0">
+                                      <span className="font-mono text-[11px] font-semibold text-[#4a5a22] shrink-0 tabular-nums">
                                         {m.code}
                                       </span>
-                                      <span className="leading-relaxed">{t(m.text)}</span>
+                                      <span className="text-[#4e4330] font-light">
+                                        {t(m.text)}
+                                      </span>
                                     </li>
                                   ))}
                                 </ul>
                               </div>
-                            ))}
-                          </div>
+                            );
+                          })}
                         </div>
 
-                        <div className="pt-4 mt-4 border-t border-white/15 text-center">
+                        {/* Navegación móvil discreta (solo en pantallas pequeñas) */}
+                        <div className="flex lg:hidden items-center justify-between pt-4 border-t border-[#d8ceb6]/70 text-xs font-medium text-[#4a5a22]">
                           <button
                             type="button"
-                            onClick={() => setExpandedLine(null)}
-                            className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[#cdd2a6] text-xs font-medium transition-colors"
+                            onClick={() => setExpandedLine(prevLine.id)}
+                            className="cursor-pointer"
                           >
-                            {t({ es: 'Cerrar detalle', en: 'Close details' })}
+                            &larr; {t({ es: 'Eje', en: 'Axis' })} {prevLine.id}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setExpandedLine(nextLine.id)}
+                            className="cursor-pointer"
+                          >
+                            {t({ es: 'Eje', en: 'Axis' })} {nextLine.id} &rarr;
                           </button>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Botón flotante derecho (Siguiente eje) en escritorio */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedLine(nextLine.id);
+                    }}
+                    title={`${t({ es: 'Siguiente', en: 'Next' })}: ${t(nextLine.title)}`}
+                    className="hidden lg:flex w-11 h-11 ml-4 rounded-full bg-[#faf6ec]/15 hover:bg-[#faf6ec] text-[#faf6ec] hover:text-[#2d2618] border border-white/20 items-center justify-center transition-all duration-300 cursor-pointer shrink-0"
+                  >
+                    &rarr;
+                  </button>
                 </motion.div>
               );
-            })}
-          </div>
+            })()}
+          </AnimatePresence>
 
           {/* ─── CIERRE EDITORIAL ─── */}
           <div className="mt-20 p-8 sm:p-12 rounded-3xl bg-[#2d2618] text-[#f5efe3] flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
