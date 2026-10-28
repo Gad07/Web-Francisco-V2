@@ -25,7 +25,6 @@ export default function EditorialOverlay({
   const [pledgeSubmitted, setPledgeSubmitted] = useState(false);
   const [pledgeName, setPledgeName] = useState('');
   const [activeTabWess, setActiveTabWess] = useState(0);
-  const [milpaMode, setMilpaMode] = useState('milpa');
   const [selectedBiome, setSelectedBiome] = useState(null);
 
   useEffect(() => {
@@ -1090,32 +1089,56 @@ export default function EditorialOverlay({
       {/* CAPÍTULO 3: PROYECTO WESS 2026 */}
       <section id="proyectos" className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 sm:px-12 md:px-20 relative bg-[#f5efe3] border-t border-[#e0d4ba] scroll-mt-28 overflow-hidden min-h-[620px] lg:min-h-[720px] flex items-center">
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[54%] xl:w-[58%] h-full pointer-events-none z-0 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={activeTabWess === 0 ? `tab0-${milpaMode}` : `tab-${activeTabWess}`}
-              src={
-                activeTabWess === 0
-                  ? (milpaMode === 'milpa' ? '/images/wess/milpa-chinampera.jpg' : '/images/wess/semillas-nativas-conservacion.png')
-                  : activeTabWess === 1
-                    ? '/images/wess/educacion-para-la-sostenibilidad.png'
-                    : activeTabWess === 2
-                      ? '/images/wess/identidad-comunidad-territorio.png'
-                      : '/images/wess/reconocimiento-internacional-wess-2026.png'
-              }
-              alt={t({ es: 'Gobernanza Ambiental para el Hambre Cero - WESS 2026', en: 'Environmental Governance for Zero Hunger - WESS 2026' })}
-              initial={{ opacity: 0, scale: 1.03 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-          </AnimatePresence>
+          {[
+            {
+              id: 0,
+              webp: '/images/wess/milpa-chinampera.webp',
+              fallback: '/images/wess/milpa-chinampera.jpg',
+              alt: { es: 'Semillas Nativas - Conservación de la Agrobiodiversidad', en: 'Native Seeds - Agrobiodiversity Conservation' },
+            },
+            {
+              id: 1,
+              webp: '/images/wess/educacion-para-la-sostenibilidad.webp',
+              fallback: '/images/wess/educacion-para-la-sostenibilidad.jpg',
+              alt: { es: 'Educación Ambiental - Educación para la Sostenibilidad', en: 'Environmental Education - Education for Sustainability' },
+            },
+            {
+              id: 2,
+              webp: '/images/wess/identidad-comunidad-territorio.webp',
+              fallback: '/images/wess/identidad-comunidad-territorio.jpg',
+              alt: { es: 'Apropiación Territorial - Identidad, Comunidad y Territorio', en: 'Territorial Stewardship - Identity, Community and Territory' },
+            },
+            {
+              id: 3,
+              webp: '/images/wess/reconocimiento-internacional-wess-2026.webp',
+              fallback: '/images/wess/reconocimiento-internacional-wess-2026.jpg',
+              alt: { es: 'Galardón WESS - Reconocimiento Internacional WESS 2026', en: 'WESS Award - International Recognition WESS 2026' },
+            },
+          ].map((tabImg) => {
+            const isActive = activeTabWess === tabImg.id;
+            return (
+              <picture key={tabImg.id}>
+                <source srcSet={tabImg.webp} type="image/webp" />
+                <img
+                  src={tabImg.fallback}
+                  alt={t(tabImg.alt)}
+                  loading="eager"
+                  decoding="async"
+                  className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-in-out ${
+                    isActive
+                      ? 'opacity-100 scale-100 z-10'
+                      : 'opacity-0 scale-105 pointer-events-none z-0'
+                  }`}
+                />
+              </picture>
+            );
+          })}
 
           {/* Overlay suave en Mobile/Tablet que permite apreciar la fotografía manteniendo la legibilidad */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#f5efe3]/80 via-[#f5efe3]/55 to-[#f5efe3]/90 lg:hidden" />
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#f5efe3]/80 via-[#f5efe3]/55 to-[#f5efe3]/90 lg:hidden z-20" />
           {/* Overlay en Desktop */}
-          <div className="hidden lg:block absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to right, #f5efe3 0%, rgba(245,239,227,0.94) 30%, rgba(245,239,227,0.5) 60%, transparent 90%)' }} />
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #f5efe3 0%, transparent 10%, transparent 90%, #f5efe3 100%)' }} />
+          <div className="hidden lg:block absolute inset-0 pointer-events-none z-20" style={{ background: 'linear-gradient(to right, #f5efe3 0%, rgba(245,239,227,0.94) 30%, rgba(245,239,227,0.5) 60%, transparent 90%)' }} />
+          <div className="absolute inset-0 pointer-events-none z-20" style={{ background: 'linear-gradient(to bottom, #f5efe3 0%, transparent 10%, transparent 90%, #f5efe3 100%)' }} />
         </div>
 
         <div className="max-w-7xl mx-auto w-full relative z-10">
@@ -1163,27 +1186,9 @@ export default function EditorialOverlay({
               <AnimatePresence mode="wait">
                 {activeTabWess === 0 && (
                   <motion.div key="tab0" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                      <h4 className="font-serif text-2xl text-[#2d2618] font-light">
-                        {t({ es: 'Conservación de la Agrobiodiversidad', en: 'Agrobiodiversity Conservation' })}
-                      </h4>
-                      <div className="inline-flex items-center p-0.5 rounded-lg bg-[#ded5c0] border border-[#cfc4ac] text-[10px]">
-                        <button
-                          type="button"
-                          onClick={() => setMilpaMode('milpa')}
-                          className={`px-2 py-0.5 rounded-md transition-colors font-medium ${milpaMode === 'milpa' ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs' : 'text-[#5a4e38] hover:text-[#2d2618]'}`}
-                        >
-                          {t({ es: 'Milpa Chinampera', en: 'Milpa Field' })}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMilpaMode('cga')}
-                          className={`px-2 py-0.5 rounded-md transition-colors font-medium ${milpaMode === 'cga' ? 'bg-[#4a5a22] text-[#f5efe3] shadow-xs' : 'text-[#5a4e38] hover:text-[#2d2618]'}`}
-                        >
-                          {t({ es: 'Entrega Semillas CGA', en: 'CGA Seed Handover' })}
-                        </button>
-                      </div>
-                    </div>
+                    <h4 className="font-serif text-2xl text-[#2d2618] font-light mb-2">
+                      {t({ es: 'Conservación de la Agrobiodiversidad', en: 'Agrobiodiversity Conservation' })}
+                    </h4>
                     <p className="text-[#6b6048] text-sm sm:text-base leading-relaxed font-light">
                       {t({
                         es: 'Promovimos el uso y la conservación de semillas nativas como maíz chinampero, chile chicuarote, calabaza pipiana, chilacayote y frijol ayocote, fortaleciendo los saberes ancestrales, la biodiversidad agrícola y la soberanía alimentaria de las comunidades.',
