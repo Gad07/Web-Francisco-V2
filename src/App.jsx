@@ -25,6 +25,10 @@ import Training from './pages/Training.jsx';
 import Communication from './pages/Communication.jsx';
 import Admin from './pages/Admin.jsx';
 import PresidentBusinessCard from './pages/PresidentBusinessCard.jsx';
+import TermsAndConditions from './pages/TermsAndConditions.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import CookiePolicy from './pages/CookiePolicy.jsx';
+import CookieConsentBanner from './components/CookieConsentBanner.jsx';
 import { ArticlesProvider } from './context/ArticlesContext.jsx';
 import { SiteSettingsProvider } from './context/SiteSettingsContext.jsx';
 import SiteNotificationSystem from './components/SiteNotificationSystem.jsx';
@@ -367,6 +371,16 @@ export default function App() {
               <Route path="/tarjeta-digital" element={<PresidentBusinessCard memberId="luis-garcia" />} />
               <Route path="/credencial-presidencia" element={<PresidentBusinessCard memberId="luis-garcia" />} />
 
+              {/* ─── PÁGINAS LEGALES Y NORMATIVAS ─── */}
+              <Route path="/terminos-y-condiciones" element={<TermsAndConditions />} />
+              <Route path="/terminos" element={<TermsAndConditions />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/politica-de-privacidad" element={<PrivacyPolicy />} />
+              <Route path="/privacidad" element={<PrivacyPolicy />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/politica-de-cookies" element={<CookiePolicy />} />
+              <Route path="/cookies" element={<CookiePolicy />} />
+
               {/* ─── RUTA DEL ADMINISTRADOR CMS ─── */}
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/articulos" element={<Admin />} />
@@ -375,6 +389,9 @@ export default function App() {
 
           {/* ─── FLOATING WHATSAPP BUTTON ─── */}
           <WhatsAppButton />
+
+          {/* ─── GESTIÓN DE CONSENTIMIENTO DE COOKIES & PRIVACIDAD ─── */}
+          <CookieConsentBanner />
         </div>
       </ArticlesProvider>
     </SiteSettingsProvider>

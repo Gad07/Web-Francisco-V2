@@ -52,7 +52,7 @@ export default function Communication() {
 
   const filtered = activeFilter === 'all'
     ? catalogArticles
-    : catalogArticles.filter((a) => a.type === activeFilter);
+    : articles.filter((a) => a.type === activeFilter);
 
   const handleSelectArticle = (article) => {
     setSelectedArticleId(article.id);

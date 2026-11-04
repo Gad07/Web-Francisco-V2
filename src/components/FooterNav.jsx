@@ -190,7 +190,28 @@ export default function FooterNav() {
         <div className="py-6 sm:py-8 border-t border-[#f5efe3]/15 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#d8d2c2]/70 font-light text-center md:text-left">
           <div className="flex flex-col items-center md:items-start gap-1">
             <span>{t('footer.rights')}</span>
-            <span className="text-[#d8d2c2]/80 text-[10px]">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-[10px] text-[#d8d2c2]/80 mt-1">
+              <Link to="/terminos-y-condiciones" className="hover:text-[#f5efe3] hover:underline transition-colors">
+                {t({ es: 'Términos y Condiciones', en: 'Terms & Conditions' })}
+              </Link>
+              <span>·</span>
+              <Link to="/politica-de-privacidad" className="hover:text-[#f5efe3] hover:underline transition-colors">
+                {t({ es: 'Política de Privacidad', en: 'Privacy Policy' })}
+              </Link>
+              <span>·</span>
+              <Link to="/politica-de-cookies" className="hover:text-[#f5efe3] hover:underline transition-colors">
+                {t({ es: 'Política de Cookies', en: 'Cookie Policy' })}
+              </Link>
+              <span>·</span>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('cga:open-cookie-preferences'))}
+                className="hover:text-[#cdd2a6] hover:underline transition-colors cursor-pointer"
+              >
+                {t({ es: 'Preferencias de Cookies', en: 'Cookie Preferences' })}
+              </button>
+            </div>
+            <span className="text-[#d8d2c2]/70 text-[10px] mt-1">
               {t({ es: 'Desarrollado por', en: 'Developed by' })}{' '}
               <a
                 href="https://gadielpalma.dev/"

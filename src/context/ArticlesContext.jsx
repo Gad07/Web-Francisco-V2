@@ -50,11 +50,10 @@ export function ArticlesProvider({ children }) {
   };
 
   const resetToDefaults = () => {
-    setArticles(INITIAL_ARTICLES);
-    saveStoredArticles(INITIAL_ARTICLES);
-    saveDbCollection('articles', INITIAL_ARTICLES);
+    setArticles([]);
+    saveStoredArticles([]);
+    saveDbCollection('articles', []);
   };
-
 
   return (
     <ArticlesContext.Provider

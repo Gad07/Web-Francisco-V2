@@ -1,7 +1,12 @@
 /**
- * Colección de artículos institucionales y científicos del CGA.
- * Estado: Limpio (Sin noticias ni artículos pre-cargados).
+ * ==============================================================================
+ * CONSEJO GLOBAL AMBIENTAL (CGA) — GESTOR DE ARTÍCULOS Y PUBLICACIONES (CMS)
+ * ==============================================================================
+ * La información de publicaciones y noticias NO está hardcodeada en el código.
+ * Se consulta y sincroniza dinámicamente desde la base de datos MySQL (Hostinger)
+ * y el Administrador CMS oficial.
  */
+
 export const INITIAL_ARTICLES = [];
 
 const STORAGE_KEY = 'cga_articles_cms_v7';
@@ -9,7 +14,7 @@ const STORAGE_KEY = 'cga_articles_cms_v7';
 export function getStoredArticles() {
   if (typeof window === 'undefined') return [];
   try {
-    // Purgar agresivamente todas las versiones anteriores con mock data
+    // Purgar versiones antiguas con mock data obsoleta
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('cga_articles_cms') || key === 'cga_articles')) {
@@ -21,19 +26,34 @@ export function getStoredArticles() {
 
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
       return [];
     }
+
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return [];
     }
-    // Filtrar cualquier vestigio de mock articles
-    const mockIds = ['tratado-de-biomas', 'moratoria-mineria', 'cumbre-biodiversidad', 'restauracion-arrecifes', 'justicia-climatica', 'corredores-biologicos'];
+
+    // Filtrar cualquier vestigio de mock data
+    const mockIds = [
+      'tratado-de-biomas',
+      'moratoria-mineria',
+      'cumbre-biodiversidad',
+      'restauracion-arrecifes',
+      'justicia-climatica',
+      'corredores-biologicos',
+      'feeding-habits-great-horned-owl-mexico',
+      'la-biologia-del-arte-reflexiones-creacion-humana',
+      'viajero-frecuente-murcielago-magueyero',
+      'espera-un-tlacuache-muerto-en-xochimilco',
+      'terrestrial-vertebrates-sierra-la-mojonera'
+    ];
+    // Limpiar del storage local lo que estuvo hardcodeado temporalmente
     const cleaned = parsed.filter(a => a && a.id && !mockIds.includes(a.id) && !mockIds.includes(a.aliasId));
     if (cleaned.length !== parsed.length) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
     }
+
     return cleaned;
   } catch (e) {
     return [];
@@ -50,4 +70,3 @@ export function saveStoredArticles(articles) {
     console.error('Error saving articles to storage:', e);
   }
 }
-

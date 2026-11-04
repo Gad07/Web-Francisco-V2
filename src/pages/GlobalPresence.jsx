@@ -24,8 +24,8 @@ const SEDE_DETAILS = {
       en: 'Territories that Nourish and territorial background in Xochimilco; state environmental agendas, ESG strategies and socio-environmental reinsertion in various development phases.',
     },
     alianzas: {
-      es: 'México por el Clima, KabPrison Project y Expo México Mujer',
-      en: 'Mexico for Climate, KabPrison Project and Expo Mexico Woman',
+      es: 'México por el Clima, KabPrison Project y Alas Metropolitanas',
+      en: 'Mexico for Climate, KabPrison Project and Alas Metropolitanas',
     },
     alianzasEmail: 'alianzas@consejoglobalambiental.com',
     metric: '2020–2026',

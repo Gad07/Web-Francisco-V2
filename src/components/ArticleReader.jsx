@@ -95,6 +95,69 @@ export default function ArticleReader({
     `${titleText} - ${window.location.origin}/comunicacion?articulo=${article.id}`
   )}`;
 
+    const resolvedExternalUrl =
+    article.externalUrl ||
+    article.external_url ||
+    (article.slug && typeof article.slug === 'string' && article.slug.startsWith('http') ? article.slug : null) ||
+    (article.link && typeof article.link === 'string' && article.link.startsWith('http') ? article.link : null);
+
+  const resolvedDoi =
+    article.doi ||
+    (resolvedExternalUrl && resolvedExternalUrl.includes('doi.org/')
+      ? resolvedExternalUrl.split('doi.org/')[1]
+      : null);
+
+  const renderPublicationCallout = () => {
+    if (!resolvedExternalUrl) return null;
+    return (
+      <div className="p-6 sm:p-7 rounded-3xl bg-[#ece4d0]/90 border border-[#d8ceb6] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 my-6">
+        <div className="space-y-1.5 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#4a5a22]/15 text-[#4a5a22] font-bold">
+              {resolvedDoi
+                ? t({ es: 'Artículo Científico · DOI', en: 'Scientific Paper · DOI' })
+                : t({ es: 'Publicación Oficial Externa', en: 'Official External Publication' })}
+            </span>
+            {article.journal && (
+              <span className="text-xs text-[#6b6048] font-serif italic">
+                {article.journal}
+              </span>
+            )}
+          </div>
+          <h4 className="font-serif text-lg text-[#2d2618] font-medium leading-snug">
+            {titleText}
+          </h4>
+          {resolvedDoi ? (
+            <p className="text-xs font-mono text-[#5c523e]">
+              DOI:{' '}
+              <a
+                href={resolvedExternalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-[#4a5a22] font-semibold hover:text-[#2d2618]"
+              >
+                {resolvedDoi}
+              </a>
+            </p>
+          ) : (
+            <p className="text-xs font-mono text-[#5c523e] truncate max-w-md">
+              {resolvedExternalUrl}
+            </p>
+          )}
+        </div>
+        <a
+          href={resolvedExternalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#4a5a22] hover:bg-[#384519] text-[#f5efe3] text-xs font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 shrink-0"
+        >
+          <span>{t({ es: 'Consultar Publicación Oficial', en: 'Consult Official Publication' })}</span>
+          <span className="text-sm">↗</span>
+        </a>
+      </div>
+    );
+  };
+
   return (
     <div className="w-full">
       {/* ══════════════════════════════════════════════════════════════════
@@ -206,6 +269,7 @@ export default function ArticleReader({
 
           {/* Cuerpo Inmersivo */}
           <main className="max-w-4xl mx-auto px-6 sm:px-10 py-14 sm:py-20 space-y-12">
+            {renderPublicationCallout()}
             <ArticleBlocksRenderer blocks={blocks} template="immersive" />
 
             {/* Barra de Acciones */}
@@ -307,6 +371,7 @@ export default function ArticleReader({
 
           {/* Lectura limpia centrada */}
           <main className="max-w-3xl mx-auto px-6 sm:px-10 py-14 sm:py-20 space-y-12">
+            {renderPublicationCallout()}
             <ArticleBlocksRenderer blocks={blocks} template="split" />
 
             <div className="pt-4 flex flex-wrap items-center justify-between gap-4">
@@ -392,6 +457,7 @@ export default function ArticleReader({
 
           {/* Cuerpo Narrativo Modular */}
           <section className="max-w-4xl mx-auto px-6 sm:px-10 py-12 sm:py-16">
+            {renderPublicationCallout()}
             <ArticleBlocksRenderer blocks={blocks} template="story" />
           </section>
 
@@ -520,6 +586,7 @@ export default function ArticleReader({
               </div>
             )}
 
+            {renderPublicationCallout()}
             <ArticleBlocksRenderer blocks={blocks} template="classic" />
 
             {/* Barra de Acciones */}
