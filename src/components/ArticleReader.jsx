@@ -112,18 +112,13 @@ export default function ArticleReader({
     return (
       <div className="p-6 sm:p-7 rounded-3xl bg-[#ece4d0]/90 border border-[#d8ceb6] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 my-6">
         <div className="space-y-1.5 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#4a5a22]/15 text-[#4a5a22] font-bold">
-              {resolvedDoi
-                ? t({ es: 'Artículo Científico · DOI', en: 'Scientific Paper · DOI' })
-                : t({ es: 'Publicación Oficial Externa', en: 'Official External Publication' })}
-            </span>
-            {article.journal && (
+          {article.journal && (
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-[#6b6048] font-serif italic">
                 {article.journal}
               </span>
-            )}
-          </div>
+            </div>
+          )}
           <h4 className="font-serif text-lg text-[#2d2618] font-medium leading-snug">
             {titleText}
           </h4>

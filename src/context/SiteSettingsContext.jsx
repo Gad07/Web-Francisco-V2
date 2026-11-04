@@ -133,6 +133,37 @@ export const DEFAULT_ALLIANCES_LIST = [
 ];
 
 
+export function sanitizeAllianceItem(item) {
+  if (!item || typeof item !== 'object') return item;
+  const name = (item.name || '').toLowerCase();
+  const shortName = (item.shortName || '').toLowerCase();
+  const id = (item.id || '').toLowerCase();
+  if (name.includes('expo') || shortName.includes('expo') || id === 'fgpb' || id === 'expomexico' || id === 'expo-mexico') {
+    return {
+      ...item,
+      id: 'fgpb',
+      name: 'Alas Metropolitanas',
+      shortName: 'Alas Metropolitanas',
+      acronym: 'ALAS',
+      type: 'territorial',
+      scope: { es: 'Territorial · Biodiversidad Urbana', en: 'Territorial · Urban Biodiversity' },
+      role: {
+        es: 'Conservación de fauna aviar, protección de corredores biológicos y biodiversidad metropolitana.',
+        en: 'Avian wildlife conservation, biological corridor protection and metropolitan biodiversity.',
+      },
+      tag: 'Biodiversidad Urbana',
+      logo: item.logo && !item.logo.includes('expo') ? item.logo : '/imports/Logos/alasmetropolitanas.jpg',
+      website: item.website && !item.website.includes('expo') ? item.website : 'https://mexicoporelclima.com/',
+    };
+  }
+  return item;
+}
+
+export function sanitizeAlliancesList(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map(sanitizeAllianceItem);
+}
+
 export const POPUP_TARGET_ROUTES = [
   { id: 'all', label: 'Todas las páginas (Global)' },
   { id: '/', label: 'Inicio / Portada Principal (/)' },
